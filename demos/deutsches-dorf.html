@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Deutsches Dorf — Daily German</title>
+<style>
+  :root{
+    --ground:#cdd8a0; --ground2:#bfcc8e;
+    --path:#e6d2a6; --path-edge:#c2a778; --cobble:#d0b586;
+    --plaster:#f8f0dc; --plaster2:#efe1c6; --timber:#6b4a32;
+    --roof-a:#b7663f; --roof-b:#7d8896;
+    --win:#dcebf2; --win-glow:transparent;
+    --leaf:#7fa05e; --leaf2:#66894b; --trunk:#7a5a3e; --flower:#d6543f;
+    --ink:#3a3126; --ink-soft:#7d7160; --paper:#fdf9ee; --paper2:#f3ebd7; --line:#e2d6ba;
+    --gold:#d99a2b; --gold-deep:#a87118; --gold-hi:#f0b64a;
+    --ok:#4e9b57; --ok-deep:#3c7a43; --bad:#c44f3c; --bad-deep:#9c3a2b;
+    --stone:#b6ae9d; --stone-deep:#918876;
+    --der:#3f7fb5; --die:#c15b6e; --das:#5e9455;
+    --shadow:rgba(70,55,30,.20);
+    --display:"Iowan Old Style","Palatino","Book Antiqua",Georgia,serif;
+    --body:"Avenir Next","Avenir","Seravek","Segoe UI",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#222d21; --ground2:#1b251b;
+      --path:#6e6350; --path-edge:#4c4231; --cobble:#5d5341;
+      --plaster:#a3967e; --plaster2:#8b7e67; --timber:#33241a;
+      --roof-a:#6f4530; --roof-b:#454e5c;
+      --win:#ffc94d; --win-glow:rgba(255,196,80,.30);
+      --leaf:#3c5537; --leaf2:#2f452c; --trunk:#4a3728; --flower:#a84836;
+      --ink:#efe6d2; --ink-soft:#b1a58c; --paper:#262620; --paper2:#2f2e26; --line:#3e3c30;
+      --gold:#e0a338; --gold-deep:#8a5e12; --gold-hi:#f4c569;
+      --ok:#5fae68; --ok-deep:#3f7d47; --bad:#d4604c; --bad-deep:#a03c2c;
+      --stone:#57544b; --stone-deep:#3d3b33;
+      --der:#6fa8d8; --die:#d98595; --das:#84b47c;
+      --shadow:rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#222d21; --ground2:#1b251b;
+    --path:#6e6350; --path-edge:#4c4231; --cobble:#5d5341;
+    --plaster:#a3967e; --plaster2:#8b7e67; --timber:#33241a;
+    --roof-a:#6f4530; --roof-b:#454e5c;
+    --win:#ffc94d; --win-glow:rgba(255,196,80,.30);
+    --leaf:#3c5537; --leaf2:#2f452c; --trunk:#4a3728; --flower:#a84836;
+    --ink:#efe6d2; --ink-soft:#b1a58c; --paper:#262620; --paper2:#2f2e26; --line:#3e3c30;
+    --gold:#e0a338; --gold-deep:#8a5e12; --gold-hi:#f4c569;
+    --ok:#5fae68; --ok-deep:#3f7d47; --bad:#d4604c; --bad-deep:#a03c2c;
+    --stone:#57544b; --stone-deep:#3d3b33;
+    --der:#6fa8d8; --die:#d98595; --das:#84b47c;
+    --shadow:rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:var(--body);cursor:pointer}
+  :focus-visible{outline:3px solid var(--gold-deep);outline-offset:2px;border-radius:8px}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    max-width:520px;margin:0 auto;padding:14px 18px 10px;
+  }
+  .wordmark{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:.2px;
+    text-shadow:0 1px 0 var(--paper);color:var(--ink)}
+  :root[data-theme="dark"] .wordmark{text-shadow:none}
+  .chips{display:flex;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--paper);border:2px solid var(--line);border-radius:999px;
+    padding:4px 12px;font-size:13px;font-weight:600;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+  }
+  .chip svg{width:14px;height:14px;fill:var(--gold)}
+  .chipbtn{cursor:pointer;color:var(--ink)}
+  .chipbtn:active{transform:translateY(1px)}
+
+  .libcard{background:var(--paper2);border:2px solid var(--line);border-radius:18px;padding:18px 20px;margin-top:12px}
+  .libcard h3{font-family:var(--display);font-size:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .libcard p{font-size:14px;color:var(--ink-soft);margin-top:4px}
+  .lvl{font-size:11px;font-weight:800;letter-spacing:.8px;color:#fff;background:var(--der);border-radius:999px;padding:2px 10px}
+  .lvl.mid{background:var(--gold-deep)}
+  .libcard a.toolbtn{display:inline-flex;margin-top:10px;text-decoration:none;color:var(--ink)}
+
+  /* ---------- unit banner ---------- */
+  .banner{
+    max-width:480px;margin:6px auto 4px;padding:16px 20px;
+    background:linear-gradient(180deg,var(--gold-hi),var(--gold));
+    border-radius:18px;box-shadow:0 5px 0 var(--gold-deep),0 12px 18px var(--shadow);
+    color:#3d2a08;
+    position:relative;z-index:5;
+    width:calc(100% - 32px);
+  }
+  .banner .eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;opacity:.75}
+  .banner h1{font-family:var(--display);font-size:26px;line-height:1.15;margin-top:2px;text-wrap:balance}
+  .banner p{font-size:13.5px;margin-top:4px;opacity:.85}
+
+  /* ---------- village map ---------- */
+  .map{
+    position:relative;
+    width:min(480px,100%);
+    margin:-40px auto 0;
+    aspect-ratio:420/2560;
+  }
+  .map svg.scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .nwrap{
+    position:absolute;transform:translate(-50%,-50%);
+    display:flex;flex-direction:column;align-items:center;gap:6px;z-index:10;
+  }
+  .node{
+    width:72px;height:72px;border-radius:50%;border:none;color:#fff;
+    background:var(--stone);
+    box-shadow:0 6px 0 var(--stone-deep),0 12px 16px var(--shadow);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .08s, box-shadow .08s;
+    position:relative;
+  }
+  .node svg{width:32px;height:32px;fill:currentColor}
+  .node .glyph{font-family:var(--display);font-size:32px;font-weight:700;line-height:1}
+  .node:enabled:active{transform:translateY(4px);box-shadow:0 2px 0 var(--stone-deep),0 6px 10px var(--shadow)}
+  .node[disabled]{cursor:not-allowed;color:color-mix(in srgb,#fff 75%, var(--stone))}
+  .node.done{background:var(--ok);box-shadow:0 6px 0 var(--ok-deep),0 12px 16px var(--shadow)}
+  .node.done:enabled:active{box-shadow:0 2px 0 var(--ok-deep),0 6px 10px var(--shadow)}
+  .node.active{background:var(--gold);box-shadow:0 6px 0 var(--gold-deep),0 12px 16px var(--shadow)}
+  .node.active:enabled:active{box-shadow:0 2px 0 var(--gold-deep),0 6px 10px var(--shadow)}
+  .node.active::after{
+    content:"";position:absolute;inset:-9px;border-radius:50%;
+    border:3px solid var(--gold);opacity:.65;
+    animation:pulse 1.6s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(.92);opacity:.65}
+    70%{transform:scale(1.12);opacity:0}
+    100%{transform:scale(1.12);opacity:0}
+  }
+  .nlabel{
+    background:var(--paper);border:2px solid var(--line);color:var(--ink);
+    font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    padding:3px 10px;border-radius:999px;white-space:nowrap;
+    box-shadow:0 2px 6px var(--shadow);
+  }
+  .nlabel small{display:block;font-weight:500;letter-spacing:.2px;text-transform:none;color:var(--ink-soft);font-size:10px}
+  .startbubble{
+    position:absolute;top:-46px;left:50%;transform:translateX(-50%);
+    background:var(--paper);border:2px solid var(--gold);color:var(--gold-deep);
+    font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+    padding:5px 12px;border-radius:12px;white-space:nowrap;
+    animation:hop 1.2s ease-in-out infinite;
+  }
+  .startbubble::after{
+    content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%) rotate(45deg);
+    width:10px;height:10px;background:var(--paper);
+    border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);
+  }
+  @keyframes hop{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+
+  .chestnode{
+    width:76px;height:64px;border-radius:14px;border:none;
+    background:var(--timber);color:var(--plaster);
+    box-shadow:0 6px 0 rgba(0,0,0,.35),0 12px 16px var(--shadow);
+    display:flex;align-items:center;justify-content:center;cursor:not-allowed;
+  }
+  .chestnode svg{width:26px;height:26px;fill:currentColor;opacity:.85}
+
+  .mapfoot{max-width:480px;margin:0 auto;padding:8px 24px 48px;text-align:center}
+  .mapfoot button{
+    background:none;border:none;color:var(--ink-soft);font-size:12.5px;text-decoration:underline;
+  }
+
+  /* ---------- lesson overlay ---------- */
+  .lesson{position:fixed;inset:0;z-index:50;background:var(--paper);display:flex;flex-direction:column}
+  .lesson[hidden]{display:none}
+  .ltop{
+    display:flex;align-items:center;gap:14px;
+    max-width:640px;width:100%;margin:0 auto;padding:16px 18px 8px;
+  }
+  .lclose{background:none;border:none;color:var(--ink-soft);width:36px;height:36px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;flex:none}
+  .lclose svg{width:20px;height:20px;fill:currentColor}
+  .ptrack{flex:1;height:14px;border-radius:99px;background:var(--paper2);overflow:hidden}
+  .pfill{height:100%;width:0%;border-radius:99px;background:linear-gradient(180deg,var(--gold-hi),var(--gold));
+    transition:width .35s ease}
+  .lbody{flex:1;overflow-y:auto;padding:10px 18px 30px}
+  .lcard{max-width:560px;margin:0 auto}
+  .steptitle{font-family:var(--display);font-size:24px;font-weight:700;margin:10px 0 16px;text-wrap:balance}
+  .stepkicker{font-size:11.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-soft)}
+
+  /* vocab card */
+  .vcard{
+    background:var(--paper2);border:2px solid var(--line);border-radius:22px;
+    padding:34px 24px 28px;text-align:center;margin-top:14px;
+  }
+  .artchip{display:inline-block;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    color:#fff;border-radius:999px;padding:3px 14px;margin-bottom:10px}
+  .artchip.der{background:var(--der)} .artchip.die{background:var(--die)} .artchip.das{background:var(--das)}
+  .artchip.verb{background:var(--stone)}
+  .vword{font-family:var(--display);font-size:clamp(30px,8vw,42px);font-weight:700;line-height:1.1}
+  .vpl{color:var(--ink-soft);font-size:14.5px;margin-top:6px;font-style:italic}
+  .vdivider{width:56px;height:2px;background:var(--line);margin:18px auto}
+  .ven{font-size:19px}
+  .vtip{margin-top:16px;background:var(--paper);border:1.5px dashed var(--line);border-radius:12px;
+    padding:10px 14px;font-size:13.5px;color:var(--ink-soft)}
+  .sayback{margin-top:20px}
+
+  .say{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    width:52px;height:52px;border-radius:50%;
+    background:var(--paper);border:2.5px solid var(--gold);color:var(--gold-deep);
+    box-shadow:0 3px 0 var(--gold-deep);
+    vertical-align:middle;
+  }
+  .say:active{transform:translateY(2px);box-shadow:0 1px 0 var(--gold-deep)}
+  .say svg{width:22px;height:22px;fill:currentColor}
+  .say.mini{width:34px;height:34px;border-width:2px;box-shadow:0 2px 0 var(--gold-deep)}
+  .say.mini svg{width:15px;height:15px}
+  .say.playing{background:var(--gold);color:#fff}
+
+  /* teach cards */
+  .tcard{background:var(--paper2);border:2px solid var(--line);border-radius:18px;padding:20px;margin-top:14px}
+  .tcard + .tcard{margin-top:12px}
+  .tcard h3{font-family:var(--display);font-size:19px;margin-bottom:6px}
+  .tcard p{font-size:15px;margin-top:6px}
+  .tcard .ex{display:flex;align-items:center;gap:10px;margin-top:10px;
+    background:var(--paper);border-radius:12px;padding:10px 12px}
+  .tcard .ex .de{font-weight:700;font-size:16px}
+  .tcard .ex .en{color:var(--ink-soft);font-size:13px;display:block}
+  .pattern{display:grid;gap:8px;margin-top:10px}
+  .pattern .row{display:flex;align-items:baseline;gap:10px;background:var(--paper);border-radius:10px;padding:8px 12px;font-size:15px}
+  .pattern .tag{font-weight:800;min-width:64px}
+  .tag.der{color:var(--der)} .tag.die{color:var(--die)} .tag.das{color:var(--das)} .tag.pl{color:var(--ink-soft)}
+
+  /* dialogue */
+  .dtools{display:flex;gap:10px;margin:14px 0 4px;flex-wrap:wrap}
+  .toolbtn{
+    background:var(--paper2);border:2px solid var(--line);border-radius:12px;
+    padding:8px 14px;font-size:13.5px;font-weight:700;color:var(--ink);
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .toolbtn svg{width:15px;height:15px;fill:var(--gold-deep)}
+  .dline{display:flex;gap:10px;margin-top:12px;align-items:flex-start}
+  .avatar{flex:none;width:36px;height:36px;border-radius:50%;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;margin-top:2px}
+  .avatar.you{background:var(--gold)} .avatar.other{background:var(--der)}
+  .bubble{background:var(--paper2);border:2px solid var(--line);border-radius:4px 16px 16px 16px;padding:10px 14px;flex:1}
+  .dline.you .bubble{border-radius:16px 4px 16px 16px;background:color-mix(in srgb,var(--gold) 10%,var(--paper2))}
+  .bubble .who{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-soft)}
+  .bubble .de{font-size:16px;font-weight:600;margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .bubble .tr{font-size:13px;color:var(--ink-soft);margin-top:4px;display:none}
+  .showtr .bubble .tr{display:block}
+
+  /* options */
+  .qprompt{font-size:18px;margin:14px 0 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .qprompt b{font-weight:800}
+  .opts{display:grid;gap:10px;margin-top:16px}
+  .opt{
+    text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:14px;
+    padding:13px 16px;font-size:16px;color:var(--ink);
+    box-shadow:0 3px 0 var(--line);
+  }
+  .opt:enabled:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+  .opt.sel{border-color:var(--gold);box-shadow:0 3px 0 var(--gold-deep);
+    background:color-mix(in srgb,var(--gold) 10%,var(--paper))}
+  .opt.right{border-color:var(--ok);box-shadow:0 3px 0 var(--ok-deep);
+    background:color-mix(in srgb,var(--ok) 12%,var(--paper))}
+  .opt.wrong{border-color:var(--bad);box-shadow:0 3px 0 var(--bad-deep);
+    background:color-mix(in srgb,var(--bad) 10%,var(--paper))}
+  .opt[disabled]{cursor:default}
+
+  /* word bank */
+  .wbline{margin-top:12px;font-size:16.5px;line-height:2.2}
+  .wbline .who{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-soft);display:block;line-height:1.4}
+  .blank{
+    display:inline-block;min-width:86px;text-align:center;
+    border:none;border-bottom:2.5px solid var(--ink-soft);
+    background:none;color:var(--ink);font-size:16.5px;font-weight:700;
+    padding:2px 8px;vertical-align:baseline;
+  }
+  .blank.filled{background:var(--paper2);border:2px solid var(--gold);border-radius:10px;line-height:1.5}
+  .blank.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--paper))}
+  .blank.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--paper))}
+  .bank{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;padding-top:18px;border-top:2px dashed var(--line)}
+  .wchip{
+    background:var(--paper);border:2px solid var(--line);border-radius:12px;
+    padding:8px 16px;font-size:16px;font-weight:700;color:var(--ink);
+    box-shadow:0 3px 0 var(--line);
+  }
+  .wchip[disabled]{opacity:.35;cursor:default}
+
+  /* speak card */
+  .speakcard{background:var(--paper2);border:2px solid var(--line);border-radius:22px;padding:30px 24px;text-align:center;margin-top:14px}
+  .speak-en{font-size:21px;font-weight:600;margin:8px 0 4px}
+  .speak-de{font-family:var(--display);font-size:26px;font-weight:700;margin-top:16px;
+    display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+  .selfgrade{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+
+  textarea.writebox{
+    width:100%;min-height:110px;margin-top:14px;
+    background:var(--paper2);border:2px solid var(--line);border-radius:14px;
+    padding:14px;font-family:var(--body);font-size:16px;color:var(--ink);resize:vertical;
+  }
+  textarea.writebox:focus{outline:none;border-color:var(--gold)}
+
+  /* footer + feedback */
+  .lfoot{border-top:2px solid var(--line);background:var(--paper)}
+  .feedback{display:none;max-width:640px;margin:0 auto;padding:14px 22px 0;align-items:flex-start;gap:12px}
+  .feedback.show{display:flex}
+  .feedback .ficon{flex:none;width:38px;height:38px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center}
+  .feedback .ficon svg{width:20px;height:20px;fill:currentColor}
+  .feedback h4{font-size:17px;font-weight:800}
+  .feedback p{font-size:14.5px;margin-top:2px}
+  .feedback.good h4{color:var(--ok-deep)} .feedback.good .ficon{background:var(--ok)}
+  .feedback.badf h4{color:var(--bad-deep)} .feedback.badf .ficon{background:var(--bad)}
+  :root[data-theme="dark"] .feedback.good h4{color:var(--ok)}
+  :root[data-theme="dark"] .feedback.badf h4{color:var(--bad)}
+  .footrow{max-width:640px;margin:0 auto;padding:14px 22px 20px;display:flex;justify-content:flex-end}
+  .btn{
+    border:none;border-radius:14px;padding:13px 30px;
+    font-size:15px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    background:var(--gold);color:#fff;box-shadow:0 4px 0 var(--gold-deep);
+    min-width:150px;
+  }
+  .btn:enabled:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gold-deep)}
+  .btn[disabled]{background:var(--paper2);color:var(--ink-soft);box-shadow:0 4px 0 var(--line);cursor:default}
+  .btn.green{background:var(--ok);box-shadow:0 4px 0 var(--ok-deep)}
+  .btn.green:enabled:active{box-shadow:0 1px 0 var(--ok-deep)}
+  .btn.red{background:var(--bad);box-shadow:0 4px 0 var(--bad-deep)}
+  .btn.red:enabled:active{box-shadow:0 1px 0 var(--bad-deep)}
+  .btn.ghost{background:var(--paper);color:var(--gold-deep);border:2.5px solid var(--gold);box-shadow:0 3px 0 var(--gold-deep)}
+
+  /* completion */
+  .donewrap{text-align:center;padding:60px 20px 40px}
+  .donecircle{width:110px;height:110px;border-radius:50%;background:var(--ok);color:#fff;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 22px;
+    box-shadow:0 6px 0 var(--ok-deep),0 16px 26px var(--shadow)}
+  .donecircle svg{width:54px;height:54px;fill:currentColor}
+  .donewrap h2{font-family:var(--display);font-size:32px}
+  .donewrap p{color:var(--ink-soft);margin-top:8px;font-size:16px}
+  .scorepill{display:inline-block;margin-top:18px;background:var(--paper2);border:2px solid var(--line);
+    border-radius:999px;padding:8px 20px;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}
+
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:100}
+
+  .voicerow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .voicerow .vname{font-weight:700}
+  .voicerow .vmeta{font-size:12.5px;color:var(--ink-soft);display:block}
+  .voicerow .vsel{flex:none;font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--ok-deep)}
+  :root[data-theme="dark"] .voicerow .vsel{color:var(--ok)}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
+    max-width:min(440px,calc(100vw - 40px));
+    background:var(--paper);border:2px solid var(--gold);border-radius:14px;
+    padding:12px 18px;font-size:13.5px;color:var(--ink);
+    box-shadow:0 10px 24px var(--shadow);
+    opacity:0;pointer-events:none;transition:opacity .3s, transform .3s;z-index:110;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5c0-1.1.9-2 2-2h5.2v15H6c-.8 0-1.5.3-2 .8V5zm16 0c0-1.1-.9-2-2-2h-5.2v15H18c.8 0 1.5.3 2 .8V5zM3 20c.5-.6 1.5-1 3-1h5.2v2H4a1 1 0 01-1-1zm18 0c-.5-.6-1.5-1-3-1h-5.2v2H20a1 1 0 001-1z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 012 2v10a2 2 0 01-2 2H9l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 013 3v6a3 3 0 11-6 0V5a3 3 0 013-3zM5 11h2a5 5 0 0010 0h2a7 7 0 01-6 6.93V21h3v2H8v-2h3v-3.07A7 7 0 015 11z"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41L18.37 3.29a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 3h12v1h4v3a5 5 0 01-4.58 4.98A7 7 0 0113 16.92V19h3v2H8v-2h3v-2.08a7 7 0 01-4.42-4.94A5 5 0 012 7V4h4V3zm-2 3v1a3 3 0 002.05 2.84A11 11 0 016 7.5V6H4zm16 0h-2v1.5c0 .8-.02 1.6-.05 2.34A3 3 0 0020 7V6z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm-3 8V7a3 3 0 016 0v3H9z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17l-3.88-3.88L3.7 13.7 9 19 20.3 7.7l-1.42-1.4z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18.3 5.7L12 12l6.3 6.3-1.4 1.4L10.6 13.4 5.7 18.3 4.3 16.9 10.6 12 4.3 5.7 5.7 4.3l4.9 4.9 6.3-6.3z" transform="translate(1,1) scale(.92)"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12zM14 3.23v2.06a7 7 0 010 13.42v2.06a9 9 0 000-17.54z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 16.9 5.9 20.4l1.5-6.8L2.2 9l6.9-.7z"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="wordmark">Deutsches Dorf</div>
+  <div class="chips">
+    <span class="chip"><svg><use href="#i-star"/></svg><span id="starcount">0/9</span></span>
+    <button class="chip chipbtn" id="voicebtn"><svg><use href="#i-sound"/></svg>Stimme</button>
+    <button class="chip chipbtn" id="libbtn"><svg><use href="#i-book"/></svg>Bücherei</button>
+  </div>
+</header>
+
+<main>
+  <section class="banner">
+    <div class="eyebrow">Tag 1 · Niveau A1–A2</div>
+    <h1>Im Supermarkt einkaufen</h1>
+    <p>Ask where something is, understand directions, and pay confidently.</p>
+  </section>
+
+  <div class="map" id="map">
+    <svg class="scene" viewBox="0 0 420 2560" preserveAspectRatio="xMidYMid meet" aria-hidden="true" id="scene"></svg>
+  </div>
+
+  <div class="mapfoot">
+    <button id="resetbtn">Fortschritt zurücksetzen (reset progress)</button>
+  </div>
+</main>
+
+<div class="lesson" id="lesson" hidden role="dialog" aria-modal="true" aria-label="Lektion">
+  <div class="ltop">
+    <button class="lclose" id="lclose" aria-label="Schließen (close)"><svg><use href="#i-x"/></svg></button>
+    <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+  </div>
+  <div class="lbody"><div class="lcard" id="lcard"></div></div>
+  <div class="lfoot" id="lfoot">
+    <div class="feedback" id="feedback">
+      <div class="ficon" id="ficon"></div>
+      <div><h4 id="ftitle"></h4><p id="ftext"></p></div>
+    </div>
+    <div class="footrow"><button class="btn" id="mainbtn">Weiter</button></div>
+  </div>
+</div>
+
+<div class="lesson" id="library" hidden role="dialog" aria-modal="true" aria-label="Bücherei">
+  <div class="ltop">
+    <button class="lclose" id="libclose" aria-label="Schließen (close)"><svg><use href="#i-x"/></svg></button>
+    <div class="steptitle" style="margin:0">Die Bücherei</div>
+  </div>
+  <div class="lbody"><div class="lcard" id="libcard">
+    <p style="color:var(--ink-soft);font-size:14px;margin-top:6px">Free PDFs and exercise sites for extra practice, from learngermanonline.org. Links open in a new tab.</p>
+    <div class="libcard"><h3>German — Wikibooks course <span class="lvl">A1</span></h3>
+      <p>Basic grammar, phrases and vocabulary for everyday situations. A gentle full beginner course as one PDF.</p>
+      <a class="toolbtn" href="https://upload.wikimedia.org/wikipedia/commons/2/2d/German.pdf" target="_blank" rel="noopener">PDF öffnen →</a></div>
+    <div class="libcard"><h3>Basic German: Grammar &amp; Workbook <span class="lvl">A1</span></h3>
+      <p>A beginner grammar course with exercises — roughly one year of study in one book.</p>
+      <a class="toolbtn" href="https://mercaba.org/SANLUIS/IDIOMAS/Alem%c3%a1n/Basic%20german.pdf" target="_blank" rel="noopener">PDF öffnen →</a></div>
+    <div class="libcard"><h3>Café in Berlin — stories <span class="lvl">A1</span></h3>
+      <p>Ten short beginner stories with comprehension questions and an answer key. Great after a few lesson days.</p>
+      <a class="toolbtn" href="https://mojevirtualnopotkrovlje.wordpress.com/wp-content/uploads/2018/04/learn-german-with-stories_-cafe-in-berlin.pdf" target="_blank" rel="noopener">PDF öffnen →</a></div>
+    <div class="libcard"><h3>Toms Deutschseite <span class="lvl">A1</span> <span class="lvl mid">A2</span></h3>
+      <p>Grammar and vocabulary lessons with downloadable exercise worksheets.</p>
+      <a class="toolbtn" href="https://www.deutschseite.de/inhalt.html" target="_blank" rel="noopener">Seite öffnen →</a></div>
+    <div class="libcard"><h3>German Grammar Cheat Sheet <span class="lvl">A1</span> <span class="lvl mid">A2</span></h3>
+      <p>One page with cases, articles, pronouns and prepositions — handy next to the einen/eine/ein lesson.</p>
+      <a class="toolbtn" href="https://cheatography.com/adonerblica/cheat-sheets/german-grammar/" target="_blank" rel="noopener">Seite öffnen →</a></div>
+    <div class="libcard"><h3>Intermediate German <span class="lvl mid">A2–B1</span></h3>
+      <p>The follow-up to Basic German: 24 chapters of more complex grammar, for later in the schedule.</p>
+      <a class="toolbtn" href="https://mercaba.org/SANLUIS/IDIOMAS/Alem%C3%A1n/Intermediate%20german.pdf" target="_blank" rel="noopener">PDF öffnen →</a></div>
+    <div class="libcard"><h3>Goethe-Institut practice exams <span class="lvl">A1–C2</span></h3>
+      <p>Official exam training PDFs with audio and solutions — useful to measure progress against real levels.</p>
+      <a class="toolbtn" href="https://www.goethe.de/en/spr/prf/ueb.html" target="_blank" rel="noopener">Seite öffnen →</a></div>
+    <div style="height:30px"></div>
+  </div></div>
+</div>
+
+<div class="lesson" id="voicemodal" hidden role="dialog" aria-modal="true" aria-label="Stimme wählen">
+  <div class="ltop">
+    <button class="lclose" id="voiceclose" aria-label="Schließen (close)"><svg><use href="#i-x"/></svg></button>
+    <div class="steptitle" style="margin:0">Stimme wählen</div>
+  </div>
+  <div class="lbody"><div class="lcard">
+    <p style="color:var(--ink-soft);font-size:14px;margin-top:6px">These are the German voices your browser offers. Tap one to hear it and make it your pronunciation voice.</p>
+    <div class="opts" id="voicelist" style="margin-top:14px"></div>
+    <div class="tcard" style="margin-top:20px">
+      <h3>Get a much better German voice</h3>
+      <p style="margin-top:8px"><b>On your Mac:</b> System Settings → Accessibility → Spoken Content → System Voice → <i>Manage Voices…</i> → search “German” and download <b>Anna (Premium)</b> or <b>Petra (Premium)</b>. Then reload this page and pick it here.</p>
+      <p><b>On iPhone/iPad:</b> Settings → Accessibility → Spoken Content → Voices → German.</p>
+      <p><b>In Chrome:</b> the online voice <b>“Google Deutsch”</b> is available automatically and sounds quite natural.</p>
+    </div>
+    <div style="height:30px"></div>
+  </div></div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<canvas id="confetti"></canvas>
+
+<script>
+'use strict';
+/* ============ audio (browser speech synthesis) ============ */
+let deVoices = [], voiceChosen = null, warnedNoGerman = false;
+function normLang(v){ return (v.lang || '').replace('_','-').toLowerCase(); }
+function bestGerman(){
+  const score = v=>{
+    let s = 0; const n = v.name.toLowerCase();
+    if (/premium|enhanced|natural|neural/.test(n)) s += 40;
+    if (/anna|petra|helena|katja|markus|viktor/.test(n)) s += 20;
+    if (/google|microsoft/.test(n)) s += 15;
+    if (normLang(v) === 'de-de') s += 10;
+    if (v.localService) s += 2;
+    return s;
+  };
+  return deVoices.slice().sort((a,b)=>score(b)-score(a))[0] || null;
+}
+function refreshVoices(){
+  if (!window.speechSynthesis) return;
+  deVoices = speechSynthesis.getVoices().filter(v=>normLang(v).startsWith('de'));
+  let saved = null;
+  try{ saved = localStorage.getItem('dorf-voice'); }catch(e){}
+  voiceChosen = deVoices.find(v=>v.name === saved) || bestGerman();
+  renderVoiceList();
+}
+if (window.speechSynthesis){
+  refreshVoices();
+  speechSynthesis.onvoiceschanged = refreshVoices;
+}
+function makeUtter(text, rate){
+  const u = new SpeechSynthesisUtterance(text.replace(/…/g,'').trim());
+  if (voiceChosen){ u.voice = voiceChosen; u.lang = voiceChosen.lang; }
+  else { u.lang = 'de-DE'; noGermanHint(); }
+  u.rate = rate || 0.85;
+  return u;
+}
+function speak(text, rate){
+  if (!window.speechSynthesis) return;
+  if (!deVoices.length) refreshVoices();
+  speechSynthesis.cancel();
+  const u = makeUtter(text, rate);
+  setTimeout(()=>speechSynthesis.speak(u), 60);
+}
+function speakSeq(texts){
+  if (!window.speechSynthesis) return;
+  if (!deVoices.length) refreshVoices();
+  speechSynthesis.cancel();
+  let i = 0;
+  function next(){
+    if (i >= texts.length) return;
+    const u = makeUtter(texts[i++]);
+    u.onend = ()=>setTimeout(next, 350);
+    speechSynthesis.speak(u);
+  }
+  setTimeout(next, 60);
+}
+function noGermanHint(){
+  if (warnedNoGerman) return;
+  warnedNoGerman = true;
+  const t = document.getElementById('toast');
+  t.textContent = 'Keine deutsche Stimme gefunden — tippe oben auf „Stimme“ für Hilfe. (No German voice found — tap “Stimme” for help.)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 6000);
+}
+const sayBtn = (text, mini)=>`<button class="say${mini?' mini':''}" type="button" data-say="${text.replace(/"/g,'&quot;')}" aria-label="Anhören: ${text.replace(/"/g,'&quot;')}"><svg><use href="#i-sound"/></svg></button>`;
+
+/* ============ Day 1 content ============ */
+const VOCAB = [
+  {art:'der', word:'Supermarkt', pl:'die Supermärkte', en:'supermarket'},
+  {art:'der', word:'Einkaufswagen', pl:'die Einkaufswagen', en:'shopping trolley'},
+  {art:'die', word:'Tüte', pl:'die Tüten', en:'bag', tip:'Sounds roughly like “TUE-teh”.'},
+  {art:'die', word:'Kasse', pl:'die Kassen', en:'checkout', tip:'Sounds like “KASS-eh”.'},
+  {art:'der', word:'Gang', pl:'die Gänge', en:'aisle'},
+  {art:'das', word:'Brot', pl:'die Brote', en:'bread'},
+  {art:'die', word:'Milch', pl:null, en:'milk'},
+  {art:'das', word:'Gemüse', pl:null, en:'vegetables'},
+  {art:null, word:'finden', pl:null, en:'to find'},
+  {art:null, word:'brauchen', pl:null, en:'to need'},
+  {art:null, word:'bezahlen', pl:null, en:'to pay', tip:'Sounds like “beh-TSAH-len”.'},
+  {art:null, word:'bar', pl:null, en:'in cash'},
+];
+const EXPR = [
+  {de:'Entschuldigung.', en:'Excuse me.'},
+  {de:'Wo finde ich …?', en:'Where can I find …?', say:'Wo finde ich die Milch?'},
+  {de:'Ich brauche …', en:'I need …', say:'Ich brauche eine Tüte.', tip:'“ich” sounds like a soft “ikh”, not “itch”.'},
+  {de:'Ich möchte …', en:'I would like … (more polite)', say:'Ich möchte ein Brot.', tip:'“möchte” sounds roughly like “MURKH-teh”.'},
+  {de:'Mit Karte, bitte.', en:'By card, please.'},
+  {de:'Brauchen Sie eine Tüte?', en:'Do you need a bag?'},
+  {de:'Das ist alles.', en:'That’s everything.'},
+];
+const DIALOG1 = [
+  {s:'Daniela', you:true,  t:'Entschuldigung, wo finde ich die Milch?', tr:'Excuse me, where can I find the milk?'},
+  {s:'Mitarbeiter', you:false, t:'Die Milch ist im dritten Gang, auf der linken Seite.', tr:'The milk is in the third aisle, on the left-hand side.'},
+  {s:'Daniela', you:true,  t:'Danke. Und wo ist das Brot?', tr:'Thanks. And where is the bread?'},
+  {s:'Mitarbeiter', you:false, t:'Das Brot ist dort hinten, neben dem Gemüse.', tr:'The bread is back there, next to the vegetables.'},
+  {s:'Daniela', you:true,  t:'Vielen Dank!', tr:'Thank you very much!'},
+  {s:'Mitarbeiter', you:false, t:'Gern geschehen.', tr:'You’re welcome.'},
+];
+const DIALOG2 = [
+  {s:'Kassiererin', you:false, t:'Guten Morgen. Brauchen Sie eine Tüte?', tr:'Good morning. Do you need a bag?'},
+  {s:'Daniela', you:true,  t:'Nein, danke.', tr:'No, thank you.'},
+  {s:'Kassiererin', you:false, t:'Möchten Sie den Kassenbon?', tr:'Would you like the receipt?'},
+  {s:'Daniela', you:true,  t:'Ja, bitte.', tr:'Yes, please.'},
+  {s:'Kassiererin', you:false, t:'Das macht zwölf Euro achtzig.', tr:'That comes to €12.80.'},
+  {s:'Daniela', you:true,  t:'Mit Karte, bitte.', tr:'By card, please.'},
+  {s:'Kassiererin', you:false, t:'Danke. Schönen Tag noch!', tr:'Thank you. Have a nice day!'},
+  {s:'Daniela', you:true,  t:'Danke, gleichfalls!', tr:'Thanks, same to you!'},
+];
+const SPEAK = [
+  {en:'Excuse me, where can I find the bread?', de:'Entschuldigung, wo finde ich das Brot?'},
+  {en:'I need a bag.', de:'Ich brauche eine Tüte.'},
+  {en:'I would like a coffee.', de:'Ich möchte einen Kaffee.'},
+  {en:'By card, please.', de:'Mit Karte, bitte.'},
+  {en:'No, thank you. That’s everything.', de:'Nein, danke. Das ist alles.'},
+  {en:'Where is the milk?', de:'Wo ist die Milch?'},
+  {en:'Have a nice day!', de:'Schönen Tag noch!'},
+  {en:'Same to you!', de:'Gleichfalls!'},
+];
+const mc = (q, opts, a, extra)=>Object.assign({type:'mc', q, opts, a}, extra||{});
+
+const NODES = [
+ {id:'woerter', title:'Wörter', sub:'Vocabulary', icon:'book', steps:[
+   ...VOCAB.map(v=>Object.assign({type:'vocab'}, v)),
+   mc('Wie heißt <b>“bag”</b> auf Deutsch?', ['der Gang','die Tüte','das Brot'], 1, {full:'die Tüte'}),
+   mc('Was bedeutet <b>„die Kasse“</b>?', ['the checkout','the aisle','the trolley'], 0, {say:'die Kasse'}),
+   mc('<b>„bezahlen“</b> heißt …', ['to find','to need','to pay'], 2, {say:'bezahlen'}),
+ ]},
+ {id:'ausdruecke', title:'Ausdrücke', sub:'Expressions', icon:null, glyph:'„“', steps:[
+   ...EXPR.map(e=>Object.assign({type:'phrase'}, e)),
+   mc('Du suchst die Milch. Was sagst du?', ['Das ist alles.','Wo finde ich die Milch?','Mit Karte, bitte.'], 1, {full:'Wo finde ich die Milch?'}),
+   mc('How do you say <b>“That’s everything.”</b>?', ['Das ist alles.','Das macht alles.','Alles, bitte.'], 0, {full:'Das ist alles.'}),
+ ]},
+ {id:'grammatik', title:'Grammatik', sub:'brauchen · möchten', icon:null, glyph:'§', steps:[
+   {type:'teach', title:'brauchen vs. möchten', html:`
+     <div class="tcard"><h3>Ich brauche = I need</h3>
+       <div class="ex">${sayBtn('Ich brauche eine Tüte.', true)}<div><span class="de">Ich brauche eine Tüte.</span><span class="en">I need a bag.</span></div></div>
+     </div>
+     <div class="tcard"><h3>Ich möchte = I would like</h3>
+       <p>It sounds more polite.</p>
+       <div class="ex">${sayBtn('Ich möchte ein Brot.', true)}<div><span class="de">Ich möchte ein Brot.</span><span class="en">I would like a loaf of bread.</span></div></div>
+     </div>`},
+   {type:'teach', title:'einen · eine · ein', html:`
+     <div class="tcard">
+       <p>After <b>ich brauche</b> / <b>ich möchte</b>, the little word changes with the noun:</p>
+       <div class="pattern">
+         <div class="row"><span class="tag der">einen</span><span>+ masculine (der) — Ich möchte <b>einen</b> Kaffee. ${sayBtn('Ich möchte einen Kaffee.', true)}</span></div>
+         <div class="row"><span class="tag die">eine</span><span>+ feminine (die) — Ich brauche <b>eine</b> Tüte. ${sayBtn('Ich brauche eine Tüte.', true)}</span></div>
+         <div class="row"><span class="tag das">ein</span><span>+ neuter (das) — Ich möchte <b>ein</b> Brot. ${sayBtn('Ich möchte ein Brot.', true)}</span></div>
+         <div class="row"><span class="tag pl">—</span><span>plural — Ich brauche <b>Tomaten</b>. ${sayBtn('Ich brauche Tomaten.', true)}</span></div>
+       </div>
+       <p style="margin-top:12px;color:var(--ink-soft);font-size:13.5px">Don’t worry about the grammar name yet — just learn the pattern.</p>
+     </div>`},
+   mc('Ich möchte ___ Kaffee. <i>(der Kaffee)</i>', ['einen','eine','ein'], 0, {full:'Ich möchte einen Kaffee.'}),
+   mc('Ich brauche ___ Tüte. <i>(die Tüte)</i>', ['einen','eine','ein'], 1, {full:'Ich brauche eine Tüte.'}),
+   mc('Ich möchte ___ Brot. <i>(das Brot)</i>', ['einen','eine','ein'], 2, {full:'Ich möchte ein Brot.'}),
+   mc('Ich brauche ___ Einkaufswagen. <i>(der Einkaufswagen)</i>', ['ein','einen','eine'], 1, {full:'Ich brauche einen Einkaufswagen.'}),
+   mc('Which sounds more polite?', ['Ich brauche einen Kaffee.','Ich möchte einen Kaffee.'], 1, {full:'Ich möchte einen Kaffee.'}),
+ ]},
+ {id:'dialog1', title:'Dialog: Im Gang', sub:'Finding things', icon:'chat', steps:[
+   {type:'dialogue', title:'Etwas finden — finding something', lines:DIALOG1},
+   {type:'teach', title:'Wichtige Wendungen (key phrases)', html:`
+     <div class="tcard"><div class="pattern">
+       <div class="row"><span>${sayBtn('im dritten Gang', true)} <b>im dritten Gang</b> — in the third aisle</span></div>
+       <div class="row"><span>${sayBtn('auf der linken Seite', true)} <b>auf der linken Seite</b> — on the left-hand side</span></div>
+       <div class="row"><span>${sayBtn('dort hinten', true)} <b>dort hinten</b> — back there</span></div>
+       <div class="row"><span>${sayBtn('neben dem Gemüse', true)} <b>neben dem Gemüse</b> — next to the vegetables</span></div>
+     </div></div>`},
+   mc('Wo ist die Milch?', ['Neben dem Gemüse.','Im dritten Gang.','An der Kasse.'], 1, {say:'Wo ist die Milch?', full:'Die Milch ist im dritten Gang.'}),
+   mc('Wo ist das Brot?', ['Neben dem Gemüse.','Auf der linken Seite.','Im ersten Gang.'], 0, {say:'Wo ist das Brot?', full:'Das Brot ist neben dem Gemüse.'}),
+ ]},
+ {id:'dialog2', title:'Dialog: An der Kasse', sub:'Paying', icon:'chat', steps:[
+   {type:'dialogue', title:'An der Kasse — at the checkout', lines:DIALOG2},
+   {type:'teach', title:'Wichtige Wendungen (key phrases)', html:`
+     <div class="tcard"><div class="pattern">
+       <div class="row"><span>${sayBtn('Das macht zwölf Euro achtzig.', true)} <b>Das macht 12,80 €.</b> — That comes to €12.80.</span></div>
+       <div class="row"><span>${sayBtn('Gleichfalls!', true)} <b>Gleichfalls!</b> — Same to you!</span></div>
+     </div></div>`},
+   mc('Wie viel kostet der Einkauf?', ['9,50 €','12,80 €','20,80 €'], 1, {say:'Das macht zwölf Euro achtzig.'}),
+   mc('Wie bezahlt Daniela?', ['Bar.','Mit Karte.','Gar nicht.'], 1, {full:'Mit Karte, bitte.'}),
+   mc('„Schönen Tag noch!“ — was antwortest du?', ['Das ist alles.','Danke, gleichfalls!','Ja, bitte.'], 1, {say:'Schönen Tag noch!', full:'Danke, gleichfalls!'}),
+ ]},
+ {id:'sprechen', title:'Sprechen', sub:'Speaking', icon:'mic', steps:[
+   {type:'teach', title:'Sprich laut! (speak out loud)', html:`
+     <div class="tcard"><p>You’ll see a sentence in English. <b>Say it in German out loud</b> — then reveal the answer, listen, and grade yourself honestly. Sentences you miss come back at the end.</p></div>`},
+   ...SPEAK.map(s=>Object.assign({type:'speak'}, s)),
+   {type:'teach', title:'Eine Minute frei sprechen', html:`
+     <div class="tcard"><p>Imagine your local supermarket. Speak for one minute using this scaffold:</p>
+       <div class="pattern" style="margin-top:12px">
+         <div class="row"><span>Guten Morgen. Ich brauche … ${sayBtn('Guten Morgen. Ich brauche Milch.', true)}</span></div>
+         <div class="row"><span>Entschuldigung, wo finde ich …? ${sayBtn('Entschuldigung, wo finde ich das Brot?', true)}</span></div>
+         <div class="row"><span>Ich möchte auch … ${sayBtn('Ich möchte auch einen Kaffee.', true)}</span></div>
+         <div class="row"><span>Mit Karte, bitte. ${sayBtn('Mit Karte, bitte.', true)}</span></div>
+         <div class="row"><span>Danke. Schönen Tag noch! ${sayBtn('Danke. Schönen Tag noch!', true)}</span></div>
+       </div></div>`},
+ ]},
+ {id:'uebungA', title:'Übung A', sub:'Choose the word', icon:'pencil', steps:[
+   mc('Ich ___ eine Tüte.', ['brauche','Gang','bezahle'], 0, {full:'Ich brauche eine Tüte.'}),
+   mc('Wo ___ ich die Milch?', ['möchte','finde','mache'], 1, {full:'Wo finde ich die Milch?'}),
+   mc('Ich möchte ___ Brot.', ['einen','eine','ein'], 2, {full:'Ich möchte ein Brot.'}),
+   mc('Ich möchte ___ Kaffee.', ['einen','eine','ein'], 0, {full:'Ich möchte einen Kaffee.'}),
+   mc('Das Brot ist ___ dem Gemüse.', ['mit','neben','bar'], 1, {full:'Das Brot ist neben dem Gemüse.'}),
+ ]},
+ {id:'uebungBC', title:'Übung B + C', sub:'Dialogue · translate', icon:'pencil', steps:[
+   {type:'wordbank',
+     title:'Ergänze den Dialog (complete the dialogue)',
+     bank:['Karte','Tüte','bitte','alles','macht'],
+     lines:[
+       {s:'Kassiererin', parts:['Brauchen Sie eine ', 0, '?']},
+       {s:'Kundin', parts:['Nein, danke. Das ist ', 1, '.']},
+       {s:'Kassiererin', parts:['Das ', 2, ' neun Euro fünfzig.']},
+       {s:'Kundin', parts:['Mit ', 3, ', bitte.']},
+       {s:'Kundin', parts:['Den Kassenbon, ', 4, '.']},
+     ],
+     answers:['Tüte','alles','macht','Karte','bitte']},
+   mc('“Excuse me, where is the bread?”', ['Entschuldigung, wo ist das Brot?','Entschuldigung, wo ist der Brot?','Entschuldigung, wo finde das Brot?'], 0, {full:'Entschuldigung, wo ist das Brot?'}),
+   mc('“I need a bag.”', ['Ich möchte eine Kasse.','Ich brauche einen Tüte.','Ich brauche eine Tüte.'], 2, {full:'Ich brauche eine Tüte.'}),
+   mc('“I would like a coffee.”', ['Ich möchte einen Kaffee.','Ich möchte ein Kaffee.','Ich brauche eine Kaffee.'], 0, {full:'Ich möchte einen Kaffee.'}),
+   mc('“By card, please.”', ['Bar, bitte.','Mit Karte, bitte.','Mit Kasse, bitte.'], 1, {full:'Mit Karte, bitte.'}),
+   mc('“Thank you, same to you!”', ['Danke, alles!','Danke, bitte schön!','Danke, gleichfalls!'], 2, {full:'Danke, gleichfalls!'}),
+ ]},
+ {id:'test', title:'Der Test', sub:'Quick test', icon:'trophy', steps:[
+   mc('Was bedeutet <b>„die Kasse“</b>?', ['the bag','the checkout','the aisle'], 1, {say:'die Kasse'}),
+   mc('The German word for <b>“bag”</b> is …', ['die Tüte','der Gang','die Kasse'], 0, {full:'die Tüte'}),
+   mc('Ich ___ eine Tüte.', ['brauchen','braucht','brauche'], 2, {full:'Ich brauche eine Tüte.'}),
+   mc('Ich möchte ___ Brot.', ['ein','einen','eine'], 0, {full:'Ich möchte ein Brot.'}),
+   mc('“Where can I find the milk?”', ['Wo finden ich die Milch?','Wo finde ich die Milch?','Wo ich finde die Milch?'], 1, {full:'Wo finde ich die Milch?'}),
+   mc('“By card, please.”', ['Mit Karte, bitte.','Mit Tüte, bitte.','Bar Karte, bitte.'], 0, {full:'Mit Karte, bitte.'}),
+   mc('Was bedeutet <b>„Gleichfalls“</b>?', ['You’re welcome','That’s everything','Same to you'], 2, {say:'Gleichfalls'}),
+   mc('„Brauchen Sie eine Tüte?“ — du brauchst keine. Was sagst du?', ['Gern geschehen.','Nein, danke.','Im dritten Gang.'], 1, {say:'Brauchen Sie eine Tüte?', full:'Nein, danke.'}),
+   mc('„Schönen Tag noch!“ — was antwortest du?', ['Danke, gleichfalls!','Das ist alles.','Mit Karte, bitte.'], 0, {say:'Schönen Tag noch!', full:'Danke, gleichfalls!'}),
+   {type:'write', prompt:'Schreib zwei Sätze: Was brauchst du im Supermarkt? Was möchtest du?',
+    hint:'Write two sentences — one with “Ich brauche …”, one with “Ich möchte …”.',
+    example:'Ich brauche Milch. Ich möchte ein Brot.'},
+ ]},
+];
+
+/* ============ progress (saved in this browser) ============ */
+const STORE = 'deutsches-dorf-v1';
+function loadProg(){ try{ return JSON.parse(localStorage.getItem(STORE)) || {done:{}} }catch(e){ return {done:{}} } }
+function saveProg(p){ try{ localStorage.setItem(STORE, JSON.stringify(p)) }catch(e){} }
+let prog = loadProg();
+
+/* ============ village scene ============ */
+const NODE_POS = [[210,240],[126,478],[268,708],[132,938],[272,1168],[138,1398],[266,1628],[134,1858],[210,2088]];
+const CHEST_POS = [210,2330];
+
+function house(x,y,s,roof){
+  const w=96,h=64, r=`var(--roof-${roof})`;
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <ellipse cx="${w/2}" cy="${h+4}" rx="${w*0.62}" ry="7" fill="rgba(0,0,0,.10)"/>
+    <rect x="0" y="0" width="${w}" height="${h}" fill="var(--plaster)" stroke="var(--timber)" stroke-width="3"/>
+    <line x1="2" y1="${h*0.5}" x2="${w-2}" y2="${h*0.5}" stroke="var(--timber)" stroke-width="3"/>
+    <line x1="4" y1="${h*0.5}" x2="${w*0.28}" y2="${h-2}" stroke="var(--timber)" stroke-width="2.5"/>
+    <line x1="${w-4}" y1="${h*0.5}" x2="${w*0.72}" y2="${h-2}" stroke="var(--timber)" stroke-width="2.5"/>
+    <line x1="${w*0.28}" y1="2" x2="${w*0.5}" y2="${h*0.5-2}" stroke="var(--timber)" stroke-width="2.5"/>
+    <line x1="${w*0.72}" y1="2" x2="${w*0.5}" y2="${h*0.5-2}" stroke="var(--timber)" stroke-width="2.5"/>
+    <rect x="${w*0.64}" y="-${h*0.52}" width="11" height="22" fill="var(--plaster2)" stroke="var(--timber)" stroke-width="2.5"/>
+    <polygon points="-10,2 ${w+10},2 ${w/2},-${h*0.72}" fill="${r}" stroke="var(--timber)" stroke-width="3"/>
+    <circle cx="${w*0.17+9}" cy="${h*0.24+9}" r="17" fill="var(--win-glow)"/>
+    <rect x="${w*0.17}" y="${h*0.24}" width="18" height="18" fill="var(--win)" stroke="var(--timber)" stroke-width="2.5"/>
+    <line x1="${w*0.17+9}" y1="${h*0.24}" x2="${w*0.17+9}" y2="${h*0.24+18}" stroke="var(--timber)" stroke-width="1.6"/>
+    <line x1="${w*0.17}" y1="${h*0.24+9}" x2="${w*0.17+18}" y2="${h*0.24+9}" stroke="var(--timber)" stroke-width="1.6"/>
+    <circle cx="${w*0.64+9}" cy="${h*0.24+9}" r="17" fill="var(--win-glow)"/>
+    <rect x="${w*0.64}" y="${h*0.24}" width="18" height="18" fill="var(--win)" stroke="var(--timber)" stroke-width="2.5"/>
+    <line x1="${w*0.64+9}" y1="${h*0.24}" x2="${w*0.64+9}" y2="${h*0.24+18}" stroke="var(--timber)" stroke-width="1.6"/>
+    <line x1="${w*0.64}" y1="${h*0.24+9}" x2="${w*0.64+18}" y2="${h*0.24+9}" stroke="var(--timber)" stroke-width="1.6"/>
+    <rect x="${w*0.15}" y="${h*0.24+19}" width="22" height="6" rx="2" fill="var(--leaf2)"/>
+    <circle cx="${w*0.15+5}" cy="${h*0.24+18}" r="2.6" fill="var(--flower)"/>
+    <circle cx="${w*0.15+11}" cy="${h*0.24+17}" r="2.6" fill="var(--flower)"/>
+    <circle cx="${w*0.15+17}" cy="${h*0.24+18}" r="2.6" fill="var(--flower)"/>
+    <rect x="${w/2-10}" y="${h-26}" width="20" height="26" rx="9" fill="var(--timber)"/>
+    <circle cx="${w/2+5}" cy="${h-12}" r="1.8" fill="var(--plaster)"/>
+  </g>`;
+}
+function tree(x,y,s){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <rect x="-4" y="-4" width="8" height="18" rx="3" fill="var(--trunk)"/>
+    <circle cx="-13" cy="-12" r="13" fill="var(--leaf2)"/>
+    <circle cx="13" cy="-12" r="13" fill="var(--leaf2)"/>
+    <circle cx="0" cy="-24" r="16" fill="var(--leaf)"/>
+    <circle cx="0" cy="-12" r="14" fill="var(--leaf)"/>
+  </g>`;
+}
+function lamp(x,y){
+  return `<g transform="translate(${x},${y})">
+    <line x1="0" y1="0" x2="0" y2="-34" stroke="var(--timber)" stroke-width="3.5"/>
+    <circle cx="0" cy="-38" r="13" fill="var(--win-glow)"/>
+    <circle cx="0" cy="-38" r="5.5" fill="var(--win)" stroke="var(--timber)" stroke-width="2.5"/>
+  </g>`;
+}
+function bush(x,y,s){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <ellipse cx="0" cy="0" rx="16" ry="10" fill="var(--leaf2)"/>
+    <ellipse cx="-6" cy="-4" rx="10" ry="8" fill="var(--leaf)"/>
+    <circle cx="6" cy="-2" r="2.2" fill="var(--flower)"/>
+  </g>`;
+}
+function buildScene(){
+  const pts = [[210,150], ...NODE_POS, CHEST_POS, [210,2520]];
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i=1;i<pts.length;i++){
+    const [x0,y0]=pts[i-1], [x1,y1]=pts[i], my=(y0+y1)/2;
+    d += ` C ${x0} ${my}, ${x1} ${my}, ${x1} ${y1}`;
+  }
+  let s = '';
+  s += `<rect x="0" y="0" width="420" height="2560" fill="var(--ground)"/>`;
+  const patches = [[60,380,90,40],[350,600,80,36],[40,1100,100,44],[370,1500,70,32],[60,1980,90,40],[340,2260,84,38]];
+  for (const [px,py,rx,ry] of patches) s += `<ellipse cx="${px}" cy="${py}" rx="${rx}" ry="${ry}" fill="var(--ground2)"/>`;
+  s += `<path d="${d}" fill="none" stroke="var(--path-edge)" stroke-width="50" stroke-linecap="round"/>`;
+  s += `<path d="${d}" fill="none" stroke="var(--path)" stroke-width="42" stroke-linecap="round"/>`;
+  s += `<path d="${d}" fill="none" stroke="var(--cobble)" stroke-width="26" stroke-linecap="round" stroke-dasharray="2 16" opacity=".8"/>`;
+  const houses = [
+    [30,150,.8,'b'],[312,180,.85,'a'],
+    [305,440,.9,'a'],[62,660,.9,'b'],
+    [310,895,.85,'a'],[58,1125,.9,'b'],
+    [308,1355,.85,'a'],[60,1585,.85,'a'],
+    [312,1815,.9,'b'],[40,2040,.85,'a'],[318,2065,.8,'b'],
+  ];
+  for (const [hx,hy,hs,hr] of houses) s += house(hx,hy,hs,hr);
+  const trees = [[28,330,.9],[392,350,.8],[22,540,.75],[398,780,.9],[26,1010,.8],[396,1240,.85],[24,1470,.9],[398,1700,.8],[30,1930,.75],[392,2180,.9],[70,2300,.8],[350,2320,.85],[130,2480,.9],[300,2470,.8]];
+  for (const [tx,ty,ts] of trees) s += tree(tx,ty,ts);
+  const bushes = [[95,420,1],[330,760,.9],[80,1250,1],[335,1540,.9],[95,1990,1],[300,2230,.9]];
+  for (const [bx,by,bs] of bushes) s += bush(bx,by,bs);
+  const lamps = [[168,362],[248,822],[176,1282],[240,1742],[168,2208]];
+  for (const [lx,ly] of lamps) s += lamp(lx,ly);
+  document.getElementById('scene').innerHTML = s;
+}
+
+/* ============ map nodes ============ */
+const map = document.getElementById('map');
+function renderNodes(){
+  map.querySelectorAll('.nwrap').forEach(n=>n.remove());
+  let firstOpen = -1;
+  NODES.forEach((n,i)=>{ if (firstOpen<0 && !(n.id in prog.done)) firstOpen = i; });
+  NODES.forEach((n,i)=>{
+    const [x,y] = NODE_POS[i];
+    const done = n.id in prog.done;
+    const active = i === firstOpen;
+    const locked = !done && !active;
+    const wrap = document.createElement('div');
+    wrap.className = 'nwrap';
+    wrap.style.left = (x/420*100)+'%';
+    wrap.style.top = (y/2560*100)+'%';
+    const iconHtml = done ? '<svg><use href="#i-check"/></svg>'
+      : locked ? '<svg><use href="#i-lock"/></svg>'
+      : (n.icon ? `<svg><use href="#i-${n.icon}"/></svg>` : `<span class="glyph">${n.glyph}</span>`);
+    wrap.innerHTML = `
+      <button class="node ${done?'done':active?'active':''}" ${locked?'disabled':''} aria-label="${n.title} — ${n.sub}${locked?' (gesperrt / locked)':''}">
+        ${active?'<span class="startbubble">Start</span>':''}${iconHtml}
+      </button>
+      <span class="nlabel">${n.title}<small>${n.sub}</small></span>`;
+    if (!locked) wrap.querySelector('.node').addEventListener('click', ()=>openNode(i));
+    map.appendChild(wrap);
+  });
+  const cw = document.createElement('div');
+  cw.className = 'nwrap';
+  cw.style.left = (CHEST_POS[0]/420*100)+'%';
+  cw.style.top = (CHEST_POS[1]/2560*100)+'%';
+  cw.innerHTML = `<button class="chestnode" disabled aria-label="Tag 2 — erscheint morgen"><svg><use href="#i-lock"/></svg></button>
+    <span class="nlabel">Tag 2<small>erscheint morgen</small></span>`;
+  map.appendChild(cw);
+  document.getElementById('starcount').textContent = Object.keys(prog.done).length + '/' + NODES.length;
+  const act = map.querySelector('.node.active');
+  if (act && Object.keys(prog.done).length) setTimeout(()=>act.scrollIntoView({block:'center', behavior:'smooth'}), 200);
+}
+
+/* ============ lesson engine ============ */
+const lesson = document.getElementById('lesson');
+const lcard = document.getElementById('lcard');
+const pfill = document.getElementById('pfill');
+const mainbtn = document.getElementById('mainbtn');
+const feedback = document.getElementById('feedback');
+const ficon = document.getElementById('ficon');
+const ftitle = document.getElementById('ftitle');
+const ftext = document.getElementById('ftext');
+const lfoot = document.getElementById('lfoot');
+let S = null; // session
+
+function openNode(idx){
+  const node = NODES[idx];
+  const queue = node.steps.map((st,i)=>Object.assign({_id:i}, st));
+  const gradeable = queue.filter(s=>['mc','wordbank','speak'].includes(s.type)).length;
+  S = {idx, node, queue, pos:0, results:{}, gradeable, phase:'step'};
+  lesson.hidden = false;
+  document.body.style.overflow = 'hidden';
+  renderStep();
+}
+function closeLesson(){
+  lesson.hidden = true;
+  document.body.style.overflow = '';
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  S = null;
+}
+document.getElementById('lclose').addEventListener('click', closeLesson);
+
+function setProgress(){
+  pfill.style.width = (S.pos / S.queue.length * 100) + '%';
+}
+function hideFeedback(){ feedback.className = 'feedback'; }
+function showFeedback(good, text){
+  feedback.className = 'feedback show ' + (good?'good':'badf');
+  ficon.innerHTML = `<svg><use href="#i-${good?'check':'x'}"/></svg>`;
+  ftitle.textContent = good ? 'Richtig!' : 'Nicht ganz.';
+  ftext.innerHTML = text || '';
+}
+function record(step, ok){
+  if (!(step._id in S.results)) S.results[step._id] = ok;
+}
+function advance(){
+  const step = S.queue[S.pos];
+  if (step._checkedWrong && !step._retry){
+    S.queue.push(Object.assign({}, step, {_retry:true, _checkedWrong:false, _checked:false}));
+  }
+  S.pos++;
+  hideFeedback();
+  if (S.pos >= S.queue.length) return renderComplete();
+  renderStep();
+}
+
+function renderStep(){
+  setProgress();
+  hideFeedback();
+  lfoot.style.display = '';
+  const step = S.queue[S.pos];
+  mainbtn.className = 'btn';
+  mainbtn.disabled = false;
+  mainbtn.textContent = 'Weiter';
+  mainbtn.onclick = advance;
+
+  if (step.type === 'vocab') renderVocab(step);
+  else if (step.type === 'phrase') renderPhrase(step);
+  else if (step.type === 'teach') renderTeach(step);
+  else if (step.type === 'dialogue') renderDialogue(step);
+  else if (step.type === 'mc') renderMC(step);
+  else if (step.type === 'wordbank') renderWordbank(step);
+  else if (step.type === 'speak') renderSpeak(step);
+  else if (step.type === 'write') renderWrite(step);
+  lesson.querySelector('.lbody').scrollTop = 0;
+}
+
+function artChip(art){
+  if (!art) return '<span class="artchip verb">Verb / Wort</span>';
+  return `<span class="artchip ${art}">${art}</span>`;
+}
+function renderVocab(st){
+  const full = st.art ? `${st.art} ${st.word}` : st.word;
+  lcard.innerHTML = `
+    <div class="stepkicker">Neues Wort · new word</div>
+    <div class="vcard">
+      ${artChip(st.art)}
+      <div class="vword">${full}</div>
+      ${st.pl ? `<div class="vpl">Plural: ${st.pl}</div>` : ''}
+      <div class="vdivider"></div>
+      <div class="ven">${st.en}</div>
+      ${st.tip ? `<div class="vtip">🗣 ${st.tip}</div>` : ''}
+      <div class="sayback">${sayBtn(full)}</div>
+      <p style="margin-top:10px;color:var(--ink-soft);font-size:12.5px">Read it aloud three times.</p>
+    </div>`;
+  setTimeout(()=>speak(full), 300);
+}
+function renderPhrase(st){
+  lcard.innerHTML = `
+    <div class="stepkicker">Ausdruck · expression</div>
+    <div class="vcard">
+      <div class="vword" style="font-size:clamp(24px,6.5vw,34px)">${st.de}</div>
+      <div class="vdivider"></div>
+      <div class="ven">${st.en}</div>
+      ${st.tip ? `<div class="vtip">🗣 ${st.tip}</div>` : ''}
+      ${st.say ? `<div class="vtip">Beispiel: <b>${st.say}</b> ${sayBtn(st.say, true)}</div>` : ''}
+      <div class="sayback">${sayBtn(st.say && !st.de.includes('…') ? st.de : (st.de.replace(/…/g,'').trim() || st.de))}</div>
+    </div>`;
+  setTimeout(()=>speak(st.de), 300);
+}
+function renderTeach(st){
+  lcard.innerHTML = `<div class="steptitle">${st.title}</div>${st.html}`;
+}
+function renderDialogue(st){
+  const lines = st.lines.map((l,i)=>`
+    <div class="dline ${l.you?'you':''}">
+      <div class="avatar ${l.you?'you':'other'}">${l.s[0]}</div>
+      <div class="bubble">
+        <span class="who">${l.s}</span>
+        <div class="de">${l.t} ${sayBtn(l.t, true)}</div>
+        <div class="tr">${l.tr}</div>
+      </div>
+    </div>`).join('');
+  lcard.innerHTML = `
+    <div class="steptitle">${st.title}</div>
+    <div class="dtools">
+      <button class="toolbtn" id="playall"><svg><use href="#i-play"/></svg> Alles anhören (play all)</button>
+      <button class="toolbtn" id="trtoggle"><svg><use href="#i-book"/></svg> Übersetzung (translation)</button>
+    </div>
+    <div id="dlines">${lines}</div>
+    <p style="margin-top:16px;color:var(--ink-soft);font-size:13.5px">Read it twice out loud. Third time: cover Daniela’s lines and try to remember them.</p>`;
+  document.getElementById('playall').addEventListener('click', ()=>speakSeq(st.lines.map(l=>l.t)));
+  document.getElementById('trtoggle').addEventListener('click', ()=>{
+    document.getElementById('dlines').classList.toggle('showtr');
+  });
+}
+function renderMC(st){
+  lcard.innerHTML = `
+    <div class="stepkicker">${st._retry ? 'Nochmal · try again' : 'Wähle die richtige Antwort'}</div>
+    <div class="qprompt">${st.say ? sayBtn(st.say, true) : ''}<span>${st.q}</span></div>
+    <div class="opts">${st.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>`;
+  let sel = -1;
+  const opts = [...lcard.querySelectorAll('.opt')];
+  opts.forEach(b=>b.addEventListener('click', ()=>{
+    if (st._checked) return;
+    sel = +b.dataset.i;
+    opts.forEach(o=>o.classList.toggle('sel', o===b));
+    mainbtn.disabled = false;
+  }));
+  mainbtn.textContent = 'Prüfen';
+  mainbtn.disabled = true;
+  mainbtn.onclick = ()=>{
+    st._checked = true;
+    const ok = sel === st.a;
+    record(st, ok);
+    opts.forEach((o,i)=>{
+      o.disabled = true;
+      if (i === st.a) o.classList.add('right');
+      else if (i === sel) o.classList.add('wrong');
+    });
+    const answer = st.opts[st.a];
+    const spoken = st.full || answer;
+    showFeedback(ok, ok ? (st.full ? `<b>${st.full}</b>` : '') : `Richtig ist: <b>${answer}</b>${st.full && st.full!==answer ? ' — '+st.full : ''}`);
+    if (/[a-zäöüß]/i.test(spoken) && !/^the |^to |^in |^same|^you/i.test(spoken)) speak(spoken);
+    if (!ok) st._checkedWrong = true;
+    mainbtn.textContent = 'Weiter';
+    mainbtn.className = 'btn ' + (ok ? 'green' : 'red');
+    mainbtn.onclick = advance;
+  };
+}
+function renderWordbank(st){
+  const fills = new Array(st.answers.length).fill(null);
+  const lines = st.lines.map(l=>{
+    const inner = l.parts.map(p=>typeof p === 'number'
+      ? `<button class="blank" data-b="${p}" aria-label="Lücke ${p+1}"> </button>`
+      : p).join('');
+    return `<div class="wbline"><span class="who">${l.s}</span>${inner}</div>`;
+  }).join('');
+  lcard.innerHTML = `
+    <div class="steptitle">${st.title}</div>
+    <p style="color:var(--ink-soft);font-size:14px">Tap a word to fill the next gap. Tap a filled gap to remove the word.</p>
+    ${lines}
+    <div class="bank">${st.bank.map((w,i)=>`<button class="wchip" data-w="${i}">${w}</button>`).join('')}</div>`;
+  const blanks = [...lcard.querySelectorAll('.blank')];
+  const chips = [...lcard.querySelectorAll('.wchip')];
+  function sync(){
+    blanks.forEach(b=>{
+      const v = fills[+b.dataset.b];
+      b.textContent = v !== null ? st.bank[v] : ' ';
+      b.classList.toggle('filled', v !== null);
+    });
+    chips.forEach((c,i)=>c.disabled = fills.includes(i));
+    mainbtn.disabled = fills.some(f=>f===null);
+  }
+  chips.forEach((c,i)=>c.addEventListener('click', ()=>{
+    if (st._checked) return;
+    const slot = fills.indexOf(null);
+    if (slot < 0) return;
+    fills[slot] = i; sync();
+  }));
+  blanks.forEach(b=>b.addEventListener('click', ()=>{
+    if (st._checked) return;
+    const bi = +b.dataset.b;
+    if (fills[bi] !== null){ fills[bi] = null; sync(); }
+  }));
+  mainbtn.textContent = 'Prüfen';
+  mainbtn.disabled = true;
+  mainbtn.onclick = ()=>{
+    st._checked = true;
+    let allOk = true;
+    blanks.forEach(b=>{
+      const bi = +b.dataset.b;
+      const ok = st.bank[fills[bi]] === st.answers[bi];
+      b.classList.add(ok ? 'right' : 'wrong');
+      if (!ok) allOk = false;
+    });
+    record(st, allOk);
+    showFeedback(allOk, allOk ? '' : 'Richtig ist: <b>' + st.answers.join(' · ') + '</b>');
+    if (!allOk) st._checkedWrong = true;
+    mainbtn.textContent = 'Weiter';
+    mainbtn.className = 'btn ' + (allOk ? 'green' : 'red');
+    mainbtn.onclick = advance;
+  };
+  sync();
+}
+function renderSpeak(st){
+  lfoot.style.display = 'none';
+  lcard.innerHTML = `
+    <div class="stepkicker">${st._retry ? 'Nochmal · try again' : 'Sprechen · speaking'}</div>
+    <div class="speakcard">
+      <p style="color:var(--ink-soft);font-size:13.5px">Say it in German, out loud:</p>
+      <div class="speak-en">“${st.en}”</div>
+      <div id="reveal" style="display:none">
+        <div class="speak-de">${st.de} ${sayBtn(st.de)}</div>
+        <div class="selfgrade">
+          <button class="btn green" id="gotit">Hatte ich!</button>
+          <button class="btn ghost" id="again">Nochmal üben</button>
+        </div>
+      </div>
+      <div class="selfgrade" id="revealrow">
+        <button class="btn" id="revealbtn">Antwort zeigen</button>
+      </div>
+    </div>`;
+  document.getElementById('revealbtn').addEventListener('click', ()=>{
+    document.getElementById('revealrow').style.display = 'none';
+    document.getElementById('reveal').style.display = 'block';
+    speak(st.de);
+  });
+  document.getElementById('gotit').addEventListener('click', ()=>{ record(st, true); advance(); });
+  document.getElementById('again').addEventListener('click', ()=>{
+    record(st, false);
+    st._checkedWrong = true;
+    advance();
+  });
+}
+function renderWrite(st){
+  lcard.innerHTML = `
+    <div class="steptitle">Freies Schreiben</div>
+    <div class="tcard">
+      <p><b>${st.prompt}</b></p>
+      <p style="color:var(--ink-soft);font-size:13.5px;margin-top:6px">${st.hint}</p>
+      <textarea class="writebox" id="writebox" placeholder="Ich brauche … / Ich möchte …"></textarea>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="toolbtn" id="exbtn"><svg><use href="#i-book"/></svg> Beispiel zeigen (show example)</button>
+      </div>
+      <div class="vtip" id="exbox" style="display:none;text-align:left">Beispiel: <b>${st.example}</b> ${sayBtn(st.example, true)}</div>
+    </div>`;
+  document.getElementById('exbtn').addEventListener('click', ()=>{
+    document.getElementById('exbox').style.display = 'block';
+  });
+  mainbtn.textContent = 'Fertig';
+}
+
+function renderComplete(){
+  pfill.style.width = '100%';
+  lfoot.style.display = 'none';
+  const firstIds = new Set(S.node.steps.map((s,i)=>i));
+  let correct = 0, graded = 0;
+  for (const id of firstIds){
+    if (id in S.results){ graded++; if (S.results[id]) correct++; }
+  }
+  const pct = graded ? Math.round(correct/graded*100) : 100;
+  const wasNew = !(S.node.id in prog.done);
+  prog.done[S.node.id] = pct;
+  saveProg(prog);
+  lcard.innerHTML = `
+    <div class="donewrap">
+      <div class="donecircle"><svg><use href="#i-check"/></svg></div>
+      <h2>Geschafft!</h2>
+      <p>${S.node.title} · ${S.node.sub} abgeschlossen</p>
+      ${graded ? `<div class="scorepill">${correct} / ${graded} richtig beim ersten Versuch — ${pct}%</div>` : ''}
+      <div style="margin-top:26px"><button class="btn green" id="backbtn">Zurück ins Dorf</button></div>
+    </div>`;
+  document.getElementById('backbtn').addEventListener('click', ()=>{
+    closeLesson();
+    renderNodes();
+  });
+  if (wasNew) confetti();
+}
+
+/* audio buttons — event delegation */
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-say]');
+  if (!b) return;
+  speak(b.dataset.say);
+  b.classList.add('playing');
+  setTimeout(()=>b.classList.remove('playing'), 900);
+});
+
+/* voice picker */
+const voicemodal = document.getElementById('voicemodal');
+function renderVoiceList(){
+  const list = document.getElementById('voicelist');
+  if (!list) return;
+  if (!window.speechSynthesis){
+    list.innerHTML = '<p style="color:var(--ink-soft)">This browser has no built-in speech — try Safari or Chrome.</p>';
+    return;
+  }
+  if (!deVoices.length){
+    list.innerHTML = '<div class="tcard"><p><b>Keine deutsche Stimme installiert.</b> No German voice is installed in this browser yet — follow the steps below, then reload this page.</p></div>';
+    return;
+  }
+  list.innerHTML = deVoices.map((v,i)=>`
+    <button class="opt ${voiceChosen && v.name===voiceChosen.name ? 'sel' : ''}" data-v="${i}">
+      <span class="voicerow">
+        <span><span class="vname">${v.name}</span>
+        <span class="vmeta">${v.lang}${/premium|enhanced|natural|neural/i.test(v.name) ? ' · beste Qualität' : ''}${v.localService ? '' : ' · online'}</span></span>
+        ${voiceChosen && v.name===voiceChosen.name ? '<span class="vsel">✓ gewählt</span>' : ''}
+      </span>
+    </button>`).join('');
+  list.querySelectorAll('.opt').forEach(b=>b.addEventListener('click', ()=>{
+    voiceChosen = deVoices[+b.dataset.v];
+    try{ localStorage.setItem('dorf-voice', voiceChosen.name); }catch(e){}
+    renderVoiceList();
+    speak('Hallo! Ich möchte ein Brot, bitte.');
+  }));
+}
+document.getElementById('voicebtn').addEventListener('click', ()=>{
+  refreshVoices();
+  voicemodal.hidden = false;
+  document.body.style.overflow = 'hidden';
+});
+document.getElementById('voiceclose').addEventListener('click', ()=>{
+  voicemodal.hidden = true;
+  document.body.style.overflow = '';
+  if (window.speechSynthesis) speechSynthesis.cancel();
+});
+
+/* library */
+const library = document.getElementById('library');
+document.getElementById('libbtn').addEventListener('click', ()=>{
+  library.hidden = false;
+  document.body.style.overflow = 'hidden';
+});
+document.getElementById('libclose').addEventListener('click', ()=>{
+  library.hidden = true;
+  document.body.style.overflow = '';
+});
+
+/* reset */
+document.getElementById('resetbtn').addEventListener('click', ()=>{
+  if (confirm('Fortschritt wirklich zurücksetzen? / Really reset all progress?')){
+    prog = {done:{}};
+    saveProg(prog);
+    renderNodes();
+    window.scrollTo({top:0});
+  }
+});
+
+/* confetti */
+function confetti(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = document.getElementById('confetti');
+  const ctx = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight;
+  const colors = ['#d99a2b','#4e9b57','#c15b6e','#3f7fb5','#f0b64a'];
+  const parts = [];
+  for (let i=0;i<70;i++){
+    parts.push({x:c.width/2 + (i%20-10)*8, y:c.height*0.35, vx:(i%11-5)*1.3, vy:-(4+(i%7)), r:3+(i%4), col:colors[i%5], rot:i});
+  }
+  let t = 0;
+  function frame(){
+    t++;
+    ctx.clearRect(0,0,c.width,c.height);
+    for (const p of parts){
+      p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.rot += 0.15;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.col;
+      ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+      ctx.restore();
+    }
+    if (t < 90) requestAnimationFrame(frame);
+    else ctx.clearRect(0,0,c.width,c.height);
+  }
+  frame();
+}
+
+buildScene();
+renderNodes();
+</script>

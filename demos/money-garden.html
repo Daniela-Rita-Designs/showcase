@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Money Garden</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#0A0D12; --surface:#131822; --surface2:#1B2230; --line:rgba(255,255,255,.09);
+  --text:#F2F0E9; --muted:#9AA3AF; --faint:#5F6975;
+  --grow:#3DDCC0; --grow2:#5ED9FF; --grow-ink:#0A0D12; --grow-soft:rgba(61,220,192,.16);
+  --heat:#FF6B57; --heat-soft:rgba(255,107,87,.16);
+  --sky:#6FA8FF; --sky-soft:rgba(111,168,255,.16);
+  --sun:#FFC466; --sun-soft:rgba(255,196,102,.16);
+  --stable:#B9C2CF;
+  --blob-a:#FF6B57; --blob-b:#3DDCC0; --blob-c:#4C6FFF; --blob-op:.55;
+  --shadow:0 20px 60px rgba(0,0,0,.45);
+  --r:22px;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#EEF3F1; --surface:#FFFFFF; --surface2:#E4ECE8; --line:rgba(20,32,30,.10);
+    --text:#14201E; --muted:#54635F; --faint:#8A9793;
+    --grow:#0E9F86; --grow2:#1592A8; --grow-ink:#FFFFFF; --grow-soft:rgba(14,159,134,.14);
+    --heat:#E0523F; --heat-soft:rgba(224,82,63,.14);
+    --sky:#2F6FE0; --sky-soft:rgba(47,111,224,.14);
+    --sun:#C98A12; --sun-soft:rgba(201,138,18,.16);
+    --stable:#5E6C78;
+    --blob-a:#FFB3A6; --blob-b:#9EE8D9; --blob-c:#B9C8FF; --blob-op:.75;
+    --shadow:0 20px 50px rgba(20,32,30,.12);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#EEF3F1; --surface:#FFFFFF; --surface2:#E4ECE8; --line:rgba(20,32,30,.10);
+  --text:#14201E; --muted:#54635F; --faint:#8A9793;
+  --grow:#0E9F86; --grow2:#1592A8; --grow-ink:#FFFFFF; --grow-soft:rgba(14,159,134,.14);
+  --heat:#E0523F; --heat-soft:rgba(224,82,63,.14);
+  --sky:#2F6FE0; --sky-soft:rgba(47,111,224,.14);
+  --sun:#C98A12; --sun-soft:rgba(201,138,18,.16);
+  --stable:#5E6C78;
+  --blob-a:#FFB3A6; --blob-b:#9EE8D9; --blob-c:#B9C8FF; --blob-op:.75;
+  --shadow:0 20px 50px rgba(20,32,30,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Nunito Sans",system-ui,-apple-system,Segoe UI,sans-serif;font-size:16px;line-height:1.55;min-height:100vh;-webkit-font-smoothing:antialiased}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;filter:blur(60px) saturate(1.1);opacity:var(--blob-op);pointer-events:none;transform:scale(1.15)}
+#app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:18px 16px 60px}
+.serif{font-family:Fraunces,Georgia,serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+h1,h2,h3{margin:0;text-wrap:balance;font-family:Fraunces,Georgia,serif;font-weight:600;letter-spacing:-.01em}
+p{margin:0 0 .9em}
+p:last-child{margin-bottom:0}
+b{font-weight:800}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-size:26px;font-weight:700}
+.brand small{display:block;font-size:12px;color:var(--muted);font-family:"Nunito Sans",sans-serif;font-weight:600;letter-spacing:.02em}
+.stats{display:flex;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:700}
+.chip svg{width:14px;height:14px}
+.chip.sunc{color:var(--sun)}
+.chip.streak{color:var(--heat)}
+.tools{display:flex;gap:8px;margin:0 0 20px}
+.tool{flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:left;transition:transform .15s,border-color .15s}
+.tool:hover{transform:translateY(-1px);border-color:var(--sky)}
+.tool .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--sky-soft);color:var(--sky);flex:none}
+.tool.plan .ic{background:var(--sun-soft);color:var(--sun)}
+.tool b{display:block;font-size:14px}
+.tool span{font-size:12px;color:var(--muted)}
+
+/* welcome */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px 22px 20px;margin-bottom:26px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,var(--grow-soft),transparent 70%)}
+.hero h2{font-size:30px;line-height:1.15;margin-bottom:10px}
+.hero p{color:var(--muted);font-size:15px;max-width:42ch}
+.hero .cta{margin-top:14px}
+
+/* map */
+.map{position:relative;margin:0 auto}
+.map svg.path{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.map .seg{fill:none;stroke:var(--faint);stroke-width:3;stroke-dasharray:2 10;stroke-linecap:round;opacity:.7}
+.map .seg.done{stroke:var(--grow);stroke-dasharray:none;opacity:.9}
+.node{position:absolute;width:0;height:0;display:flex;flex-direction:column;align-items:center;transform:translate(0,-38px)}
+.node button.pot{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);border:2px solid var(--line);color:var(--faint);transition:transform .2s,box-shadow .2s;position:relative}
+.node button.pot svg{width:42px;height:42px}
+.node.done button.pot{background:var(--grow-soft);border-color:var(--grow);color:var(--grow)}
+.node.active button.pot{background:var(--surface);border-color:var(--sun);color:var(--sun);box-shadow:0 0 0 8px var(--sun-soft),0 0 40px rgba(255,196,102,.35)}
+.node.active button.pot::before{content:"";position:absolute;inset:-14px;border-radius:50%;border:2px solid var(--sun);opacity:.35;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.85);opacity:.5}100%{transform:scale(1.25);opacity:0}}
+.node button.pot:hover:not(:disabled){transform:translateY(-3px)}
+.node button.pot:disabled{cursor:not-allowed}
+.node .lab{margin-top:10px;text-align:center;width:170px}
+.node .lab b{display:block;font-family:Fraunces,Georgia,serif;font-size:17px;font-weight:600}
+.node .lab span{font-size:12px;color:var(--muted);display:block;line-height:1.35}
+.node .lab .sc{display:inline-block;margin-top:4px;font-size:11px;color:var(--grow);font-weight:800;letter-spacing:.04em}
+.node.locked .lab b,.node.locked .lab span{color:var(--faint)}
+.footnote{margin-top:22px;text-align:center;font-size:12px;color:var(--faint);max-width:44ch;margin-left:auto;margin-right:auto}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border-radius:16px;font-weight:800;font-size:15px;letter-spacing:.01em;transition:transform .12s,opacity .15s,filter .15s}
+.btn.primary{background:linear-gradient(135deg,var(--grow),var(--grow2));color:var(--grow-ink);box-shadow:0 8px 30px rgba(61,220,192,.25)}
+.btn.primary:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn.primary:disabled{opacity:.35;box-shadow:none;transform:none;cursor:not-allowed}
+.btn.ghost{background:var(--surface2);border:1px solid var(--line)}
+.btn.block{width:100%}
+
+/* lesson */
+.lesson{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);min-height:min(78vh,720px);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.ltop{display:flex;align-items:center;gap:12px;padding:16px 16px 6px}
+.ltop .x{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:22px;line-height:1}
+.ltop .x:hover{background:var(--surface2)}
+.pbar{flex:1;height:10px;border-radius:999px;background:var(--surface2);overflow:hidden}
+.pbar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--grow),var(--grow2));transition:width .4s cubic-bezier(.2,.7,.2,1)}
+.ltop .cnt{font-size:12px;color:var(--muted);font-weight:700;min-width:46px;text-align:right}
+.stage{flex:1;padding:14px 22px 22px;overflow-y:auto}
+.stage .eyebrow{margin-bottom:8px}
+.stage h2{font-size:26px;line-height:1.2;margin-bottom:14px}
+.stage h2.q{font-size:22px;font-family:"Nunito Sans",sans-serif;font-weight:800;letter-spacing:0}
+.body{font-size:16px;color:var(--text)}
+.body p{max-width:60ch}
+.tick{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.86em;font-weight:700;padding:1px 6px;border-radius:6px;background:var(--surface2);color:var(--sun);vertical-align:baseline}
+.tick.eth{color:var(--sky)} .tick.st{color:var(--stable)} .tick.hot{color:var(--heat)} .tick.g{color:var(--grow)}
+.ex{margin:16px 0 4px;padding:14px 16px;border-radius:14px;background:var(--surface2);border-left:3px solid var(--sun);font-size:14.5px}
+.ex.warn{border-left-color:var(--heat)} .ex.good{border-left-color:var(--grow)} .ex.info{border-left-color:var(--sky)}
+.ex .ex-l{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--muted);margin-bottom:6px}
+.ex p{margin-bottom:.6em}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0;font-size:14.5px}
+.kv .k{color:var(--muted);font-weight:700}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+.tbl th{text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:8px;border-bottom:1px solid var(--line)}
+.tbl td.mono,.tbl td .mono{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;font-size:13px}
+.tblwrap{overflow-x:auto}
+.fig{margin:14px 0 6px;padding:14px;border-radius:14px;background:var(--surface2)}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:12px;color:var(--muted);margin-top:8px}
+.vol{display:grid;gap:8px;margin:14px 0 4px}
+.vol div{display:grid;grid-template-columns:130px 1fr 52px;align-items:center;gap:10px;font-size:13.5px}
+.vol i{display:block;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--grow),var(--heat))}
+.vol span.mono{text-align:right;font-size:12px;color:var(--muted)}
+ol.steps{padding-left:0;margin:12px 0;list-style:none;counter-reset:s}
+ol.steps li{position:relative;padding-left:38px;margin-bottom:10px;counter-increment:s;font-size:15px}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:26px;height:26px;border-radius:50%;background:var(--grow-soft);color:var(--grow);font-weight:800;font-size:13px;display:grid;place-items:center;font-family:"JetBrains Mono",monospace}
+
+/* options */
+.opts{display:grid;gap:10px;margin-top:6px}
+.opt{text-align:left;padding:14px 16px;border-radius:14px;background:var(--surface2);border:2px solid var(--line);font-weight:600;font-size:15px;line-height:1.4;transition:border-color .12s,transform .12s}
+.opt:hover:not(:disabled){border-color:var(--sky)}
+.opt.sel{border-color:var(--sky);background:var(--sky-soft)}
+.opt.ok{border-color:var(--grow);background:var(--grow-soft)}
+.opt.bad{border-color:var(--heat);background:var(--heat-soft)}
+.opt:disabled{cursor:default}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tf .opt{text-align:center;font-weight:800;font-size:17px;padding:20px}
+.stmt{font-size:20px;font-weight:700;padding:18px 20px;border-radius:16px;background:var(--surface2);margin:8px 0 18px;line-height:1.4;font-family:Fraunces,Georgia,serif}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.match .col{display:grid;gap:10px;align-content:start}
+.match .opt{min-height:62px;display:flex;align-items:center;font-size:14px}
+.match .opt.matched{opacity:.45;border-color:var(--grow);background:var(--grow-soft)}
+.match .opt.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.seq{min-height:64px;padding:10px;border-radius:14px;border:2px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.seq .ph{color:var(--faint);font-size:13px;align-self:center;padding:8px 4px}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.chipbtn{padding:10px 14px;border-radius:12px;background:var(--surface2);border:2px solid var(--line);font-weight:700;font-size:14px;line-height:1.3;text-align:left;display:flex;gap:8px;align-items:center}
+.chipbtn .n{width:22px;height:22px;border-radius:50%;background:var(--sky-soft);color:var(--sky);display:grid;place-items:center;font-size:12px;font-family:"JetBrains Mono",monospace;flex:none}
+.chipbtn:hover{border-color:var(--sky)}
+.chipbtn.ok{border-color:var(--grow)} .chipbtn.bad{border-color:var(--heat)}
+.slider{margin-top:10px}
+.slider .val{font-family:Fraunces,Georgia,serif;font-size:54px;font-weight:600;line-height:1;margin:6px 0 14px;color:var(--sun)}
+.slider .val small{font-size:22px;color:var(--muted);font-family:"Nunito Sans",sans-serif;font-weight:700;margin-left:4px}
+input[type=range]{width:100%;accent-color:var(--grow);height:32px}
+.slider .rng{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+
+/* footer of lesson */
+.foot{padding:14px 22px 20px;border-top:1px solid var(--line);background:var(--surface)}
+.fb{position:absolute;left:0;right:0;bottom:0;padding:18px 22px 20px;transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);background:var(--surface2);border-top:2px solid var(--line)}
+.fb.show{transform:none}
+.fb.ok{border-top-color:var(--grow)} .fb.ok .fbt{color:var(--grow)}
+.fb.bad{border-top-color:var(--heat)} .fb.bad .fbt{color:var(--heat)}
+.fb .fbt{font-family:Fraunces,Georgia,serif;font-size:22px;font-weight:700;margin-bottom:4px}
+.fb .why{font-size:14.5px;color:var(--text);margin-bottom:14px;max-width:60ch}
+.fb .btn.ok{background:var(--grow);color:var(--grow-ink)}
+.fb .btn.bad{background:var(--heat);color:#fff}
+
+/* complete */
+.done-card{text-align:center;padding:36px 22px 26px}
+.done-card .big{font-family:Fraunces,Georgia,serif;font-size:40px;font-weight:700;line-height:1.1;margin:14px 0 6px}
+.done-card p{color:var(--muted)}
+.score{display:flex;justify-content:center;gap:10px;margin:18px 0 22px}
+.score div{padding:12px 16px;border-radius:14px;background:var(--surface2);min-width:110px}
+.score b{display:block;font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:700}
+.score span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.take{text-align:left;margin:0 auto 22px;max-width:46ch;padding:16px 18px;border-radius:14px;background:var(--surface2)}
+.take .eyebrow{margin-bottom:8px}
+.take li{margin-bottom:6px;font-size:14.5px}
+.take ul{margin:0;padding-left:18px}
+
+/* overlay sheet */
+.overlay{position:fixed;inset:0;z-index:5;background:rgba(5,8,12,.6);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding:0}
+.overlay.show{display:flex}
+.sheet{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:24px 24px 0 0;padding:18px 22px 32px;box-shadow:var(--shadow)}
+@media(min-width:640px){.overlay{align-items:center;padding:20px}.sheet{border-radius:24px}}
+.sheet .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet h2{font-size:26px}
+.sheet .x{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:22px;color:var(--muted)}
+.sheet .x:hover{background:var(--surface2)}
+.dict dt{font-weight:800;margin-top:14px;display:flex;gap:8px;align-items:baseline}
+.dict dt small{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.dict dd{margin:2px 0 0;color:var(--muted);font-size:14.5px;max-width:60ch}
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:inherit;margin-bottom:6px}
+.frm{display:grid;gap:14px}
+.frm label{display:grid;gap:6px;font-size:13px;font-weight:700;color:var(--muted);min-width:0}
+.frm label>*{min-width:0}
+.frm label .lt{display:block}
+.frm input[type=number],.frm select{width:100%;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:inherit;font-size:16px;font-family:"JetBrains Mono",monospace}
+.frm .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.seg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.seg3 button{padding:10px 6px;min-width:0;border-radius:12px;line-height:1.3;border:2px solid var(--line);background:var(--surface2);font-weight:700;font-size:13px}
+.seg3 button.on{border-color:var(--grow);background:var(--grow-soft);color:var(--text)}
+.plan-out{margin-top:18px;display:grid;gap:12px}
+.pcard{padding:16px 18px;border-radius:16px;background:var(--surface2);border:1px solid var(--line)}
+.pcard .eyebrow{margin-bottom:6px}
+.pcard .big{font-family:Fraunces,Georgia,serif;font-size:30px;font-weight:700;line-height:1.1}
+.pcard .big small{font-size:14px;color:var(--muted);font-family:"Nunito Sans",sans-serif;font-weight:700}
+.pcard p{font-size:14px;color:var(--muted);margin-top:6px}
+.bar{height:10px;border-radius:999px;background:var(--surface);overflow:hidden;margin:10px 0 6px;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--sun),var(--grow));border-radius:999px}
+.split{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.split div{padding:10px;border-radius:12px;background:var(--surface);border:1px solid var(--line);text-align:center}
+.split b{display:block;font-family:"JetBrains Mono",monospace;font-size:16px}
+.split span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.note{font-size:12px;color:var(--faint);margin-top:14px}
+
+
+/* tabs + arena */
+.tabs{display:flex;gap:6px;padding:5px;border-radius:16px;background:var(--surface);border:1px solid var(--line);margin-bottom:18px}
+.tab{flex:1;padding:10px;border-radius:12px;font-weight:800;font-size:14px;color:var(--muted)}
+.tab.on{background:var(--surface2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+.ratings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.rt{padding:12px 12px 10px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.rt .eyebrow{font-size:10px;margin-bottom:4px}
+.rt b{display:block;font-family:"JetBrains Mono",monospace;font-size:24px;font-weight:700;line-height:1.1}
+.rt span{font-size:11px;color:var(--muted);font-weight:700}
+.rt svg{width:100%;height:22px;margin-top:6px;display:block}
+.modes{display:grid;gap:10px;margin-bottom:22px}
+.mode{display:flex;align-items:center;gap:14px;text-align:left;padding:16px;border-radius:18px;background:var(--surface);border:1px solid var(--line);transition:transform .15s,border-color .15s}
+.mode:hover:not(:disabled){transform:translateY(-1px);border-color:var(--sky)}
+.mode:disabled{opacity:.6;cursor:default}
+.mode .mi{width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;font-family:Fraunces,Georgia,serif;font-size:22px;font-weight:700}
+.mode.daily .mi{background:var(--sun-soft);color:var(--sun)} .mode.rated .mi{background:var(--sky-soft);color:var(--sky)} .mode.rush .mi{background:var(--heat-soft);color:var(--heat)} .mode.season .mi{background:var(--grow-soft);color:var(--grow)}
+.mode b{display:block;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:600}
+.mode span{font-size:13px;color:var(--muted);display:block}
+.mode .rec{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+.rdelta{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:15px}
+.rdelta.up{color:var(--grow)} .rdelta.dn{color:var(--heat)}
+.pzr{font-size:12px;color:var(--muted);font-weight:700;font-family:"JetBrains Mono",monospace}
+.rushbar{display:flex;align-items:center;gap:10px;flex:1;justify-content:center;font-family:"JetBrains Mono",monospace;font-weight:700}
+.rushbar .t{font-size:18px} .rushbar .t.low{color:var(--heat)}
+.strikes{display:flex;gap:4px}
+.strikes i{width:10px;height:10px;border-radius:50%;background:var(--surface2);border:1px solid var(--line)}
+.strikes i.x{background:var(--heat);border-color:var(--heat)}
+.rushscore{font-size:18px;color:var(--grow)}
+/* season game */
+.prow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.px{font-family:"JetBrains Mono",monospace;font-size:34px;font-weight:700;line-height:1.05}
+.chg{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;margin-top:2px}
+.chg.up{color:var(--grow)} .chg.dn{color:var(--heat)}
+.mood{text-align:right;min-width:120px}
+.mood .g{height:8px;border-radius:999px;background:linear-gradient(90deg,var(--grow),var(--sun),var(--heat));position:relative;margin-top:6px}
+.mood .g i{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:var(--text);border:3px solid var(--surface);transform:translateX(-8px)}
+.mood span{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.gchart{margin:6px 0 10px;padding:10px 8px 6px;border-radius:14px;background:var(--surface2)}
+.gchart svg{width:100%;height:auto;display:block}
+.news{padding:12px 14px;border-radius:14px;border:1px dashed var(--line);font-size:14px;margin-bottom:12px;color:var(--text)}
+.news .eyebrow{margin-bottom:3px}
+.hold{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.hold div{padding:10px;border-radius:12px;background:var(--surface2);text-align:center}
+.hold b{display:block;font-family:"JetBrains Mono",monospace;font-size:15px}
+.hold span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hold .vs{font-size:11px;color:var(--muted);font-weight:700}
+.acts{display:grid;gap:8px}
+.acts .row{display:grid;grid-template-columns:52px repeat(4,minmax(0,1fr));gap:6px;align-items:center}
+.acts .row .l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.acts .row.sell{grid-template-columns:52px repeat(3,minmax(0,1fr))}
+.ab{padding:11px 4px;border-radius:12px;background:var(--surface2);border:2px solid var(--line);font-weight:800;font-size:13px;font-family:"JetBrains Mono",monospace}
+.ab:hover:not(:disabled){border-color:var(--grow)} .sell .ab:hover:not(:disabled){border-color:var(--heat)}
+.ab:disabled{opacity:.35;cursor:not-allowed}
+.acts .btn.ghost{margin-top:4px}
+.res{width:100%;border-collapse:collapse;font-size:14px;margin:14px 0}
+.res td{padding:9px 6px;border-bottom:1px solid var(--line)}
+.res td:last-child{text-align:right;font-family:"JetBrains Mono",monospace;font-weight:700}
+.res tr.you td{color:var(--sun)}
+.review{text-align:left;display:grid;gap:8px;margin:14px 0 18px}
+.rv{padding:12px 14px;border-radius:12px;background:var(--surface2);font-size:13.5px;border-left:3px solid var(--line)}
+.rv.bad{border-left-color:var(--heat)} .rv.good{border-left-color:var(--grow)} .rv.meh{border-left-color:var(--sun)}
+.rv b{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);display:block;margin-bottom:2px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media(max-width:420px){
+  .node .lab{width:150px}
+  .stage h2{font-size:23px}
+  .vol div{grid-template-columns:100px 1fr 46px}
+}
+</style>
+
+<canvas id="bg"></canvas>
+<div id="app"></div>
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="p1" viewBox="0 0 48 48"><ellipse cx="24" cy="27" rx="9" ry="12" fill="none" stroke="currentColor" stroke-width="2.5" transform="rotate(-20 24 27)"/><path d="M24 15c0 4 2 7 2 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".6"/></symbol>
+    <symbol id="p2" viewBox="0 0 48 48"><path d="M24 40V24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 28c-8 0-12-5-12-11 7 0 12 4 12 11z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 24c8 0 12-5 12-11-7 0-12 4-12 11z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></symbol>
+    <symbol id="p3" viewBox="0 0 48 48"><path d="M24 42V16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 34c-8 0-13-5-13-12 8 0 13 5 13 12z M24 26c8 0 13-5 13-12-8 0-13 5-13 12z M24 18c-6 0-9-4-9-9 6 0 9 3 9 9z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></symbol>
+    <symbol id="p4" viewBox="0 0 48 48"><path d="M24 42V22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 36c-7 0-11-4-11-10 7 0 11 4 11 10z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M24 22c-6-3-7-11 0-16 7 5 6 13 0 16z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 12c2 3 8 3 10 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".6"/></symbol>
+    <symbol id="p5" viewBox="0 0 48 48"><path d="M24 43V26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 36c-6 0-10-4-10-9 6 0 10 4 10 9z" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="15" r="4" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="2.5"><ellipse cx="24" cy="6.5" rx="3.2" ry="4.5"/><ellipse cx="24" cy="23.5" rx="3.2" ry="4.5"/><ellipse cx="15.5" cy="15" rx="4.5" ry="3.2"/><ellipse cx="32.5" cy="15" rx="4.5" ry="3.2"/></g></symbol>
+    <symbol id="p6" viewBox="0 0 48 48"><path d="M20 42c0-10 2-18 8-26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M28 16c-9 0-14-6-14-13 9 0 14 6 14 13z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 12l4-2M17 8l3-1" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".7"/><ellipse cx="34" cy="30" rx="5" ry="6" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M34 24v12M30 27l-3-2M38 27l3-2M30 34l-3 2M38 34l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="p7" viewBox="0 0 48 48"><path d="M24 12V5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 12c4-4 9-3 11 0-3 3-8 4-11 0z" fill="none" stroke="currentColor" stroke-width="2.5"/><g fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="17" cy="21" r="6"/><circle cx="31" cy="21" r="6"/><circle cx="24" cy="32" r="6"/><circle cx="12" cy="33" r="5"/><circle cx="36" cy="33" r="5"/></g></symbol>
+    <symbol id="p8" viewBox="0 0 48 48"><path d="M14 30h20l-2 13H16z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 30h24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 30V14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="21" cy="10" r="1.6" fill="currentColor"/><circle cx="27" cy="14" r="1.6" fill="currentColor"/><circle cx="25" cy="8" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></g></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.2 1.5 1 2.5 2 2.5 0-3-1-6 1-9z" fill="currentColor"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-plan" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12h4M7 16h8M8 2v4M16 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<script>
+/* ---------- ambient background ---------- */
+(function(){
+  const c=document.getElementById('bg'),x=c.getContext('2d');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+  let W,H;function size(){W=c.width=Math.max(320,innerWidth/3|0);H=c.height=Math.max(320,innerHeight/3|0)}size();addEventListener('resize',size);
+  const blobs=[{v:'--blob-a',r:.55,s:.00011,o:0},{v:'--blob-b',r:.5,s:.00009,o:2.1},{v:'--blob-c',r:.6,s:.00007,o:4.2}];
+  function draw(t){
+    x.clearRect(0,0,W,H);
+    x.fillStyle=css('--bg');x.fillRect(0,0,W,H);
+    blobs.forEach((b,i)=>{
+      const px=W*(.5+.38*Math.cos(t*b.s+b.o)), py=H*(.5+.36*Math.sin(t*b.s*1.3+b.o*.7));
+      const rad=Math.min(W,H)*b.r;
+      const g=x.createRadialGradient(px,py,0,px,py,rad);
+      g.addColorStop(0,css(b.v));g.addColorStop(1,'rgba(0,0,0,0)');
+      x.fillStyle=g;x.fillRect(0,0,W,H);
+    });
+    if(!reduce)requestAnimationFrame(draw);
+  }
+  draw(9000);
+  if(reduce) matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>draw(9000));
+})();
+
+/* ---------- content helpers ---------- */
+const T=(title,body,o)=>Object.assign({type:'teach',title,body},o||{});
+const MC=(q,opts,a,why)=>({type:'mc',q,opts,a,why});
+const TF=(q,a,why)=>({type:'tf',q,a,why});
+const MATCH=(pairs,why)=>({type:'match',pairs,why});
+const ORDER=(q,items,why)=>({type:'order',q,items,why});
+const SL=(q,min,max,step,unit,a,tol,why,prefix)=>({type:'slider',q,min,max,step,unit,a,tol,why,prefix});
+const tk=(s,c)=>`<span class="tick ${c||''}">${s}</span>`;
+const ex=(label,html,cls)=>`<div class="ex ${cls||''}"><span class="ex-l">${label}</span>${html}</div>`;
+
+/* ---------- the units ---------- */
+const UNITS=[
+{ id:'soil', name:'The Soil', sub:'What crypto actually is', icon:'p1',
+  takeaways:['A blockchain is a shared notebook thousands of computers keep identical copies of','A wallet is a keychain, not a purse — whoever holds the key owns the coins','Public address = your IBAN (share it). Seed phrase = master key (never share it)','Exchanges are shops that hold coins for you — convenient, but not your keys'],
+  steps:[
+  T('The arrows are the least important part',`<p>A price chart is just a diary of what people paid. Behind every token there is a <b>thing</b>: a system, a promise, or a bet. When the thing is good, the arrows eventually follow it. When the thing is empty, the arrows eventually find out.</p><p>This garden teaches you to see the thing first, and the price second. By the end you will know <b>what</b> to buy, <b>when</b>, and <b>how much</b> — with your own numbers.</p>${ex('How this works','<p>Short lessons, small quizzes. Wrong answers come back once at the end, like Duolingo. Sun points grow as you go. Nothing here needs real money.</p>','info')}`),
+  T('What is money, anyway?',`<p>A €20 note is paper. It works because <b>everyone agrees</b> it works, and because one institution (the European Central Bank) decides how many exist.</p><p>Bitcoin, born in 2009, is the same agreement kept a different way: instead of a bank, a network of thousands of computers keeps the rulebook. And the rulebook is fixed — only <b>21 million</b> bitcoin will ever exist. Nobody can print more.</p>${ex('Real example','<p>In 2010 someone paid 10,000 '+tk('BTC')+' for two pizzas. Those coins would be worth roughly a billion dollars today. The point isn’t regret — it’s that agreement grew.</p>')}`),
+  MC('Why does a €20 note have value?',['The paper is rare','Everyone agrees to accept it, and the ECB controls how many exist','Gold sits behind it in a vault','It says 20 on it'],1,'Money is a shared agreement plus controlled supply. Bitcoin copies exactly those two things, without a central bank.'),
+  T('A blockchain is a shared notebook',`<p>Picture a village where everyone has an identical notebook. When Ana pays Ben one coin, <b>everyone</b> writes it down. If Ben tries to secretly edit his page, thousands of other notebooks disagree, so his edit is ignored.</p><p>That is a blockchain. A <b>block</b> is one page of transactions. The <b>chain</b> is the pages in order, each one stamped so it can’t be swapped.</p>${ex('Why it matters for your money','<p>Nobody can freeze it, reverse it, or quietly print more. That is the whole selling point — and also why mistakes can’t be undone.</p>','info')}`),
+  TF('A blockchain is a company that stores your crypto for you.',false,'It’s not a company at all — it’s the shared notebook itself, kept by many computers. Companies (exchanges) can hold coins for you, but that’s a separate thing.'),
+  T('A wallet is a keychain, not a purse',`<p>Your coins never sit <i>inside</i> your wallet. They sit in the notebook. Your wallet holds the <b>keys</b>:</p><div class="kv"><span class="k">Public address</span><span>Like your IBAN. Long code starting with <span class="mono">0x…</span> or <span class="mono">bc1…</span>. Safe to share — people send to it.</span><span class="k">Private key / seed phrase</span><span>12 or 24 words. Like your card, PIN and signature in one. Whoever has them owns the coins. Never share, never type into a website.</span></div>${ex('Real names you’ll see','<p>Phone/browser wallets: MetaMask, Rabby, Phantom. Physical "hardware" wallets: Ledger, Trezor. Same idea, different safety levels.</p>')}`),
+  MC('Which one is safe to share with anyone?',['Your seed phrase','Your private key','Your public address','Your exchange password'],2,'The public address is your IBAN — people need it to send you coins. Everything else unlocks your money.'),
+  T('Coins vs tokens',`<p>A <b>coin</b> is the native money of a blockchain: ${tk('BTC')} on Bitcoin, ${tk('ETH','eth')} on Ethereum, ${tk('SOL','eth')} on Solana.</p><p>A <b>token</b> is something built <i>on top</i> of a chain — like an app on a phone. ${tk('USDC','st')} (a digital dollar) is a token that lives on Ethereum, on Base, on Solana. Thousands of tokens exist; most are apps nobody uses.</p>`),
+  MATCH([['Blockchain','Shared notebook everyone keeps a copy of'],['Wallet','Keychain, not a purse'],['Seed phrase','12–24 word master key'],['Public address','Your IBAN'],['Token','An app built on top of a chain']],'These five words cover most of what people mean when they say "crypto".'),
+  T('The exchange is the shop',`<p>An <b>exchange</b> is where euros become coins. You send money by bank transfer, they buy coins and hold them for you — like a bank account for crypto.</p><p>EU-regulated names: <b>Kraken, Coinbase, Bitpanda</b> (Vienna), <b>Bitvavo</b>. Easy, insured against their own mistakes, but not against their own collapse.</p>${ex('Real example — FTX, November 2022','<p>The world’s second-biggest exchange used customer money for its own bets and went bankrupt in a week. Customers lost access to everything held there. Its founder got 25 years.</p>','warn')}<p><b>Rule of thumb:</b> small amounts on an exchange are fine. Amounts you would hate to lose move to your own wallet, where you hold the keys.</p>`),
+  MC('"Not your keys, not your coins" means…',['Crypto without a physical key is fake','If someone else holds the keys, they control the coins — not you','You need a key to log in','Only hardware wallets are real'],1,'On an exchange you hold an IOU, not the coins. Usually fine — until the shop fails.'),
+]},
+{ id:'seeds', name:'The Seeds', sub:'The real tokens you can buy', icon:'p2',
+  takeaways:['Four kinds: Bitcoin, big smart-contract chains, stablecoins, everything else','BTC = digital gold (scarce, boring). ETH = the city everything runs on','Stablecoins are digital dollars — not risk-free (UST went from $1 to ~$0.10)','Price per coin means nothing alone. Market cap = price × supply = the size of the thing'],
+  steps:[
+  T('There are tens of thousands of tokens. You need four kinds.',`<ol class="steps"><li><b>Bitcoin</b> — digital gold. One job: be scarce.</li><li><b>Big smart-contract chains</b> — Ethereum, Solana. Cities where apps live.</li><li><b>Stablecoins</b> — digital dollars and euros.</li><li><b>Everything else</b> — altcoins and memecoins. Real projects and lottery tickets, mixed together.</li></ol><p>Beginners get into trouble in category 4 while thinking they are in category 1.</p>`),
+  T('Bitcoin — digital gold',`<p>${tk('BTC')} is designed to be <b>scarce and boring</b>. 21 million cap, over 19.9 million already exist. New coins are issued every ~10 minutes as a reward to the computers keeping the notebook — and that reward <b>halves every four years</b> (2012, 2016, 2020, April 2024).</p><div class="tblwrap"><table class="tbl"><tr><th>Moment</th><th>Price (approx.)</th></tr><tr><td>Pizza day, 2010</td><td class="mono">~$0.004</td></tr><tr><td>Peak, Nov 2021</td><td class="mono">~$69,000</td></tr><tr><td>Bottom, Nov 2022</td><td class="mono">~$16,000</td></tr><tr><td>Crossed $100k, Dec 2024</td><td class="mono">$100,000+</td></tr></table></div><p>The lesson in that table: enormous long-term growth, with <b>brutal 50–80% drops</b> along the way. Both are normal for Bitcoin.</p>`),
+  MC('What makes Bitcoin scarce?',['A company limits production','The rulebook caps supply at 21 million and every computer enforces it','Governments agreed on a limit','Mining gets too expensive'],1,'The cap is code that every participant runs. Changing it would need almost everyone to agree to make their own coins less scarce — which never happens.'),
+  T('Ethereum — the city',`<p>${tk('ETH','eth')} is programmable money. It runs <b>smart contracts</b>: think vending machines. Put a coin in, the rules run automatically, no cashier, no bank hours. Lending, trading, insurance — the whole "DeFi" world is vending machines on Ethereum.</p><p>${tk('ETH','eth')} itself is the <b>fuel</b> ("gas") you pay to use the city. Since September 2022 the network is secured by <b>staking</b>: people lock ETH as a deposit and earn roughly 3–4% a year for keeping it honest.</p>${ex('Neighbours','<p>'+tk('SOL','eth')+' (Solana) is a faster, cheaper, younger city with a history of outages. "Layer 2s" like Base and Arbitrum are express lanes built on top of Ethereum with much lower fees.</p>','info')}<p>Peak ~$4,900 (Nov 2021), bottom ~$900 (Jun 2022). Same weather as Bitcoin, slightly wilder.</p>`),
+  MC('On Ethereum, "gas" is…',['A memecoin','The small fee in ETH you pay to use the network','Energy used by miners','A type of wallet'],1,'Every action — sending, swapping, minting — costs a little ETH. On busy days it gets expensive, which is why Layer 2s exist.'),
+  T('Stablecoins — digital dollars',`<p>${tk('USDC','st')}, ${tk('USDT','st')} and ${tk('EURC','st')} aim to always be worth exactly $1 or €1. A company holds one real dollar in reserve for each token. Useful for parking money without leaving crypto, earning yield, or sending money anywhere in seconds.</p>${ex('Real example — Terra UST, May 2022','<p>UST was an <i>algorithmic</i> stablecoin: no real dollars behind it, just a clever mechanism. The mechanism broke. $1 became ~$0.10 in days and about $40 billion evaporated. This "depeg" risk is exactly what Cork Protocol builds insurance for — you already know this story from the inside.</p>','warn')}<p><b>Rule:</b> stablecoin ≠ risk-free. Prefer ones backed by real cash and regulated in the EU (${tk('USDC','st')}, ${tk('EURC','st')} comply with MiCA; several EU exchanges dropped ${tk('USDT','st')} in 2025 for not complying).</p>`),
+  TF('All stablecoins are backed 1:1 by real dollars in a bank.',false,'Some are (USDC). Some are backed by mixed assets (USDT). Some were backed by nothing but a mechanism (UST) — and collapsed. Always ask: what is behind the $1?'),
+  T('Altcoins and memecoins',`<p><b>Altcoin</b> = any coin that isn’t Bitcoin. Some are real businesses with users and revenue (${tk('LINK','eth')}, ${tk('UNI','eth')}, ${tk('AAVE','eth')}). Most are not.</p><p><b>Memecoins</b> (${tk('DOGE','hot')}, ${tk('PEPE','hot')}, ${tk('SHIB','hot')}) are lottery tickets. Their value is attention, and attention moves on.</p>${ex('The uncomfortable statistic','<p>Most altcoins that peaked in 2021 are still down 90% or more and will never recover. Treat category 4 as <b>spending money</b>, not investing.</p>','warn')}`),
+  T('A low price does not mean cheap',`<p>Price per coin means nothing on its own. What matters is <b>market cap = price × number of coins</b> — the size of the whole thing.</p><div class="tblwrap"><table class="tbl"><tr><th>Coin</th><th>Price</th><th>Supply</th><th>Size</th></tr><tr><td>A</td><td class="mono">€2.00</td><td class="mono">100 million</td><td class="mono">€200M</td></tr><tr><td>B</td><td class="mono">€0.01</td><td class="mono">500 billion</td><td class="mono">€5,000M</td></tr></table></div><p>Coin B looks "cheap" and is 25× bigger. ${tk('SHIB','hot')} costs a fraction of a cent because there are ~589 <i>trillion</i> of them.</p>${ex('Useful reflex','<p>When someone says "if X just reaches $1…", multiply by the supply. If the answer is bigger than Apple, it’s not reaching $1.</p>','good')}`),
+  MC('Coin A costs €2 with 100M coins. Coin B costs €0.01 with 500B coins. Which is the bigger asset?',['Coin A — €2 is more than €0.01','Coin B — €5 billion vs €200 million','They’re the same size','Impossible to know'],1,'€0.01 × 500,000,000,000 = €5 billion. Price alone tells you nothing about size or "room to grow".'),
+  MATCH([['BTC','Digital gold — scarce and boring'],['ETH','The city where apps run'],['USDC','A digital dollar, backed 1:1'],['SOL','Faster, younger city with outages'],['DOGE','A lottery ticket']],'Four categories, five examples. Everything you meet fits somewhere in here.'),
+]},
+{ id:'weather', name:'Reading the Weather', sub:'Why the arrows go up and down', icon:'p3',
+  takeaways:['Price is only the last deal between a buyer and a seller — there is no "true" price','Bitcoin swings ±60–80% a year. A 30% drop in a week is weather, not a storm','Watch timeframe, % change, market cap and volume. Ignore the rest at first','Rates, regulation, collapses and hype move prices. You can’t predict them; you can size for them'],
+  steps:[
+  T('Why the price moves at all',`<p>There is no "true" price. A price is just the <b>last deal</b> between one buyer and one seller. More people wanting to buy than sell → it ticks up. The reverse → down.</p><p>Crypto trades 24/7, in every country, with no closing bell and a lot of emotional holders. So moves are bigger and faster than stocks. A 30% Bitcoin drop in a week is <b>weather</b>, not a storm.</p>`),
+  T('Volatility is the size of the swing',`<p>Roughly how much each thing tends to move in a bad-to-good year:</p><div class="vol"><div><span>Savings account</span><i style="width:2%"></i><span class="mono">~0%</span></div><div><span>World stock index</span><i style="width:20%"></i><span class="mono">±20%</span></div><div><span>Bitcoin</span><i style="width:70%"></i><span class="mono">±70%</span></div><div><span>Altcoins</span><i style="width:95%"></i><span class="mono">±90%+</span></div></div><p>This is the single most useful number for deciding <b>how much</b> to hold: if you couldn’t sleep through the bar, you own too much of it.</p>`),
+  MC('Bitcoin drops 20% in one week. The most accurate read is…',['Bitcoin is dying','Time to sell before it hits zero','Normal for this asset — the question is whether anything about the thing changed','Buy with borrowed money, it’s a discount'],2,'20% weeks happen several times a year. Check the thing (did the rules change? did a big player collapse?), not the arrow.'),
+  T('Reading a chart: the four things that matter',`<div class="fig"><svg viewBox="0 0 320 120" role="img" aria-label="Candlestick chart"><line x1="0" y1="100" x2="320" y2="100" stroke="currentColor" opacity=".15"/><line x1="0" y1="60" x2="320" y2="60" stroke="currentColor" opacity=".1"/><line x1="0" y1="20" x2="320" y2="20" stroke="currentColor" opacity=".1"/>
+  <g stroke-width="2"><line x1="30" y1="30" x2="30" y2="80" stroke="var(--heat)"/><rect x="21" y="40" width="18" height="30" fill="var(--heat)" rx="2"/>
+  <line x1="70" y1="50" x2="70" y2="95" stroke="var(--heat)"/><rect x="61" y="60" width="18" height="25" fill="var(--heat)" rx="2"/>
+  <line x1="110" y1="70" x2="110" y2="100" stroke="var(--grow)"/><rect x="101" y="75" width="18" height="18" fill="var(--grow)" rx="2"/>
+  <line x1="150" y1="45" x2="150" y2="85" stroke="var(--grow)"/><rect x="141" y="50" width="18" height="28" fill="var(--grow)" rx="2"/>
+  <line x1="190" y1="35" x2="190" y2="70" stroke="var(--grow)"/><rect x="181" y="40" width="18" height="22" fill="var(--grow)" rx="2"/>
+  <line x1="230" y1="30" x2="230" y2="75" stroke="var(--heat)"/><rect x="221" y="38" width="18" height="24" fill="var(--heat)" rx="2"/>
+  <line x1="270" y1="15" x2="270" y2="60" stroke="var(--grow)"/><rect x="261" y="20" width="18" height="30" fill="var(--grow)" rx="2"/></g>
+  <text x="21" y="115" font-size="9" fill="currentColor" opacity=".6" font-family="JetBrains Mono, monospace">1 candle = 1 day (or hour, or week)</text></svg><div class="cap">A candle: the box is where the price opened and closed. Teal = closed higher than it opened. Coral = closed lower. The thin line is the day’s full range.</div></div><ol class="steps"><li><b>Timeframe.</b> A 1-day chart and a 1-year chart of the same coin tell opposite stories. Zoom out first.</li><li><b>% change, not €.</b> "Bitcoin fell $3,000" is less than 3%. "Coin fell €0.02" might be 40%.</li><li><b>Market cap.</b> Size of the thing (previous unit).</li><li><b>Volume.</b> How much actually traded. A price jump on tiny volume is a rumour, not a move.</li></ol><p>Ignore everything else on the screen for now. Really.</p>`),
+  T('Seasons — the four-year rhythm',`<p>Historically Bitcoin has moved in rough <b>four-year cycles</b> around the halvings: a euphoric peak, a long cold winter, a slow spring.</p><div class="tblwrap"><table class="tbl"><tr><th>Peak</th><th>Then bottom</th><th>Drop</th></tr><tr><td>Dec 2013 <span class="mono">~$1,100</span></td><td>Jan 2015 <span class="mono">~$200</span></td><td class="mono">−80%</td></tr><tr><td>Dec 2017 <span class="mono">~$20,000</span></td><td>Dec 2018 <span class="mono">~$3,200</span></td><td class="mono">−84%</td></tr><tr><td>Nov 2021 <span class="mono">~$69,000</span></td><td>Nov 2022 <span class="mono">~$16,000</span></td><td class="mono">−77%</td></tr><tr><td>2025 <span class="mono">$120,000+</span></td><td>?</td><td>?</td></tr></table></div><p>This is not a law of nature and it may stop working. But one thing has held: <b>the best buys happened when everyone was bored</b>, and the worst when your taxi driver started mentioning Bitcoin.</p>`),
+  TF('If a coin went up a lot this month, it will probably keep going up next month.',false,'Momentum exists, but it is not a plan — and it reverses without warning. The people who bought the Nov 2021 peak were all following momentum.'),
+  T('The emotions gauge',`<p>There is a free, real tool called the <b>Fear & Greed Index</b> (alternative.me). It scores the crowd’s mood from 0 (extreme fear) to 100 (extreme greed).</p><div class="fig"><svg viewBox="0 0 320 44" role="img" aria-label="Fear to greed scale"><defs><linearGradient id="fg" x1="0" x2="1"><stop offset="0" stop-color="var(--grow)"/><stop offset=".5" stop-color="var(--sun)"/><stop offset="1" stop-color="var(--heat)"/></linearGradient></defs><rect x="10" y="10" width="300" height="12" rx="6" fill="url(#fg)"/><text x="10" y="40" font-size="10" fill="currentColor" opacity=".7" font-family="Nunito Sans, sans-serif" font-weight="700">0 · Extreme fear — historically decent buys</text><text x="310" y="40" font-size="10" fill="currentColor" opacity=".7" text-anchor="end" font-family="Nunito Sans, sans-serif" font-weight="700">100 · Extreme greed — careful</text></svg></div><p>Use it backwards: when it is deep red with fear, your monthly buy is probably a good one. When it is bright greed and everyone is a genius, don’t increase your buys. <b>Your plan decides; your feelings don’t.</b></p>`),
+  MC('Headline: "Bitcoin crashes 15% after ETF outflows." You buy monthly. Your action?',['Sell before it falls more','Skip this month’s buy','Make the same monthly buy as planned','Buy 5× the usual amount'],2,'A schedule exists precisely so headlines don’t run your money. Same amount, same day. Fear-days quietly lower your average price.'),
+  T('What actually moves prices',`<div class="kv"><span class="k">Interest rates</span><span>Cheap money → people buy risky things. 2022 rate hikes → everything risky fell, crypto hardest.</span><span class="k">Regulation</span><span>Jan 2024: US approved spot Bitcoin ETFs → pension funds and banks could finally buy. Prices followed.</span><span class="k">Collapses & hacks</span><span>FTX, Terra, Mt. Gox. Fear spreads to everything, even the healthy things.</span><span class="k">Halvings</span><span>New supply drops by half; historically preceded the big runs.</span><span class="k">Hype</span><span>Memecoin summers, celebrity tweets. Fast up, faster down.</span></div><p>You cannot predict any of these. You can <b>size your holdings so none of them hurt</b>. That is the next two units.</p>`),
+]},
+{ id:'when', name:'When to Plant', sub:'Timing without guessing', icon:'p4',
+  takeaways:['Nobody can time the bottom. Consistency is a skill; timing is not','Order: no expensive debt → 3–6 month cushion → only money you won’t need for 5+ years → then crypto','DCA = same amount, same day, every month. It removes the "when" question','A windfall gets split over 6–12 months, not dropped in at once'],
+  steps:[
+  T('The honest answer to "when"',`<p>Nobody knows the bottom. Not the analysts, not the YouTubers, not your colleague who got lucky in 2020. Perfect timing is not a skill you can learn — <b>consistency and sizing are</b>.</p><p>So "when" becomes a boring, powerful answer: <b>on a schedule, with money you won’t need for years.</b> The rest of this unit makes that concrete.</p>`),
+  T('Before a single euro goes into crypto',`<ol class="steps"><li><b>No expensive debt.</b> Credit card or consumer loan at 10%+? Paying it off is a guaranteed 10% return. Nothing in crypto guarantees anything.</li><li><b>A cushion.</b> 3–6 months of living costs in a normal account (Tagesgeld). This is what stops you selling crypto at the bottom because the washing machine died.</li><li><b>Long-term money only.</b> Anything you might need within 5 years (flat deposit, wedding, tax bill) stays out.</li><li><b>Then</b> invest — and crypto is a slice of that, not all of it.</li></ol>${ex('Why the cushion comes first','<p>In 2022 the people forced to sell at −75% were the ones who needed the money. The people who could wait were fine by 2024. The cushion buys you the ability to wait.</p>','good')}`),
+  ORDER('Put these in the right order:',['Pay off high-interest debt','Build a 3–6 month cushion','Decide what money is long-term (5+ years)','Start buying crypto on a schedule'],'Debt first (it’s a guaranteed loss otherwise), cushion second (so you never sell in panic), then decide the long-term pot, then schedule the buys.'),
+  T('DCA — watering on a schedule',`<p><b>Dollar-cost averaging</b>: the same amount, the same day, every month, no matter the price. You automatically buy more coins when it’s cheap and fewer when it’s expensive.</p><div class="fig"><svg viewBox="0 0 320 130" role="img" aria-label="Lump sum at peak versus monthly buys"><line x1="0" y1="110" x2="320" y2="110" stroke="currentColor" opacity=".15"/><polyline fill="none" stroke="var(--muted)" stroke-width="2" points="20,14 45,44 70,55 95,48 120,45 145,55 170,63 195,80 220,75 245,79 270,80 295,79 315,84"/><circle cx="20" cy="14" r="5" fill="var(--heat)"/><text x="30" y="14" font-size="10" fill="var(--heat)" font-weight="700" font-family="Nunito Sans, sans-serif">All-in at the peak, $69k</text><g fill="var(--grow)"><circle cx="45" cy="44" r="3.5"/><circle cx="70" cy="55" r="3.5"/><circle cx="95" cy="48" r="3.5"/><circle cx="120" cy="45" r="3.5"/><circle cx="145" cy="55" r="3.5"/><circle cx="170" cy="63" r="3.5"/><circle cx="195" cy="80" r="3.5"/><circle cx="220" cy="75" r="3.5"/><circle cx="245" cy="79" r="3.5"/><circle cx="270" cy="80" r="3.5"/><circle cx="295" cy="79" r="3.5"/><circle cx="315" cy="84" r="3.5"/></g><line x1="40" y1="66" x2="320" y2="66" stroke="var(--grow)" stroke-dasharray="3 4"/><text x="318" y="62" font-size="10" fill="var(--grow)" font-weight="700" text-anchor="end" font-family="Nunito Sans, sans-serif">12 monthly buys, average ≈ $30k</text><text x="20" y="125" font-size="9" fill="currentColor" opacity=".6" font-family="JetBrains Mono, monospace">Nov 2021 → Nov 2022, Bitcoin, approximate</text></svg></div>${ex('Real example','<p>Put everything in at the Nov 2021 peak (~$69k) and a year later you were down ~75%. Spread the same money over the next 12 months and your average price was roughly $30k. By December 2024 (Bitcoin above $100k) the peak buyer was up ~45%. The monthly buyer was up over 3×.</p>','good')}<p>DCA doesn’t make you a genius. It <b>removes the need to be one</b>.</p>`),
+  MC('The main benefit of buying monthly (DCA) is…',['You always get the lowest price','You never lose money','You stop needing to guess the right day','You pay lower fees'],2,'You will sometimes buy high and sometimes low. Over time that averages out — and you never have to face the question "is now the moment?"'),
+  T('Lump sum vs monthly',`<p>Statistically, putting a lump sum in all at once wins slightly <i>on average</i>, because markets rise more often than they fall. But averages don’t pay your rent — and DCA wins on regret, sleep, and actually sticking to it.</p><p>If you earn a monthly salary, DCA is simply natural: the money arrives monthly anyway.</p>${ex('Windfall rule','<p>Bonus, gift, tax refund? Split the crypto portion into <b>6–12 monthly pieces</b>. If prices drop, you’re glad. If they rise, you still got most of it in.</p>','info')}`),
+  T('The five-year test',`<p>Ask, for every euro: <b>"Could I need this in the next five years?"</b> If yes, it does not go into crypto. Not because it will crash — because it <i>might</i> crash exactly when you need it, and 2022 showed how that goes.</p><p>Flat deposit in two years? Savings account or short-term bond. Money you genuinely don’t need until 2031? Now we’re talking.</p>`),
+  TF('"I’m saving for a flat deposit in two years — crypto is a good place for it."',false,'Two years is well inside the danger window. Twice in the last decade Bitcoin lost ~75% inside a year. That deposit belongs in a savings account.'),
+  T('So, practically: when?',`<ol class="steps"><li>Pick a day. The 1st, right after salary lands, works.</li><li>On your exchange, set up a <b>recurring buy</b> (Kraken, Coinbase and Bitpanda all have it). Monthly. Fixed amount.</li><li>Don’t check the price on buy day. Don’t check it on other days either.</li><li>Look once a quarter. That’s the whole schedule.</li></ol><p>"When" is now answered forever: <b>the 1st of the month.</b> Next unit: how much.</p>`),
+  MC('You receive a €3,000 bonus. Your plan says crypto is 10% of your investing. Sensible move?',['Put all €3,000 into Bitcoin today — it’s a bonus anyway','Put the €300 crypto share in over the next few months, the rest into your normal investments','Wait for the next crash to buy','Buy the coin that’s up most this week'],1,'The plan gives you the amount (10% = €300). The windfall rule gives you the timing (spread it). Nothing else needs deciding.'),
+]},
+{ id:'howmuch', name:'The Pot Size', sub:'How much, and in what', icon:'p5',
+  takeaways:['Crypto is a small slice — commonly 1–10% of your investments; ≤5% to start','Slice × drop = your total pain. 5% slice × −80% = −4% overall. Survivable','Inside the slice: 70–90% BTC + ETH, the rest experiments you understand, 0% TikTok tips','Start with €25–50 a month. The first six months are for learning how it feels'],
+  steps:[
+  T('The size rule',`<p>Most financial planners treat crypto as a <b>small slice of your investments</b> — commonly <b>1–10%</b>, with 5% or less for beginners. Not 5% of your salary; 5% of the money you invest.</p><p>The logic is arithmetic, not opinion. An asset that can fall 80% should be small enough that an 80% fall on it is a bruise on the whole:</p><div class="kv"><span class="k">Formula</span><span><b>slice × drop = total pain</b></span><span class="k">5% slice</span><span>× −80% = <b>−4%</b> on everything. You shrug.</span><span class="k">50% slice</span><span>× −80% = <b>−40%</b> on everything. You sell at the bottom and hate crypto forever.</span></div>`),
+  SL('You have €10,000 invested. You could stomach losing €800 of it in a bad year. Crypto can drop 80%. What is your maximum crypto slice?',0,50,1,'%',10,2,'€800 ÷ 80% = €1,000 = 10% of €10,000. Work backwards from the pain you can take — never forwards from the gain you hope for.'),
+  T('Inside the slice: core and satellites',`<p>Once you know the slice, split it:</p><div class="kv"><span class="k">Core · 70–90%</span><span>${tk('BTC')} and ${tk('ETH','eth')}. The two that have survived every winter. Boring on purpose.</span><span class="k">Satellites · 10–30%</span><span>One to three things you actually understand — a project whose product you’ve used, or a stablecoin earning yield.</span><span class="k">Zero</span><span>Anything you heard about today. Anything promising guaranteed returns.</span></div>${ex('Example: €100 a month','<p>€50 '+tk('BTC')+' · €30 '+tk('ETH','eth')+' · €20 for one experiment (or parked in '+tk('USDC','st')+' until you find one). That’s a complete portfolio.</p>','good')}`),
+  MC('Which €100 monthly split fits "core and satellites"?',['€100 into whichever coin is trending','€50 BTC · €30 ETH · €20 one project you understand','€20 BTC · €80 spread across 8 memecoins','€100 into a coin your friend says will 50×'],1,'Core first, one or two experiments at most. If you can’t explain what the satellite does in one sentence, it isn’t a satellite — it’s a ticket.'),
+  T('The sleep test and the pain test',`<p><b>Sleep test:</b> before buying, finish this sentence honestly: <i>"If this halves tomorrow, I will ____."</i> If the answer is "panic and sell", buy half as much and ask again.</p><p><b>Pain test:</b> take the amount you’re about to hold, multiply by 0.2, and imagine your screen showing that number for a whole year. Still fine? That’s your size. Not fine? Smaller.</p>`),
+  T('Starting tiny is the point',`<p><b>€25 a month is a real start.</b> The first six months aren’t about returns — they’re about learning how a −30% month <i>feels</i> when it’s your money, and discovering that you survive it.</p>${ex('Fees','<p>Simple buys on exchanges cost roughly 0.5–1.5%. Fine for €25+. Don’t buy €5 at a time; the fee eats the point.</p>','info')}<p>Once you’ve felt a full drop and didn’t sell, you’re allowed to raise the amount. Not before.</p>`),
+  MC('You earn €3,000 net, have a 3-month cushion, and invest €400 a month. Sensible crypto amount to start?',['€400 — go all in','€200 — half and half','€20–40 a month, raise later if you sleep fine','€0 — crypto is a scam'],2,'5–10% of €400 is €20–40. Small, boring, sustainable. You can always raise it after you’ve lived through a drop.'),
+  T('Sizing your experiments',`<p>A project you like: <b>max 1–2%</b> of all your investments. A memecoin: <b>the price of a night out</b>, and only if you’d laugh when it goes to zero.</p><p>Write one line when you buy anything: <i>date · amount · price · why</i>. If the "why" stops being true, sell. That single habit beats most trading strategies.</p>`),
+  TF('"Because crypto can 10×, I should put in more so it actually makes a difference."',false,'Anything that can 10× can also do −90%. Size for the downside; the upside takes care of itself. A 5% slice that 10×es becomes 35% of your portfolio — that’s plenty of difference.'),
+]},
+{ id:'weeds', name:'Weeds & Pests', sub:'Where beginners actually lose money', icon:'p6',
+  takeaways:['Beginners lose money to scams, leverage, and hype tops — far more than to price drops','"Guaranteed returns" is always a scam. Real support never asks for your seed phrase','Leverage = borrowed money = the fastest route to zero. None, ever','Seed phrase on paper, two copies, two places. Hardware wallet once you hold €1,000+'],
+  steps:[
+  T('Where the money actually goes',`<p>Ranked by how beginners really lose money:</p><ol class="steps"><li><b>Scams and phishing</b> — someone talks you out of your keys or your euros.</li><li><b>Leverage</b> — trading with borrowed money.</li><li><b>Buying the top of a hype</b> — the coin everyone’s talking about, at the moment everyone’s talking about it.</li><li><b>Exchange collapse</b> — FTX, Celsius.</li><li><b>Losing the seed phrase</b> — the coins are still there; you just can’t reach them.</li></ol><p>Notice what isn’t on the list: "Bitcoin went down". Prices recover. These don’t.</p>`),
+  T('The five scams you will meet',`<ol class="steps"><li><b>The giveaway.</b> "Send 1 ETH, get 2 back" from a fake Elon / fake exchange. Nobody doubles money.</li><li><b>The mentor.</b> A WhatsApp or Telegram group where a "trading expert" guarantees returns. The screenshots are fake; the exit is planned.</li><li><b>Fake support.</b> A DM from "Coinbase support" asking for your 12 words to "verify". <b>Real support never asks. Ever.</b></li><li><b>Fake sites.</b> A copy of your exchange or wallet one letter off. Bookmark the real URL; never click from a search ad or email.</li><li><b>The honeypot.</b> A token you can buy but mysteriously can’t sell. Rug pulls: the creators drain the pool and vanish.</li></ol>${ex('The one rule that covers all five','<p><b>Guaranteed returns = scam.</b> Always. No exceptions in the history of finance.</p>','warn')}`),
+  MC('Message: "Hi, Coinbase Support here. To verify your account, please share your 12-word recovery phrase." You…',['Share it — it’s Coinbase','Share only 6 of the words to be safe','Ignore, report, and never share the words with anyone','Ask them to prove they’re Coinbase first'],2,'No legitimate company will ever ask for your seed phrase — they don’t need it and can’t use it for support. Anyone asking is stealing.'),
+  T('Leverage: borrowed money, fastest route to zero',`<p>"10× leverage" means you control €1,000 with €100 of your own. A <b>10% move against you erases everything</b> — and crypto moves 10% on a Tuesday. Exchanges advertise it heavily because they profit when you get "liquidated".</p><p>Words that mean leverage: <b>futures, perps, perpetuals, margin, 5× / 10× / 100×</b>. Beginner rule: none of it. Not once. Not "just to try".</p>`),
+  TF('With 10× leverage, a 10% price drop against you means you lose 10% of your money.',false,'It means you lose 100%. Leverage multiplies the loss too — that’s the part the ads leave out.'),
+  T('Protecting your keys',`<div class="kv"><span class="k">Seed phrase</span><span>On paper (or steel), <b>two copies, two places</b>. Never a photo, never the cloud, never typed into a website, never in a chat.</span><span class="k">Exchange login</span><span>Two-factor with an <b>authenticator app</b> (Google Authenticator, Authy), not SMS — SIM swaps are real.</span><span class="k">Hardware wallet</span><span>Ledger or Trezor, €60–150. Worth it once you hold more than you’d hate to lose — roughly €1,000+.</span><span class="k">Links</span><span>Bookmarks only. No search ads, no email links, no "urgent" DMs.</span></div>`),
+  MATCH([['Seed phrase','Paper in a drawer, two copies'],['Exchange account','Authenticator-app 2FA'],['€1,000+ in crypto','Hardware wallet'],['Unknown link in a DM','Don’t click'],['"Guaranteed 20% a month"','Scam, always']],'Boring habits, no exceptions. Security is a checklist, not a feeling.'),
+  T('Case files',`<div class="tblwrap"><table class="tbl"><tr><th>When</th><th>What</th><th>Lesson</th></tr><tr><td class="mono">2014</td><td><b>Mt. Gox</b> — biggest exchange, hacked, ~850,000 BTC gone</td><td>Not your keys</td></tr><tr><td class="mono">May 2022</td><td><b>Terra / UST</b> — "stable" coin with nothing behind it, ~$40B lost</td><td>Ask what backs the $1</td></tr><tr><td class="mono">Jun 2022</td><td><b>Celsius</b> — promised up to 18% yield, froze withdrawals, bankrupt</td><td>Where does the yield come from?</td></tr><tr><td class="mono">Nov 2022</td><td><b>FTX</b> — used customer money for its own bets</td><td>Not your keys, again</td></tr></table></div><p>Same pattern every time: <b>high promises + someone else holding your money</b>.</p>`),
+  MC('A platform offers 18% a year on stablecoins, "risk-free". The right question is…',['How do I sign up fast?','Where does 18% come from? If nobody can explain it, the yield is me','Is 18% enough?','Can I add leverage?'],1,'Real yields on stablecoins are a few percent — from lending to borrowers who pay interest. 18% means they’re taking risks with your money you can’t see. Celsius, 2022.'),
+]},
+{ id:'harvest', name:'The Harvest', sub:'Selling, taxes, staying sane', icon:'p7',
+  takeaways:['Decide how you’ll sell before you need to: rebalance back to your slice, or ladder out','Germany: hold over 1 year → gains tax-free for private individuals. Swaps count as sales','Yield is the cherry, not the cake. Over ~10% has hidden risk','Check monthly or quarterly. Turn off price notifications. Boring beats clever over ten years'],
+  steps:[
+  T('Have a selling plan before you need one',`<p>People don’t lose in crypto because they never sold. They lose because they sold <i>in panic</i>. Pick a rule now, while you’re calm:</p><div class="kv"><span class="k">Rebalance</span><span>Your slice was 5%. A boom pushes it to 15%. Sell back to 5–7%. That’s automatic profit-taking and it forces you to sell high, buy low.</span><span class="k">Ladder</span><span>Sell 10–20% of your position each time it doubles. Never all in, never all out.</span><span class="k">Never sell</span><span>Legitimate too — if the size is small enough that you truly don’t need it. Then you only sell to spend, slowly.</span></div>`),
+  MC('Your crypto grew from 5% to 15% of your investments. "Rebalancing" means…',['Buy more to celebrate','Sell some crypto back toward your target slice and move it into the rest of your investments','Sell everything','Switch from BTC to altcoins'],1,'Rebalancing locks in gains and puts your risk back where you decided it should be — mechanically, without a prediction.'),
+  T('Taxes in Germany (private investors)',`<div class="kv"><span class="k">Held over 1 year</span><span>Sell → <b>gains are tax-free</b> (§23 EStG). This is a big, real advantage of holding.</span><span class="k">Sold within 1 year</span><span>Gains are taxed as income if your total short-term gains exceed <b>€1,000</b> in the year (Freigrenze — go €1 over and all of it is taxable).</span><span class="k">Swaps count</span><span>ETH → SOL is a sale of ETH, even though no euros appeared.</span><span class="k">Staking rewards</span><span>Count as income when received.</span></div>${ex('Practical','<p>Tools like <b>CoinTracking</b> or <b>Blockpit</b> (both German) read your exchange history and produce the tax report. Rules change — check each year — but the one-year rule makes buy-and-hold structurally better here.</p>','info')}`),
+  TF('Swapping ETH for SOL within a year is not a taxable event because no euros were involved.',false,'In Germany a coin-to-coin swap is a sale of the first coin. If it was held under a year and you’re over the €1,000 Freigrenze, it’s taxable.'),
+  T('Yield, staking, "earning on your crypto"',`<p><b>Staking ETH</b> (~3–4% a year): you help secure the network and get paid in ETH. Low risk if done through a reputable exchange or a well-known protocol.</p><p><b>Lending stablecoins</b> on protocols like Aave: a few percent, variable, from real borrowers paying interest.</p><p>Above ~10%, someone is taking a risk you can’t see. Yield is the <b>cherry</b>, never the cake — a 4% yield on an asset that can drop 70% doesn’t change the maths.</p>`),
+  T('The journal and the quarterly look',`<p>One line per buy: <i>date · amount · price · why</i>. That’s the whole journal.</p><p>Look at your portfolio <b>once a month at most</b>, properly once a quarter. Turn off price notifications on every app. Unfollow the accounts that post charts.</p>${ex('Why','<p>Every check is a chance to make an emotional decision. The healthiest crypto investors are the ones who forgot their password for two years.</p>','good')}`),
+  MC('You buy monthly on a schedule. How often should you look at prices?',['Every morning','Several times a day — it moves fast','Monthly or quarterly','Only when it’s in the news'],2,'The schedule does the work. Looking more often only adds chances to break it.'),
+  T('What winning actually looks like',`<p>Not 100×. Not calling the top. Winning is <b>owning a sensible slice through two full cycles without panic-selling</b>. Over ten years, in every asset class, boring has beaten clever.</p><p>You now know the plants, the seasons, the watering schedule, the pot size and the pests. One unit left: actually planting.</p>`),
+]},
+{ id:'plant', name:'Your First Plant', sub:'Do it, small, this month', icon:'p8',
+  takeaways:['EU exchange → SEPA deposit → buy €25 BTC → set a monthly recurring buy → app 2FA → journal line','Planner (top of the garden) gives you your own cushion target, monthly amount and split','Hardware wallet when you cross ~€1,000','The arrows are weather. You’re a gardener now'],
+  steps:[
+  T('The whole thing, in seven steps',`<ol class="steps"><li><b>Open an EU-regulated exchange</b> — Kraken, Coinbase, Bitpanda or Bitvavo. Identity check with your ID (called KYC), about 10 minutes.</li><li><b>Deposit €50</b> by SEPA bank transfer. Free or nearly.</li><li><b>Buy €25 of ${tk('BTC')}.</b> Fee around €0.25–0.50. You now own bitcoin. It’s that undramatic.</li><li><b>Set a recurring buy</b> — monthly, the 1st, the amount from your Planner.</li><li><b>Turn on app-based 2FA.</b></li><li><b>Write your journal line.</b> Date, amount, price, "starting my garden".</li><li><b>Later, past ~€1,000:</b> hardware wallet, move the coins, seed phrase on paper, two places.</li></ol>`),
+  ORDER('Put your first month in order:',['Open an EU exchange and pass identity check','Deposit €50 by bank transfer','Buy €25 of Bitcoin','Set a monthly recurring buy','Turn on app-based 2FA'],'Account → money in → first buy → automate → lock the door. Later, when the pile grows, the hardware wallet.'),
+  T('Your own numbers',`<p>The Planner at the top of the garden takes your income, costs and savings and gives you back: your cushion target, how many months until it’s full, your monthly investing amount, your crypto slice, and a BTC/ETH split. It saves on this device only.</p>${ex('When and how much — the short version','<p><b>When:</b> the 1st of every month, automatically, after the cushion exists.<br><b>How much:</b> 5–10% of what you invest, starting at €25–50.<br><b>In what:</b> mostly '+tk('BTC')+' and '+tk('ETH','eth')+', one small experiment at most.</p>','good')}`),
+  MC('As a beginner with a monthly plan, the least important thing to watch is…',['Whether your exchange is EU-regulated','Where your seed phrase is','The daily price','Your crypto slice as % of your investments'],2,'Everything else on that list can actually hurt you. The daily price can only tempt you.'),
+  MC('Your friend says "everyone’s buying this new coin, it did 40× this week." Your move?',['Buy immediately before it’s too late','Sell your BTC to buy it','Check the market cap, check who’s behind it — and if you still want in, a night-out’s worth, not a penny more','Borrow to buy more'],2,'40× this week means most of the move already happened, and the people who bought early need you to be the exit. If it’s a ticket, size it like a ticket.'),
+  T('Graduation',`<p>The arrows are weather. You now know the plants (${tk('BTC')}, ${tk('ETH','eth')}, stablecoins), the seasons (four-year cycles), the watering (monthly, the 1st), the pot size (a small slice, core and satellites) and the pests (scams, leverage, guaranteed anything).</p><p>Plant something small this month. Then leave it alone and let it grow.</p>${ex('Keep learning','<p>Reread any unit from the garden. Redo the Planner when your numbers change. And when something in the news scares you, come back to Reading the Weather.</p>','info')}`),
+]},
+];
+
+/* ---------- dictionary ---------- */
+const DICT=[
+['Address','Your public crypto "IBAN". Long code, safe to share.'],
+['Altcoin','Any coin that isn’t Bitcoin.'],
+['APY','Yearly yield including compounding. Above ~10% on stablecoins, be suspicious.'],
+['Bear market','Long period of falling prices. The "winter".'],
+['Blockchain','The shared notebook of transactions that thousands of computers keep identical copies of.'],
+['Bull market','Long period of rising prices. The "summer".'],
+['Cold wallet','Keys stored offline, e.g. a hardware wallet. Safest.'],
+['DCA','Dollar-cost averaging: buying a fixed amount on a fixed schedule regardless of price.'],
+['DeFi','Decentralised finance: lending, trading, insurance built as smart contracts instead of banks.'],
+['Depeg','When a stablecoin stops being worth $1. UST fell to $0.10 in 2022.'],
+['Exchange','The shop where euros become crypto: Kraken, Coinbase, Bitpanda, Bitvavo.'],
+['Fear & Greed Index','Free 0–100 mood meter of the crypto crowd (alternative.me).'],
+['Gas','The small fee in ETH paid to use Ethereum.'],
+['Halving','Every ~4 years Bitcoin’s new-coin issuance halves. Last one: April 2024.'],
+['Hardware wallet','A small device (Ledger, Trezor) that keeps your keys offline.'],
+['HODL','Slang for holding long-term instead of trading.'],
+['KYC','"Know your customer" — the ID check when opening an exchange account.'],
+['Layer 2','Express lane built on top of Ethereum with lower fees (Base, Arbitrum).'],
+['Leverage','Trading with borrowed money. Multiplies losses. Avoid.'],
+['Liquidation','What happens when leverage goes wrong: the exchange takes your position. You lose everything in it.'],
+['Market cap','Price × number of coins. The real size of a coin.'],
+['Memecoin','A token whose value is attention. DOGE, PEPE, SHIB. A lottery ticket.'],
+['MiCA','EU crypto regulation (2024–25). Exchanges and stablecoins in the EU must comply.'],
+['Private key','The secret that controls your coins. Same idea as the seed phrase.'],
+['Rebalance','Selling what grew and buying what shrank to get back to your planned slices.'],
+['Rug pull','Creators of a token drain the money and vanish.'],
+['Seed phrase','12 or 24 words that regenerate your private keys. The master key. Never share.'],
+['Smart contract','A program on a blockchain that runs automatically when conditions are met. A vending machine.'],
+['Stablecoin','A token designed to stay at $1 or €1: USDC, USDT, EURC.'],
+['Staking','Locking coins as a deposit to help secure a network, earning a yield (~3–4% on ETH).'],
+['Token','Something built on top of a chain (USDC on Ethereum). A coin is the chain’s native money.'],
+['Volatility','How big the swings are. Bitcoin ±70% a year; altcoins more.'],
+['Volume','How much actually traded in a period. Low volume = the price move is unreliable.'],
+['Whale','Someone holding enough to move the price by trading.'],
+];
+
+/* ---------- state ---------- */
+const STORE='money-garden-v1';
+function load(){try{return Object.assign({done:{},xp:0,streak:0,last:null,plan:null},JSON.parse(localStorage.getItem(STORE)||'{}'))}catch(e){return {done:{},xp:0,streak:0,last:null,plan:null}}}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(P))}catch(e){}}
+let P=load();
+const app=document.getElementById('app');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const icon=id=>`<svg><use href="#${id}"/></svg>`;
+
+/* ---------- garden ---------- */
+function firstOpen(){for(let i=0;i<UNITS.length;i++){if(!P.done[UNITS[i].id])return i}return UNITS.length}
+function renderGarden(){
+  const open=firstOpen();
+  const doneCount=Object.keys(P.done).length;
+  const GAP=168, W=520, H=90+GAP*(UNITS.length-1)+110;
+  const pos=UNITS.map((u,i)=>({x:i%2===0?150:370,y:90+i*GAP}));
+  let segs='';
+  for(let i=1;i<pos.length;i++){const a=pos[i-1],b=pos[i];segs+=`<path class="seg ${P.done[UNITS[i-1].id]?'done':''}" d="M${a.x},${a.y} C${a.x},${a.y+GAP*.55} ${b.x},${b.y-GAP*.55} ${b.x},${b.y}"/>`}
+  const nodes=UNITS.map((u,i)=>{
+    const st=P.done[u.id]?'done':(i===open?'active':'locked');
+    const sc=P.done[u.id]?`<span class="sc">${P.done[u.id].score}% · sun ${P.done[u.id].xp}</span>`:'';
+    return `<div class="node ${st}" style="left:${pos[i].x/W*100}%;top:${pos[i].y}px"><button class="pot" ${st==='locked'?'disabled':''} data-i="${i}" aria-label="${u.name}">${icon(u.icon)}</button><div class="lab"><b>${u.name}</b><span>${u.sub}</span>${sc}</div></div>`}).join('');
+  const heroHTML=doneCount===0?`<section class="hero"><div class="eyebrow">Start here</div><h2>Crypto without the numbers-and-arrows feeling</h2><p>Eight short units: what the tokens actually are, why prices move, when to buy, how much, and what to avoid. Real coins, real stories, plain words. Then a Planner with your own numbers.</p><div class="cta"><button class="btn primary" data-start="0">Plant the first seed</button></div></section>`
+    :doneCount===UNITS.length?`<section class="hero"><div class="eyebrow">Garden complete</div><h2>You know the plants, the seasons and the pests</h2><p>Reopen any unit to review, or open the Planner to set your monthly amount. The 1st of the month is your day.</p><div class="cta"><button class="btn primary" data-open="plan">Open the Planner</button></div></section>`
+    :`<section class="hero"><div class="eyebrow">Next up</div><h2>${UNITS[open].name}</h2><p>${UNITS[open].sub}. ${UNITS[open].steps.length} short steps.</p><div class="cta"><button class="btn primary" data-start="${open}">Continue</button></div></section>`;
+  app.innerHTML=headerHTML('learn')+`
+  ${heroHTML}
+  <div class="map" style="height:${H}px"><svg class="path" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${segs}</svg>${nodes}</div>
+  <p class="footnote">Education, not personal financial advice. Prices and rules are approximate and were last checked in early 2026 — always verify current tax rules.</p>`;
+  app.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>startLesson(+b.dataset.start));
+  app.querySelectorAll('.pot:not(:disabled)').forEach(b=>b.onclick=()=>startLesson(+b.dataset.i));
+  app.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openSheet(b.dataset.open));
+  bindTabs();scrollTo({top:0});
+}
+
+/* ---------- lesson engine ---------- */
+let S=null;
+function startLesson(idx){
+  const unit=UNITS[idx];
+  const queue=unit.steps.map((st,i)=>Object.assign({_id:i},st));
+  const gradeable=queue.filter(s=>s.type!=='teach').length;
+  S={idx,unit,queue,pos:0,results:{},gradeable,checked:false};
+  app.innerHTML=`<div class="lesson"><div class="ltop"><button class="x" aria-label="Back to garden">×</button><div class="pbar"><i id="pfill"></i></div><span class="cnt mono" id="cnt"></span></div><div class="stage" id="stage"></div><div class="foot" id="foot"></div><div class="fb" id="fb"></div></div>`;
+  app.querySelector('.x').onclick=()=>renderGarden();
+  renderStep();scrollTo({top:0});
+}
+function progress(){document.getElementById('pfill').style.width=(S.pos/S.queue.length*100)+'%';document.getElementById('cnt').textContent=`${Math.min(S.pos+1,S.queue.length)}/${S.queue.length}`}
+function renderStep(){
+  if(S.pos>=S.queue.length)return renderComplete();
+  progress();
+  const step=S.queue[S.pos],stage=document.getElementById('stage'),foot=document.getElementById('foot'),fb=document.getElementById('fb');
+  fb.className='fb';S.checked=false;S.sel=null;
+  const eyebrow=`<div class="eyebrow">${S.unit.name}${step._retry?' · one more time':''}</div>`;
+  if(step.type==='teach'){
+    stage.innerHTML=`${eyebrow}<h2>${step.title}</h2><div class="body">${step.body}</div>`;
+    foot.innerHTML=`<button class="btn primary block" id="go">Continue</button>`;
+    document.getElementById('go').onclick=()=>{S.pos++;renderStep();stage.scrollTop=0};
+  }
+  else if(step.type==='mc'){
+    stage.innerHTML=`${eyebrow}<h2 class="q">${step.q}</h2><div class="opts">${step.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>`;
+    foot.innerHTML=`<button class="btn primary block" id="check" disabled>Check</button>`;
+    stage.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(S.checked)return;stage.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');S.sel=+b.dataset.i;document.getElementById('check').disabled=false});
+    document.getElementById('check').onclick=()=>{const ok=S.sel===step.a;stage.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.i===step.a)b.classList.add('ok');else if(+b.dataset.i===S.sel)b.classList.add('bad')});grade(ok,step)};
+  }
+  else if(step.type==='tf'){
+    stage.innerHTML=`${eyebrow}<h2 class="q">True or false?</h2><div class="stmt">${step.q}</div><div class="tf"><button class="opt" data-v="1">True</button><button class="opt" data-v="0">False</button></div>`;
+    foot.innerHTML=`<button class="btn primary block" id="check" disabled>Check</button>`;
+    stage.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(S.checked)return;stage.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');S.sel=b.dataset.v==='1';document.getElementById('check').disabled=false});
+    document.getElementById('check').onclick=()=>{const ok=S.sel===step.a;stage.querySelectorAll('.opt').forEach(b=>{b.disabled=true;const v=b.dataset.v==='1';if(v===step.a)b.classList.add('ok');else if(v===S.sel)b.classList.add('bad')});grade(ok,step)};
+  }
+  else if(step.type==='match'){
+    const L=shuffle(step.pairs.map((p,i)=>({t:p[0],i}))),R=shuffle(step.pairs.map((p,i)=>({t:p[1],i})));
+    stage.innerHTML=`${eyebrow}<h2 class="q">Tap the matching pairs</h2><div class="match"><div class="col">${L.map(o=>`<button class="opt l" data-i="${o.i}">${o.t}</button>`).join('')}</div><div class="col">${R.map(o=>`<button class="opt r" data-i="${o.i}">${o.t}</button>`).join('')}</div></div>`;
+    foot.innerHTML=`<div style="font-size:13px;color:var(--muted);text-align:center">Pick one on the left, then its partner on the right</div>`;
+    let left=null,mistakes=0,matched=0;
+    stage.querySelectorAll('.opt.l').forEach(b=>b.onclick=()=>{if(b.classList.contains('matched'))return;stage.querySelectorAll('.opt.l').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');left=b});
+    stage.querySelectorAll('.opt.r').forEach(b=>b.onclick=()=>{if(!left||b.classList.contains('matched'))return;
+      if(b.dataset.i===left.dataset.i){b.classList.add('matched');left.classList.add('matched');left.classList.remove('sel');left=null;matched++;if(matched===step.pairs.length)grade(mistakes===0,step,mistakes>0?`${mistakes} slip${mistakes>1?'s':''} on the way — it comes back once at the end.`:null)}
+      else{mistakes++;b.classList.add('shake');left.classList.add('shake');setTimeout(()=>{b.classList.remove('shake');left&&left.classList.remove('shake')},400)}});
+  }
+  else if(step.type==='order'){
+    const bank=shuffle(step.items.map((t,i)=>({t,i})));let seq=[];
+    stage.innerHTML=`${eyebrow}<h2 class="q">${step.q}</h2><div class="seq" id="seq"></div><div class="bank" id="bank"></div>`;
+    foot.innerHTML=`<button class="btn primary block" id="check" disabled>Check</button>`;
+    const draw=()=>{const sq=document.getElementById('seq'),bk=document.getElementById('bank');
+      sq.innerHTML=seq.length?seq.map((o,k)=>`<button class="chipbtn" data-i="${o.i}"><span class="n">${k+1}</span>${o.t}</button>`).join(''):'<span class="ph">Tap the steps below in order</span>';
+      bk.innerHTML=bank.filter(o=>!seq.includes(o)).map(o=>`<button class="chipbtn" data-i="${o.i}">${o.t}</button>`).join('');
+      if(!S.checked){sq.querySelectorAll('.chipbtn').forEach(b=>b.onclick=()=>{seq=seq.filter(o=>o.i!==+b.dataset.i);draw()});bk.querySelectorAll('.chipbtn').forEach(b=>b.onclick=()=>{seq.push(bank.find(o=>o.i===+b.dataset.i));draw()})}
+      document.getElementById('check').disabled=seq.length!==step.items.length};
+    draw();
+    document.getElementById('check').onclick=()=>{S.checked=true;let ok=true;document.querySelectorAll('#seq .chipbtn').forEach((b,k)=>{const good=+b.dataset.i===k;if(!good)ok=false;b.classList.add(good?'ok':'bad');b.onclick=null});grade(ok,step,ok?null:'Right order: '+step.items.join(' → '))};
+  }
+  else if(step.type==='slider'){
+    const start=Math.round((step.min+step.max)/2/step.step)*step.step;
+    stage.innerHTML=`${eyebrow}<h2 class="q">${step.q}</h2><div class="slider"><div class="val"><span id="sv">${start}</span><small>${step.unit}</small></div><input type="range" id="rng" min="${step.min}" max="${step.max}" step="${step.step}" value="${start}"><div class="rng"><span>${step.min}${step.unit}</span><span>${step.max}${step.unit}</span></div></div>`;
+    foot.innerHTML=`<button class="btn primary block" id="check">Check</button>`;
+    const r=document.getElementById('rng');r.oninput=()=>document.getElementById('sv').textContent=r.value;
+    document.getElementById('check').onclick=()=>{r.disabled=true;const v=+r.value,ok=Math.abs(v-step.a)<=step.tol;grade(ok,step,ok?null:`The answer is ${step.a}${step.unit}.`)};
+  }
+}
+function grade(ok,step,extra){
+  if(S.checked&&step.type!=='order')return;S.checked=true;
+  if(!step._retry)S.results[step._id]=ok;
+  if(!ok)S.queue.push(Object.assign({},step,{_retry:true}));
+  const fb=document.getElementById('fb');
+  fb.className='fb show '+(ok?'ok':'bad');
+  fb.innerHTML=`<div class="fbt">${ok?['Exactly.','Nicely done.','That’s it.','Green thumb.'][Math.random()*4|0]:'Not quite'}</div><div class="why">${extra?extra+' ':''}${step.why||''}</div><button class="btn block ${ok?'ok':'bad'}" id="next">Continue</button>`;
+  document.getElementById('next').onclick=()=>{S.pos++;renderStep();document.getElementById('stage').scrollTop=0};
+  document.getElementById('foot').innerHTML='';
+}
+function renderComplete(){
+  const ids=Object.keys(S.results),right=ids.filter(k=>S.results[k]).length;
+  const score=S.gradeable?Math.round(right/S.gradeable*100):100;
+  const xp=right*10+20;
+  const prev=P.done[S.unit.id];
+  P.done[S.unit.id]={score:prev?Math.max(prev.score,score):score,xp:prev?Math.max(prev.xp,xp):xp,at:Date.now()};
+  P.xp+=xp;
+  const today=new Date().toDateString();
+  if(P.last!==today){const y=new Date(Date.now()-864e5).toDateString();P.streak=(P.last===y)?P.streak+1:1;P.last=today}
+  save();
+  document.getElementById('pfill').style.width='100%';document.getElementById('cnt').textContent='';
+  document.getElementById('fb').className='fb';document.getElementById('foot').innerHTML='';
+  document.getElementById('stage').innerHTML=`<div class="done-card"><div style="color:var(--grow);width:64px;height:64px;margin:0 auto;display:grid;place-items:center;border-radius:50%;background:var(--grow-soft)"><svg width="40" height="40"><use href="#${S.unit.icon}"/></svg></div><div class="big">${S.unit.name} — planted</div><p>${score===100?'Perfect run.':score>=70?'Solid. The wrong ones came back and you got them.':'Done. Replay it any time from the garden.'}</p>
+  <div class="score"><div><b>+${xp}</b><span>sun points</span></div><div><b>${score}%</b><span>first try</span></div></div>
+  <div class="take"><div class="eyebrow">Keep these</div><ul>${S.unit.takeaways.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+  <button class="btn primary block" id="back">Back to the garden</button></div>`;
+  document.getElementById('back').onclick=()=>renderGarden();
+}
+
+/* ---------- sheets ---------- */
+const overlay=document.getElementById('overlay'),sheet=document.getElementById('sheet');
+function closeSheet(){overlay.classList.remove('show')}
+overlay.onclick=e=>{if(e.target===overlay)closeSheet()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+function openSheet(which){
+  overlay.classList.add('show');
+  if(which==='dict'){
+    const list=q=>DICT.filter(d=>!q||(d[0]+' '+d[1]).toLowerCase().includes(q)).map(d=>`<dt>${d[0]}</dt><dd>${d[1]}</dd>`).join('')||'<dd>No match. Try another word.</dd>';
+    sheet.innerHTML=`<div class="sh"><h2>Dictionary</h2><button class="x" aria-label="Close">×</button></div><input class="search" id="q" placeholder="Search a word…" autocomplete="off"><dl class="dict" id="dl">${list('')}</dl>`;
+    sheet.querySelector('#q').oninput=e=>{sheet.querySelector('#dl').innerHTML=list(e.target.value.trim().toLowerCase())};
+  }else{
+    const p=Object.assign({income:'',expenses:'',savings:'',months:4,investPct:40,risk:5},P.plan||{});
+    sheet.innerHTML=`<div class="sh"><h2>Planner</h2><button class="x" aria-label="Close">×</button></div>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:14px">Your numbers stay on this device. Monthly figures, in euros.</p>
+    <div class="frm">
+      <div class="two"><label>Net income / month<input type="number" id="income" placeholder="3000" value="${p.income}"></label><label>Living costs / month<input type="number" id="expenses" placeholder="1900" value="${p.expenses}"></label></div>
+      <label>Cash savings today (not invested)<input type="number" id="savings" placeholder="4000" value="${p.savings}"></label>
+      <label><span class="lt">Cushion size: <span id="ml" class="mono">${p.months}</span> months of costs</span><input type="range" id="months" min="3" max="6" step="1" value="${p.months}"></label>
+      <label><span class="lt">Share of what’s left each month that you invest: <span id="il" class="mono">${p.investPct}%</span></span><input type="range" id="investPct" min="10" max="100" step="5" value="${p.investPct}"></label>
+      <label><span class="lt">Crypto slice of your investing</span><div class="seg3"><button data-r="3" class="${p.risk==3?'on':''}">Cautious<br>3%</button><button data-r="5" class="${p.risk==5?'on':''}">Standard<br>5%</button><button data-r="10" class="${p.risk==10?'on':''}">Bold<br>10%</button></div></label>
+    </div>
+    <div class="plan-out" id="out"></div>
+    <p class="note">Education, not personal financial advice. Rules of thumb: 3–6 month cushion, crypto as 1–10% of investments, core = BTC + ETH.</p>`;
+    const read=()=>({income:+sheet.querySelector('#income').value||0,expenses:+sheet.querySelector('#expenses').value||0,savings:+sheet.querySelector('#savings').value||0,months:+sheet.querySelector('#months').value,investPct:+sheet.querySelector('#investPct').value,risk:+(sheet.querySelector('.seg3 .on')||{dataset:{r:5}}).dataset.r});
+    const eur=n=>'€'+Math.round(n).toLocaleString('en-IE');
+    const calc=()=>{const v=read();P.plan=v;save();
+      sheet.querySelector('#ml').textContent=v.months;sheet.querySelector('#il').textContent=v.investPct+'%';
+      const out=sheet.querySelector('#out');
+      if(!v.income||!v.expenses){out.innerHTML=`<div class="pcard"><p>Fill in income and living costs to see your plan.</p></div>`;return}
+      const left=Math.max(0,v.income-v.expenses),target=v.expenses*v.months,gap=Math.max(0,target-v.savings),pct=Math.min(100,v.savings/target*100);
+      const invest=left*v.investPct/100,toCushion=gap>0?left-invest:0;
+      const monthsToFill=gap>0&&toCushion>0?Math.ceil(gap/toCushion):0;
+      const crypto=invest*v.risk/100,btc=crypto*.5,eth=crypto*.3,rest=crypto*.2;
+      const startLine=gap===0?'Your cushion is full — the 1st of next month is your start.':toCushion>0?`Cushion full in about <b>${monthsToFill} month${monthsToFill>1?'s':''}</b>. You can start crypto now with a tiny amount to learn, and move to the full amount then.`:'Everything left is going to investing — send some to the cushion first.';
+      out.innerHTML=`
+      <div class="pcard"><div class="eyebrow">Cushion</div><div class="big">${eur(v.savings)} <small>of ${eur(target)} (${v.months} months)</small></div><div class="bar"><i style="width:${pct}%"></i></div><p>${gap>0?`${eur(gap)} still to save. Suggested: ${eur(toCushion)}/month to the cushion until then.`:'Full. This is what lets you never sell in a panic.'}</p></div>
+      <div class="pcard"><div class="eyebrow">Each month</div><div class="big">${eur(invest)} <small>invested, of ${eur(left)} left over</small></div><p>Of that, <b style="color:var(--text)">${eur(crypto)}</b> is your crypto slice (${v.risk}%). The rest goes to broad, boring investments like a world index fund.</p><div class="split"><div><b>${eur(btc)}</b><span>BTC</span></div><div><b>${eur(eth)}</b><span>ETH</span></div><div><b>${eur(rest)}</b><span>experiment / USDC</span></div></div>${crypto<20&&crypto>0?'<p>Under €20 a month gets eaten by fees — round up to €25 and buy every other month if needed.</p>':''}</div>
+      <div class="pcard"><div class="eyebrow">When</div><div class="big">The 1st <small>every month, automatic</small></div><p>${startLine}</p></div>`};
+    sheet.querySelectorAll('input').forEach(i=>i.oninput=calc);
+    sheet.querySelectorAll('.seg3 button').forEach(b=>b.onclick=()=>{sheet.querySelectorAll('.seg3 button').forEach(x=>x.classList.remove('on'));b.classList.add('on');calc()});
+    calc();
+  }
+  sheet.querySelector('.x').onclick=closeSheet;
+  sheet.scrollTop=0;
+}
+
+/* ---------- shared header ---------- */
+function headerHTML(tab){
+  return `<header class="top"><div class="brand"><div><h1>Money Garden</h1><small>Crypto &amp; investing, in plain words</small></div></div>
+  <div class="stats"><span class="chip sunc" title="Sun points"><svg><use href="#i-sun"/></svg><span class="mono">${P.xp}</span></span><span class="chip streak" title="Day streak"><svg><use href="#i-flame"/></svg><span class="mono">${P.streak}</span></span></div></header>
+  <nav class="tabs"><button class="tab ${tab==='learn'?'on':''}" data-tab="learn">Learn</button><button class="tab ${tab==='play'?'on':''}" data-tab="play">Play</button></nav>`;
+}
+function bindTabs(){app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>b.dataset.tab==='learn'?renderGarden():renderArena())}
+
+/* ---------- ARENA data ---------- */
+function A(){if(!P.arena)P.arena={pr:800,sr:800,rush:0,seasons:[],daily:null,recent:[],hist:[800],shist:[800],solved:0};return P.arena}
+function elo(R,Rp,S,K){const E=1/(1+Math.pow(10,(Rp-R)/400));return Math.round(K*(S-E))}
+const fmt$=n=>'$'+Math.round(n).toLocaleString('en-US');
+function spark(pts,o){o=o||{};const W=320,H=o.h||90,pad=6;const mn=Math.min(...pts),mx=Math.max(...pts);const sx=i=>pad+i*(W-2*pad)/(pts.length-1),sy=v=>H-pad-(v-mn)/((mx-mn)||1)*(H-2*pad-(o.vol?20:0));
+  let vol='';if(o.vol){const vm=Math.max(...o.vol);vol=o.vol.map((v,i)=>`<rect x="${sx(i)-4}" y="${H-2-v/vm*18}" width="8" height="${v/vm*18}" fill="var(--sky)" opacity=".55"/>`).join('')}
+  return `<div class="fig" style="margin-top:8px"><svg viewBox="0 0 ${W} ${H}">${vol}<polyline fill="none" stroke="${o.color||'var(--sun)'}" stroke-width="2.5" stroke-linejoin="round" points="${pts.map((v,i)=>sx(i)+','+sy(v)).join(' ')}"/><circle cx="${sx(pts.length-1)}" cy="${sy(pts[pts.length-1])}" r="4" fill="${o.color||'var(--sun)'}"/></svg>${o.cap?`<div class="cap">${o.cap}</div>`:''}</div>`}
+
+const PZ=[
+{id:1,r:600,q:'A verified-looking account posts: "Send 0.5 ETH to this address and receive 1 ETH back — promotion ends in 1 hour."',opts:['Send 0.5 ETH — it’s verified','Send 0.1 ETH to test first','Ignore. Nobody doubles money; the verified badge is bought or hacked'],a:2,why:'The giveaway scam is the oldest in crypto. The urgency and the badge are the tell.'},
+{id:2,r:620,q:'A shop wants to pay you in crypto. Which do you give them?',opts:['Your public address','Your seed phrase','Your private key'],a:0,why:'Address = IBAN. The other two hand over the money itself.'},
+{id:3,r:680,q:'A coin trades at $0.0002. Your friend says it’s "so cheap it can only go up". What do you check first?',opts:['How many people are talking about it','Market cap: price × total supply','How low the price was last year'],a:1,why:'"Cheap" per coin is meaningless. A $0.0002 coin with 10 trillion supply is a $2 billion asset.'},
+{id:4,r:700,q:'You buy $50 of Bitcoin on the 1st of every month. Today it dropped 12%. You…',opts:['Sell before it drops more','Skip this month','Do nothing — the buy happens on the 1st as always'],a:2,why:'The schedule is the whole strategy. A −12% day is ordinary weather for Bitcoin.'},
+{id:5,r:720,q:'A new "stablecoin" pays 20% a year just for holding it. Which is true?',opts:['That’s normal for stablecoins','20% has to come from somewhere risky — this is the UST pattern','It’s safe because it’s pegged to $1'],a:1,why:'Terra’s UST paid ~20% and collapsed from $1 to $0.10 in May 2022. Yield that high is you being paid to carry a risk you can’t see.'},
+{id:6,r:740,q:'A trading app offers you 10× leverage to "make your $500 work like $5,000".',opts:['Take it — bigger position, bigger gains','Take 3×, it’s safer','Never. A 10% move against you wipes out the $500'],a:2,why:'Leverage multiplies losses exactly as much as gains, and crypto moves 10% on ordinary days.'},
+{id:7,r:760,q:'You now hold about $6,000 in Bitcoin you plan to keep for years. Best home for it?',opts:['On the exchange app','A hardware wallet, seed phrase on paper in two places','Screenshot the seed phrase to iCloud "just in case"'],a:1,why:'Past ~$1,000, not-your-keys risk is worth $100 of hardware. Photos and cloud backups are how seed phrases get stolen.'},
+{id:8,r:780,q:'You have no savings, a $2,000 credit-card balance at 19%, and $300 spare this month. Where does it go?',opts:['Bitcoin — it could 10×','The credit card, then a cushion, then investing','Half Bitcoin, half card'],a:1,why:'Paying off 19% debt is a guaranteed 19% return. Nothing in crypto guarantees anything.'},
+{id:9,r:800,q:'A "mentor" in a Telegram group shows screenshots of 3% weekly gains for 40 weeks straight.',opts:['Join with a small amount','That is 340% a year with no losing weeks. It does not exist — it’s a scam','Ask for references'],a:1,why:'Steady, never-losing returns are the signature of a fraud (Madoff, Celsius). Real markets have red weeks.'},
+{id:10,r:820,q:'A regulated exchange asks for your passport and a selfie before letting you deposit.',opts:['Red flag — leave','Normal. It’s the legal identity check (KYC) every EU exchange must do','Only give the passport, not the selfie'],a:1,why:'KYC is required by law. The red flag would be an exchange that *doesn’t* ask.'},
+{id:11,r:1000,fig:spark([10,11,12,15,19,26,34,40,42],{vol:[5,5,6,7,9,10,8,5,3],cap:'Price (gold) and trading volume (blue bars) over 9 weeks'}),q:'A coin is up 300% in 9 weeks. Look at the volume bars. What’s the read?',opts:['Strong uptrend, buy — volume doesn’t matter','Price still rising but fewer people trading — the move is running out of buyers. Don’t chase','Volume is falling because it’s about to go up more'],a:1,why:'Rising price on shrinking volume means the last buyers are pushing it up alone. Classic late-stage shape.'},
+{id:12,r:1050,q:'You set your crypto slice at 5%. After a rally it’s 14% of your investments. The plan says…',opts:['Let it run — it’s winning','Sell down toward 5–7% and move the gains into the rest of your investments','Buy more to keep the momentum'],a:1,why:'Rebalancing is how you take profit mechanically. Your risk quietly tripled — put it back where you chose it.'},
+{id:13,r:1100,q:'Germany. You bought ETH 11 months ago; it’s up €3,000. Nothing about ETH has changed. Sell today or in 5 weeks?',opts:['Today — lock in the gain','In 5 weeks — after 1 year the gain is tax-free (§23 EStG)','Doesn’t matter for tax'],a:1,why:'Inside one year that €3,000 is taxable income. Five weeks later it is tax-free. Unless the reason you bought has broken, wait.'},
+{id:14,r:1150,q:'Coin A: $50M market cap. Coin B: $50B market cap. Both "could 10×", people say. Which statement is right?',opts:['Both need the same amount of new money to 10×','B would need to become a $500B asset — bigger than most companies on Earth. A’s 10× is at least possible; it is also far riskier','A is safer because it’s smaller'],a:1,why:'Market cap tells you what a 10× would *mean*. Small caps can 10× — and also go to zero. Large caps rarely do either.'},
+{id:15,r:1150,q:'Bonus of $5,000 lands. Your plan: 10% of investing goes to crypto, monthly on the 1st.',opts:['$500 into Bitcoin today','$500 spread over the next 5–6 months, rest into your normal investments','$5,000 into Bitcoin, it’s free money'],a:1,why:'The plan gives the amount; the windfall rule gives the timing. Spread it, and if prices drop you’re happy.'},
+{id:16,r:1200,q:'Fear & Greed Index reads 10 — "Extreme Fear". Headlines are funerals. Your monthly buy is due.',opts:['Pause buying until things calm down','Make the buy. Historically extreme fear has been the better time, not the worse','Sell — the crowd knows something'],a:1,why:'Extreme fear = prices already fell. Your schedule is designed for this exact day. Don’t increase it either — just don’t skip.'},
+{id:17,r:1200,q:'Germany. You swap ETH for SOL, both held 4 months, ETH up €800. No euros touched your bank.',opts:['Not taxable — no euros involved','Taxable: the swap is a sale of ETH within one year','Only taxable when you sell the SOL'],a:1,why:'Coin-to-coin swaps count as sales in Germany. The €800 counts toward the €1,000 yearly Freigrenze.'},
+{id:18,r:1250,q:'An exchange offers "Earn 12% on your Bitcoin". Where does that yield come from?',opts:['Bitcoin mining','They lend your BTC to traders and funds — you carry their default risk. Celsius offered this in 2022','Interest from the blockchain'],a:1,why:'Bitcoin itself yields nothing. 12% means your coins are being lent out; when the borrower fails, so does your yield — and your coins.'},
+{id:19,r:1250,q:'You invest $500 a month and want a 5% crypto slice. Monthly crypto buy?',opts:['$50','$25','$100'],a:1,why:'5% of $500 = $25. Small on purpose; you raise it after living through a drop.'},
+{id:20,r:1300,q:'A tweet: "Claim your airdrop — connect wallet and sign to receive 400 tokens." The site looks professional.',opts:['Connect a wallet holding little, sign, claim','Never connect or sign from a link. Signing can hand over everything in that wallet','Connect but don’t sign'],a:1,why:'"Sign to claim" scams drain wallets with one signature. Real airdrops don’t arrive via random links.'},
+{id:21,r:1350,fig:spark([10,10.5,10.2,11,12,13.5,15],{vol:[3,3,3,9,10,12,11,],cap:'Coin X: price and volume over 7 weeks'})+spark([10,10.4,10.1,11.2,12.1,13.4,15],{vol:[3,3,3,3,3,3,3],color:'var(--sky)',cap:'Coin Y: same price move, flat volume'}),q:'Both coins rose 50%. Which move is more likely to be real?',opts:['Coin X — many more people actually traded it','Coin Y — steady volume means steady interest','Identical — price is price'],a:0,why:'A move with rising volume has real participation. Identical price on thin volume can be one wallet — or a setup.'},
+{id:22,r:1350,q:'Headline: "Large country bans crypto trading." Bitcoin −9%. Did the *thing* change?',opts:['Yes — fewer users means Bitcoin is worth less forever','Not really. Bitcoin has been "banned" in that country several times since 2013; the network keeps running. Weather, not climate','Yes — sell before other countries follow'],a:1,why:'Bans hurt sentiment, not the rulebook. This exact headline has happened repeatedly, each time followed by recovery.'},
+{id:23,r:1450,q:'$20,000 invested, 10% in crypto. Crypto falls 60%. Your whole portfolio is down…',opts:['60%','10%','6%'],a:2,why:'Slice × drop: 10% × 60% = 6%. That’s the arithmetic behind keeping the slice small.'},
+{id:24,r:1500,q:'You buy $100 of a coin at $50, then $100 at $25, then $100 at $50. Your average price per coin?',opts:['$41.67','$37.50','$50'],a:1,why:'You got 2 + 4 + 2 = 8 coins for $300 → $37.50. Fixed amounts buy more when it’s cheap — that’s why DCA beats the simple average.'},
+{id:25,r:1500,q:'Two stablecoins. One holds US Treasury bills and cash; one is "backed" by a basket of other crypto tokens. In a crash…',opts:['Both are equally safe — they’re both $1','The T-bill one holds. The crypto-backed one’s collateral falls with the market — the peg can break','The crypto-backed one is safer because it’s decentralised'],a:1,why:'Collateral that drops in the same crash as the coin it backs is not collateral. Ask what backs the $1.'},
+{id:26,r:1550,q:'A new farming pool pays 300% APY — paid in the pool’s own new token.',opts:['Amazing — compound it','The yield is printed tokens with no buyers. As everyone sells the rewards, the token goes to zero','Fine if you withdraw weekly'],a:1,why:'Yield paid in a token nobody wants is inflation dressed as income. The APY number is real; the value isn’t.'},
+{id:27,r:1600,q:'Bitcoin halving is next month. Which is true?',opts:['Price will double, so buy now','New supply gets cut in half. Historically bullish over years, but it’s public knowledge — no guaranteed move','Halving reduces the total 21M cap'],a:1,why:'Halvings are known years ahead and partly priced in. They changed supply, not certainty. Cap stays 21M.'},
+{id:28,r:1650,q:'You copy a wallet address from your transaction history to send $3,000. The first 4 and last 4 characters match. You…',opts:['Send — first and last match','Check more characters, or send a tiny test amount first. "Address poisoning" plants look-alike addresses in your history','Send half now, half later'],a:1,why:'Scammers send you dust from addresses engineered to look like yours. Irreversible transfers deserve a test amount.'},
+{id:29,r:1700,q:'"When DOGE hits $10 I’m rich." There are ~150 billion DOGE. At $10, DOGE would be worth…',opts:['About $15 billion — plausible','$1.5 trillion — more than almost every company on Earth. Effectively impossible','You can’t know'],a:1,why:'150,000,000,000 × $10 = $1.5T. Multiply by supply before believing any price target.'},
+{id:30,r:1750,q:'Central bank hikes rates faster than expected. Stocks −4%, Bitcoin −15% in a week. You DCA monthly.',opts:['Move crypto to cash until rates fall','Nothing. Rate hikes drop all risky assets; crypto is the riskiest, so it drops most. The thing didn’t change','Double the monthly buy'],a:1,why:'2022 in one puzzle. Rates are the weather system behind everything risky. Your slice is sized for exactly this.'},
+{id:31,r:1750,q:'How often should you rebalance your crypto slice back to target?',opts:['Daily — stay exact','Quarterly or yearly, or when it drifts past a band (e.g. 5% → 8%)','Never'],a:1,why:'Frequent rebalancing means fees and taxable events for nothing. Bands or a calendar do the job.'},
+{id:32,r:1800,q:'An exchange publishes "proof of reserves" showing it holds all customer coins. Does that make it safe to keep your life savings there?',opts:['Yes — the coins are proven','No. It shows assets, not liabilities or who controls the keys. FTX had "audited" numbers too. Still not your keys','Yes, if a Big Four firm audited it'],a:1,why:'Proof of reserves is better than nothing and not the same as ownership. The size of what you keep there should still be what you could afford to lose.'},
+];
+
+/* ---------- ARENA home ---------- */
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function dailyPuzzle(){const k=todayKey();let h=0;for(const c of k)h=(h*31+c.charCodeAt(0))>>>0;return PZ[h%PZ.length]}
+function renderArena(){
+  const a=A();const rec=a.seasons;const w=rec.filter(x=>x.win).length,l=rec.length-w;
+  const dailyDone=a.daily===todayKey();
+  const sp=h=>{if(h.length<2)return '';const W=100,H=22,mn=Math.min(...h),mx=Math.max(...h);return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="var(--grow)" stroke-width="2" points="${h.map((v,i)=>(i*W/(h.length-1))+','+(H-2-(v-mn)/((mx-mn)||1)*(H-4))).join(' ')}"/></svg>`};
+  app.innerHTML=headerHTML('play')+`
+  <div class="ratings"><div class="rt"><div class="eyebrow">Puzzle rating</div><b class="mono">${a.pr}</b><span>${a.solved} solved</span>${sp(a.hist.slice(-20))}</div><div class="rt"><div class="eyebrow">Season rating</div><b class="mono">${a.sr}</b><span>${w}W · ${l}L</span>${sp(a.shist.slice(-20))}</div><div class="rt"><div class="eyebrow">Rush best</div><b class="mono">${a.rush}</b><span>in 3 minutes</span></div></div>
+  <div class="modes">
+    <button class="mode daily" data-m="daily" ${dailyDone?'disabled':''}><span class="mi">☼</span><div><b>Daily puzzle</b><span>${dailyDone?'Solved today — back tomorrow':'One rated puzzle, same for everyone today'}</span></div></button>
+    <button class="mode rated" data-m="rated"><span class="mi">?</span><div><b>Puzzles</b><span>Real situations, rated. Get it right and your rating climbs</span></div><span class="rec">${PZ.length} in pool</span></button>
+    <button class="mode rush" data-m="rush"><span class="mi">3′</span><div><b>Puzzle rush</b><span>Three minutes, three strikes, puzzles get harder</span></div><span class="rec">best ${a.rush}</span></button>
+    <button class="mode season" data-m="season"><span class="mi">24</span><div><b>Play a season</b><span>24 real months of Bitcoin, year hidden. Beat the gardener</span></div><span class="rec">${w}–${l}</span></button>
+  </div>
+  <p class="footnote">Ratings work like chess: each puzzle has a difficulty; beating a harder one earns more. Season prices are real month-end Bitcoin prices, approximate, in dollars.</p>`;
+  bindTabs();
+  app.querySelectorAll('.mode').forEach(b=>b.onclick=()=>({daily:startDaily,rated:startRated,rush:startRush,season:startSeason})[b.dataset.m]());
+  scrollTo({top:0});
+}
+
+/* ---------- puzzles ---------- */
+function pickPuzzle(){const a=A();const pool=PZ.filter(p=>!a.recent.includes(p.id));const src=pool.length?pool:PZ;const sorted=src.slice().sort((x,y)=>Math.abs(x.r-a.pr)-Math.abs(y.r-a.pr));return sorted[Math.random()*Math.min(6,sorted.length)|0]}
+function shell(topHTML){app.innerHTML=`<div class="lesson"><div class="ltop"><button class="x" aria-label="Back">×</button>${topHTML}</div><div class="stage" id="stage"></div><div class="foot" id="foot"></div><div class="fb" id="fb"></div></div>`;app.querySelector('.x').onclick=()=>{if(R&&R.timer)clearInterval(R.timer);R=null;renderArena()};scrollTo({top:0})}
+function puzzleView(pz,label,onAnswer){
+  const stage=document.getElementById('stage'),foot=document.getElementById('foot'),fb=document.getElementById('fb');fb.className='fb';
+  const opts=shuffle(pz.opts.map((o,i)=>({o,i})));
+  stage.innerHTML=`<div class="eyebrow">${label} · <span class="pzr">difficulty ${pz.r}</span></div><h2 class="q">${pz.q}</h2>${pz.fig||''}<div class="opts">${opts.map(x=>`<button class="opt" data-i="${x.i}">${x.o}</button>`).join('')}</div>`;
+  foot.innerHTML=`<button class="btn primary block" id="check" disabled>Check</button>`;
+  let sel=null;stage.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{stage.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel=+b.dataset.i;document.getElementById('check').disabled=false});
+  document.getElementById('check').onclick=()=>{const ok=sel===pz.a;stage.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(+b.dataset.i===pz.a)b.classList.add('ok');else if(+b.dataset.i===sel)b.classList.add('bad')});foot.innerHTML='';onAnswer(ok)};
+}
+function showFB(ok,html,btnLabel,cb){const fb=document.getElementById('fb');fb.className='fb show '+(ok?'ok':'bad');fb.innerHTML=`<div class="fbt">${ok?'Correct.':'Not quite'}</div><div class="why">${html}</div><button class="btn block ${ok?'ok':'bad'}" id="next">${btnLabel}</button>`;document.getElementById('next').onclick=cb}
+function ratedAnswer(pz,ok,K){const a=A();const d=elo(a.pr,pz.r,ok?1:0,K||32);a.pr=Math.max(100,a.pr+d);a.hist.push(a.pr);if(a.hist.length>60)a.hist.shift();if(ok)a.solved++;a.recent.push(pz.id);if(a.recent.length>8)a.recent.shift();save();return d}
+function startRated(){shell(`<div class="eyebrow" style="flex:1;text-align:center">Rated puzzle</div><span class="cnt mono">${A().pr}</span>`);const pz=pickPuzzle();
+  puzzleView(pz,'Puzzle',ok=>{const d=ratedAnswer(pz,ok);document.querySelector('.ltop .cnt').textContent=A().pr;showFB(ok,`<span class="rdelta ${d>=0?'up':'dn'}">${d>=0?'+':''}${d}</span> → rating ${A().pr}<br>${pz.why}`,'Next puzzle',()=>startRated())})}
+function startDaily(){const pz=dailyPuzzle();shell(`<div class="eyebrow" style="flex:1;text-align:center">Daily puzzle · ${todayKey()}</div><span class="cnt mono">${A().pr}</span>`);
+  puzzleView(pz,'Daily',ok=>{const d=ratedAnswer(pz,ok);A().daily=todayKey();save();showFB(ok,`<span class="rdelta ${d>=0?'up':'dn'}">${d>=0?'+':''}${d}</span> → rating ${A().pr}<br>${pz.why}`,'Back to the arena',()=>renderArena())})}
+
+/* ---------- puzzle rush ---------- */
+let R=null;
+function startRush(){
+  const order=PZ.slice().sort((x,y)=>x.r-y.r);const q=[].concat(shuffle(order.slice(0,10)),shuffle(order.slice(10,22)),shuffle(order.slice(22)));
+  R={q,i:0,score:0,strikes:0,end:Date.now()+180000,timer:null};
+  shell(`<div class="rushbar"><span class="t" id="rt">3:00</span><span class="strikes" id="rs"><i></i><i></i><i></i></span><span class="rushscore mono" id="rsc">0</span></div>`);
+  R.timer=setInterval(()=>{if(!R)return;const left=Math.max(0,R.end-Date.now());const el=document.getElementById('rt');if(!el)return;el.textContent=`${Math.floor(left/60000)}:${String(Math.floor(left%60000/1000)).padStart(2,'0')}`;el.classList.toggle('low',left<30000);if(left<=0)endRush('Time’s up')},250);
+  rushNext();
+}
+function rushNext(){if(!R)return;if(R.i>=R.q.length)return endRush('You cleared the whole pool');const pz=R.q[R.i++];
+  puzzleView(pz,`Rush · #${R.i}`,ok=>{if(!R)return;if(ok)R.score++;else R.strikes++;document.getElementById('rsc').textContent=R.score;document.getElementById('rs').innerHTML=[0,1,2].map(k=>`<i class="${k<R.strikes?'x':''}"></i>`).join('');
+    if(R.strikes>=3)return endRush('Three strikes');
+    showFB(ok,pz.why,'Next',()=>rushNext());setTimeout(()=>{const n=document.getElementById('next');if(n&&R)n.click()},ok?900:2600)})}
+function endRush(reason){if(!R)return;clearInterval(R.timer);const a=A();const best=R.score>a.rush;if(best)a.rush=R.score;save();const sc=R.score;R=null;
+  document.getElementById('fb').className='fb';document.getElementById('foot').innerHTML='';
+  document.getElementById('stage').innerHTML=`<div class="done-card"><div class="eyebrow">${reason}</div><div class="big">${sc} puzzle${sc===1?'':'s'}</div><p>${best?'New personal best.':'Best: '+a.rush+'.'} ${sc>=15?'That’s a strong run.':sc>=8?'Solid — the hard ones start around #20.':'The pool gets harder as you go. Try again.'}</p><div style="display:grid;gap:10px;margin-top:20px"><button class="btn primary block" id="again">Run it again</button><button class="btn ghost block" id="back">Back to the arena</button></div></div>`;
+  document.getElementById('again').onclick=startRush;document.getElementById('back').onclick=renderArena}
+
+/* ---------- season game (real month-end BTC, approx USD) ---------- */
+const BTC={
+'2017':[970,1180,1080,1350,2290,2480,2870,4700,4340,6450,9900,14100],
+'2018':[10200,10300,6900,9200,7500,6400,7750,7000,6600,6300,4000,3700],
+'2019':[3450,3850,4100,5300,8550,10800,10100,9600,8300,9200,7550,7200],
+'2020':[9350,8550,6450,8650,9450,9150,11350,11650,10800,13800,19700,29000],
+'2021':[33100,45100,58800,57700,37300,35000,41500,47100,43800,61300,57000,46200],
+'2022':[38500,43200,45500,37700,31800,19800,23300,20050,19400,20500,17150,16550],
+'2023':[23100,23150,28500,29250,27200,30450,29250,25950,26950,34650,37700,42250],
+'2024':[42550,61150,71300,60650,67500,62700,64600,58950,63300,70200,96400,93400]};
+const NEWS={'2017-05':'Coins are suddenly on the evening news. New buyers flood in.','2017-08':'A fork splits the network in two. The price shrugs and climbs.','2017-11':'Everyone you know is asking how to buy.','2017-12':'Wall Street launches futures on it. Peak euphoria.','2018-01':'Rumours of a ban in Asia. First big red month.','2018-03':'The big social networks ban crypto ads.','2018-06':'Exchange hack in Asia. "Crypto is dead" headlines are back.','2018-11':'A bitter fork war and a capitulation drop.','2018-12':'Nobody talks about crypto anymore.','2019-04':'A quiet +20% day out of nowhere.','2019-06':'A tech giant announces its own coin. (It never launches.)','2019-10':'A large country’s leader praises blockchain. Brief spike.','2020-03':'Pandemic panic. Everything sells off at once — stocks, gold, crypto.','2020-05':'Halving: new supply cut in half this month.','2020-10':'A major payments company lets its users buy crypto.','2020-12':'Public companies start buying for their treasuries. New all-time high.','2021-02':'A famous carmaker buys $1.5 billion.','2021-04':'The biggest US exchange lists on the stock market.','2021-05':'A large country bans mining. The carmaker stops accepting payments.','2021-09':'A country makes it legal tender.','2021-10':'First US ETF (futures-based) launches.','2021-11':'New all-time high. Your taxi driver mentions it.','2022-01':'Central banks signal rate hikes. Risk assets wobble.','2022-05':'A $40 billion "stablecoin" collapses to nearly zero.','2022-06':'A major lender freezes withdrawals. A big hedge fund blows up.','2022-11':'A top-3 exchange goes bankrupt overnight.','2022-12':'Coldest sentiment in years.','2023-03':'Banks fail in the US. A major stablecoin briefly trades at $0.88, then recovers.','2023-06':'The world’s largest asset manager files for a spot ETF.','2023-10':'ETF approval rumours.','2024-01':'Spot ETFs approved. Pension money can now buy.','2024-03':'New all-time high before the halving — a first.','2024-04':'Halving.','2024-08':'A global carry-trade unwind. Everything drops for a week.','2024-11':'Election result seen as pro-crypto.','2024-12':'Crosses $100,000.'};
+const SEASONS=[{id:'A',from:'2017-01'},{id:'B',from:'2019-01'},{id:'C',from:'2020-07'},{id:'D',from:'2022-01'},{id:'E',from:'2023-01'}];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function seasonData(from){let [y,m]=from.split('-').map(Number);const out=[];for(let i=0;i<24;i++){const key=`${y}-${String(m).padStart(2,'0')}`;out.push({key,label:`${MON[m-1]} ${y}`,p:BTC[y][m-1],news:NEWS[key]||null});m++;if(m>12){m=1;y++}}return out}
+let G=null;
+const START=12000,FEE=.01,DCA=500;
+function startSeason(){const a=A();const played=a.seasons.map(s=>s.id);const pool=SEASONS.filter(s=>!played.includes(s.id));const s=(pool.length?pool:SEASONS)[Math.random()*(pool.length?pool.length:SEASONS.length)|0];
+  G={s,d:seasonData(s.from),i:0,cash:START,btc:0,fees:0,log:[],dcaCash:START,dcaBtc:0};
+  shell(`<div class="eyebrow" style="flex:1;text-align:center" id="gt"></div><span class="cnt mono" id="gv"></span>`);
+  document.getElementById('foot').style.display='none';renderTurn()}
+function gval(){return G.cash+G.btc*G.d[G.i].p}
+function dcaStep(){if(G.dcaCash>=DCA){G.dcaBtc+=DCA*(1-FEE)/G.d[G.i].p;G.dcaCash-=DCA}}
+function mood(){if(G.i<1)return 50;const back=Math.max(0,G.i-3);const r=G.d[G.i].p/G.d[back].p-1;return Math.max(0,Math.min(100,Math.round(50+r*90)))}
+function gchart(){const d=G.d.slice(0,G.i+1).map(x=>x.p);const W=320,H=130,pl=8,pr=8,pt=10,pb=18;const mn=Math.min(...d)*.95,mx=Math.max(...d)*1.05;const sx=i=>pl+i*(W-pl-pr)/23,sy=v=>pt+(H-pt-pb)-(v-mn)/(mx-mn)*(H-pt-pb);
+  const pts=d.map((v,i)=>sx(i)+','+sy(v)).join(' ');const area=`M${sx(0)},${H-pb} L${pts.split(' ').join(' L')} L${sx(d.length-1)},${H-pb}Z`;
+  const marks=G.log.map(l=>l.t==='buy'?`<circle cx="${sx(l.i)}" cy="${sy(G.d[l.i].p)}" r="4.5" fill="var(--grow)" stroke="var(--surface2)" stroke-width="2"/>`:l.t==='sell'?`<circle cx="${sx(l.i)}" cy="${sy(G.d[l.i].p)}" r="4.5" fill="var(--heat)" stroke="var(--surface2)" stroke-width="2"/>`:'').join('');
+  const grid=[0,1,2,3].map(k=>`<line x1="${pl}" x2="${W-pr}" y1="${pt+k*(H-pt-pb)/3}" y2="${pt+k*(H-pt-pb)/3}" stroke="currentColor" opacity=".08"/>`).join('');
+  return `<div class="gchart"><svg viewBox="0 0 ${W} ${H}">${grid}<path d="${area}" fill="var(--sun)" opacity=".10"/><polyline fill="none" stroke="var(--sun)" stroke-width="2.5" stroke-linejoin="round" points="${pts}"/>${marks}<circle cx="${sx(d.length-1)}" cy="${sy(d[d.length-1])}" r="5" fill="var(--sun)"/><text x="${pl}" y="${H-4}" font-size="9" fill="currentColor" opacity=".55" font-family="JetBrains Mono, monospace">month 1</text><text x="${W-pr}" y="${H-4}" font-size="9" fill="currentColor" opacity=".55" text-anchor="end" font-family="JetBrains Mono, monospace">month 24</text></svg></div>`}
+function renderTurn(){
+  const m=G.d[G.i],prev=G.i?G.d[G.i-1].p:null,chg=prev?(m.p/prev-1)*100:0;const md=mood();
+  document.getElementById('gt').textContent=`Season · month ${G.i+1} of 24`;document.getElementById('gv').textContent=fmt$(gval());
+  const dcaVal=G.dcaCash+G.dcaBtc*m.p;
+  document.getElementById('stage').innerHTML=`
+  <div class="prow"><div><div class="eyebrow">Bitcoin · month ${G.i+1}</div><div class="px">${fmt$(m.p)}</div><div class="chg ${chg>=0?'up':'dn'}">${prev?(chg>=0?'+':'')+chg.toFixed(1)+'% this month':'opening price'}</div></div><div class="mood"><span>Crowd mood · ${md<25?'fear':md<45?'nervous':md<60?'neutral':md<80?'greedy':'euphoric'}</span><div class="g"><i style="left:${md}%"></i></div></div></div>
+  ${gchart()}
+  <div class="news"><div class="eyebrow">This month</div>${m.news||'A quiet month. Nothing much in the news.'}</div>
+  <div class="hold"><div><b>${fmt$(G.cash)}</b><span>cash</span></div><div><b>${G.btc.toFixed(3)}</b><span>BTC · ${fmt$(G.btc*m.p)}</span></div><div><b>${fmt$(gval())}</b><span>total</span><div class="vs">gardener ${fmt$(dcaVal)}</div></div></div>
+  <div class="acts">
+    <div class="row"><span class="l">Buy</span>${[250,500,1000,2000].map(v=>`<button class="ab" data-buy="${v}" ${G.cash<v?'disabled':''}>$${v>=1000?(v/1000)+'k':v}</button>`).join('')}</div>
+    <div class="row sell"><span class="l">Sell</span>${[25,50,100].map(v=>`<button class="ab" data-sell="${v}" ${G.btc<=0?'disabled':''}>${v===100?'all':v+'%'}</button>`).join('')}</div>
+    <button class="btn ghost block" id="hold">Hold — next month</button>
+  </div>`;
+  const st=document.getElementById('stage');
+  st.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>act('buy',+b.dataset.buy));
+  st.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>act('sell',+b.dataset.sell));
+  document.getElementById('hold').onclick=()=>act('hold');
+}
+function act(t,v){const m=G.d[G.i];const prev=G.i?G.d[G.i-1].p:m.p;const chg=m.p/prev-1;
+  if(t==='buy'){const amt=Math.min(v,G.cash);G.btc+=amt*(1-FEE)/m.p;G.cash-=amt;G.fees+=amt*FEE;G.log.push({i:G.i,t,amt,chg})}
+  else if(t==='sell'){const q=G.btc*v/100;const gross=q*m.p;G.cash+=gross*(1-FEE);G.btc-=q;G.fees+=gross*FEE;G.log.push({i:G.i,t,amt:gross,frac:v,chg})}
+  else G.log.push({i:G.i,t,chg});
+  dcaStep();
+  if(G.i>=23)return endSeason();G.i++;renderTurn();document.getElementById('stage').scrollTop=0}
+function endSeason(){
+  const last=G.d[23].p,you=gval(),dca=G.dcaCash+G.dcaBtc*last,lump=START*(1-FEE)/G.d[0].p*last,cash=START;
+  const S=you>dca*1.02?1:you<dca*.98?0:.5;const a=A();const d=elo(a.sr,1200,S,40);a.sr=Math.max(100,a.sr+d);a.shist.push(a.sr);if(a.shist.length>60)a.shist.shift();
+  a.seasons.push({id:G.s.id,win:S===1,you:Math.round(you),dca:Math.round(dca)});save();
+  // review
+  const rv=[];const pAt=i=>G.d[Math.min(23,i)].p;
+  const buys=G.log.filter(l=>l.t==='buy'),sells=G.log.filter(l=>l.t==='sell');
+  const amts=buys.map(b=>b.amt).sort((x,y)=>x-y),med=amts.length?amts[amts.length>>1]:0,regular=buys.length>=12;
+  G.log.forEach(l=>{const later6=pAt(l.i+6)/G.d[l.i].p-1,later3=pAt(l.i+3)/G.d[l.i].p-1;
+    if(l.t==='buy'&&l.chg>.2&&l.i>0&&!(regular&&l.amt<=med*2))rv.push({c:later3<0?'bad':'meh',m:`Month ${l.i+1} · bought ${fmt$(l.amt)} after a +${(l.chg*100).toFixed(0)}% month`,x:`Chasing a green month. Three months later the price was ${later3>=0?'+':''}${(later3*100).toFixed(0)}%.`});
+    if(l.t==='sell'&&l.chg<-.15)rv.push({c:later6>0?'bad':'meh',m:`Month ${l.i+1} · sold ${l.frac===100?'everything':l.frac+'%'} after a ${(l.chg*100).toFixed(0)}% month`,x:later6>0?`Six months later the price was +${(later6*100).toFixed(0)}%. This is the classic panic sell.`:`It kept falling (${(later6*100).toFixed(0)}% six months on). Defensible — but you couldn’t have known.`});
+    if(l.t==='buy'&&l.chg<-.15&&l.i>0)rv.push({c:later6>0?'good':'meh',m:`Month ${l.i+1} · bought ${fmt$(l.amt)} into a ${(l.chg*100).toFixed(0)}% month`,x:later6>0?`Six months later: +${(later6*100).toFixed(0)}%. Gardener instinct.`:`Six months later it was still lower (${(later6*100).toFixed(0)}%). Right habit, unlucky timing.`});
+  });
+  let idle=0;for(const l of G.log){if(l.t==='hold'&&G.btc===0&&buys.length===0)idle++;else break}
+  if(buys.length===0)rv.push({c:'bad',m:'Never bought',x:'Sitting in cash guarantees you match "cash" — and lose to inflation. Even the gardener’s boring $500 a month beat that.'});
+  else if(idle>=6)rv.push({c:'meh',m:`Waited ${idle} months before the first buy`,x:'Waiting for a better entry is timing in disguise. The gardener started month 1.'});
+  if(buys.length>=18&&sells.length<=1)rv.push({c:'good',m:`Bought in ${buys.length} of 24 months`,x:'That is dollar-cost averaging. Whatever the result this season, this habit wins over cycles.'});
+  if(buys.length===1&&buys[0].amt>=START*.9)rv.push({c:'meh',m:`All-in in month ${buys[0].i+1}`,x:'Lump sum. Wins on average, but this season it made your whole result about one day.'});
+  if(buys.length+sells.length>14)rv.push({c:'meh',m:`${buys.length+sells.length} trades · ${fmt$(G.fees)} in fees`,x:'Every trade costs 1% here (and a taxable event in real life). Fewer, planned moves.'});
+  if(!rv.length)rv.push({c:'good',m:'Nothing to flag',x:'Steady hands. The review is empty — which is the goal.'});
+  const first=G.d[0].label,end=G.d[23].label;
+  document.getElementById('gt').textContent='Season over';document.getElementById('gv').textContent='';
+  document.getElementById('stage').innerHTML=`<div class="done-card"><div class="eyebrow">${S===1?'You beat the gardener':S===0?'The gardener beat you':'Dead heat with the gardener'}</div><div class="big">${fmt$(you)}</div><p>from $12,000</p><p><span class="rdelta ${d>=0?'up':'dn'}">${d>=0?'+':''}${d}</span> · season rating now <b class="mono">${a.sr}</b></p>
+  <table class="res"><tr class="you"><td>You</td><td>${fmt$(you)}</td></tr><tr><td>The gardener · $500 every month, no matter what</td><td>${fmt$(dca)}</td></tr><tr><td>All-in on month 1</td><td>${fmt$(lump)}</td></tr><tr><td>Never bought</td><td>${fmt$(cash)}</td></tr></table>
+  <div class="take" style="max-width:none"><div class="eyebrow">The reveal</div><p style="font-size:15px">You just played <b>${first} → ${end}</b>. Bitcoin went from ${fmt$(G.d[0].p)} to ${fmt$(last)}${G.d.some(x=>x.news&&/all-time high/i.test(x.news))?', through an all-time high':''}.</p></div>
+  <div class="eyebrow" style="text-align:left">Move review</div><div class="review">${rv.map(r=>`<div class="rv ${r.c}"><b>${r.m}</b>${r.x}</div>`).join('')}</div>
+  <div style="display:grid;gap:10px"><button class="btn primary block" id="again">Play another season</button><button class="btn ghost block" id="back">Back to the arena</button></div></div>`;
+  document.getElementById('again').onclick=startSeason;document.getElementById('back').onclick=renderArena;G=null}
+
+renderGarden();
+</script>

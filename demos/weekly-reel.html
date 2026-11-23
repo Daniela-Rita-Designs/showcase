@@ -1,0 +1,589 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The Weekly Reel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=Orbitron:wght@600&display=swap">
+<style>
+/* Layout: one microfilm reader centred in a dark room. Screen left, control panel right, film deck with knob below. Single committed look (a lit object in a dark room). */
+:root{
+  --room:#17130f;
+  --room-2:#2b2219;
+  --shell:#d9d4c9;
+  --shell-hi:#efebe2;
+  --shell-lo:#b3ad9f;
+  --shell-edge:#8f897c;
+  --bezel:#3f3f44;
+  --bezel-lo:#232326;
+  --paper:#eee3c6;
+  --paper-lo:#d9c9a2;
+  --ink:#2b2317;
+  --ink-soft:#5d523f;
+  --rule:#8a7a58;
+  --led:#62f58a;
+  --led-off:#2d3a30;
+  --print:#1cb9a6;
+  --label:#4a4a4a;
+  --fg:#e9e2d4;
+  --font-mast:'UnifrakturCook','Old English Text MT',serif;
+  --font-head:'Playfair Display',Georgia,serif;
+  --font-body:'Crimson Pro','Iowan Old Style',Georgia,serif;
+  --font-ui:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
+  --font-led:'Orbitron','DIN Alternate',monospace;
+  --lamp:1;
+  --p:0;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--room);color:var(--fg);font-family:var(--font-ui);
+  background-image:
+    radial-gradient(120% 70% at 50% 0%,#3a2f24 0%,var(--room) 60%),
+    linear-gradient(180deg,transparent 0 62%,var(--room-2) 62%,#1e1711 100%);
+  padding-block:12px 14px;padding-inline:16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  min-height:100%;
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--led);outline-offset:2px}
+
+.intro{max-width:600px;text-align:center;font-size:.85rem;line-height:1.4;color:#b9ae9c;margin:0}
+.intro strong{color:var(--fg);font-weight:600}
+
+/* ---------- machine ---------- */
+.machine{
+  --screen-h:clamp(240px,calc(100svh - 400px),620px);
+  width:min(100%,760px,calc(var(--screen-h) * 1.3));
+  display:flex;flex-direction:column;gap:0;
+  filter:drop-shadow(0 30px 40px rgba(0,0,0,.6));
+}
+.head{
+  background:linear-gradient(180deg,var(--shell-hi),var(--shell) 55%,var(--shell-lo));
+  border:1px solid var(--shell-edge);border-bottom:0;border-radius:22px 22px 0 0;
+  padding:10px 26px 6px;display:flex;justify-content:space-between;align-items:baseline;
+  color:#6b665b;letter-spacing:.14em;font-weight:600;font-size:.95rem;
+}
+.head .brand{font-size:1.25rem;letter-spacing:.2em;color:#5c574d}
+.head .brand span{display:inline-block;width:.9em;height:.9em;border:3px solid #5c574d;border-radius:50%;vertical-align:-.08em;margin:0 .05em}
+.head .model{font-family:var(--font-led);font-weight:600;letter-spacing:.1em}
+
+.body{
+  background:linear-gradient(90deg,var(--shell-lo),var(--shell) 8%,var(--shell) 92%,var(--shell-lo));
+  border:1px solid var(--shell-edge);border-top:0;border-bottom:0;
+  padding:0 22px 12px;
+  display:grid;grid-template-columns:1fr 112px;gap:14px;
+}
+
+/* screen */
+.bezel{
+  background:linear-gradient(180deg,var(--bezel),var(--bezel-lo));
+  border-radius:14px;padding:12px;
+  box-shadow:inset 0 2px 4px rgba(255,255,255,.12),inset 0 -2px 6px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.4);
+}
+.glass{
+  position:relative;overflow:hidden;border-radius:4px;
+  height:var(--screen-h);max-width:100%;container-type:size;
+  background:var(--paper-lo);
+  box-shadow:inset 0 0 40px rgba(0,0,0,.55);
+  touch-action:pan-x;
+  cursor:ns-resize;
+  filter:brightness(var(--lamp));
+}
+.strip{
+  position:absolute;inset:0;height:100%;
+  transform:translateY(calc(var(--p) * -100%));
+  will-change:transform;
+}
+.strip.snap{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.strip.blur{filter:blur(.7px)}
+.frame{
+  position:absolute;left:0;right:0;height:100%;
+  padding:4cqh 5cqw 3cqh;
+  background:
+    radial-gradient(90% 70% at 50% 40%,#f6edd4 0%,var(--paper) 55%,var(--paper-lo) 100%);
+  color:var(--ink);
+  display:flex;flex-direction:column;
+  border-top:2px solid #9c8c66;
+}
+.mast{text-align:center;font-family:var(--font-mast);font-weight:700;font-size:clamp(1.2rem,7cqw,2.4rem);line-height:1;color:#211b12;letter-spacing:.01em;text-wrap:balance}
+.dateline{
+  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  border-top:1.5px solid var(--rule);border-bottom:1.5px solid var(--rule);
+  margin-top:6px;padding:3px 2px;
+  font-family:var(--font-body);font-size:clamp(.62rem,2.3cqw,.78rem);color:var(--ink-soft);letter-spacing:.03em;
+}
+.dateline b{font-weight:600;color:var(--ink)}
+.story{flex:1;display:flex;flex-direction:column;gap:2cqh;padding-top:3cqh;min-height:0;overflow:hidden}
+.story h2{
+  margin:0;font-family:var(--font-head);font-weight:900;
+  font-size:clamp(1rem,5.4cqw,1.8rem);line-height:1.12;text-wrap:balance;color:#1c1710;
+}
+.byline{font-family:var(--font-body);font-style:italic;font-size:clamp(.75rem,2.8cqw,.9rem);color:var(--ink-soft);margin:0}
+.byline b{font-style:normal;font-weight:600;color:var(--ink)}
+.story p.lede{
+  margin:0;font-family:var(--font-body);font-size:clamp(.88rem,3.7cqw,1.18rem);line-height:1.45;
+  max-width:44ch;
+}
+.story p.lede::first-letter{font-family:var(--font-head);font-weight:700;font-size:1.9em;float:left;line-height:.85;padding:.08em .12em 0 0;color:#1c1710}
+.readlink{
+  margin-top:auto;align-self:flex-start;flex:none;
+  font-family:var(--font-body);font-size:clamp(.8rem,3cqw,.95rem);font-weight:600;color:#1c1710;
+  text-decoration:none;border-bottom:1.5px solid var(--rule);padding-bottom:1px;
+}
+.readlink:hover{border-color:#1c1710}
+.foot{
+  margin-top:2cqh;padding-top:4px;border-top:1px solid var(--rule);flex:none;
+  display:flex;justify-content:space-between;gap:12px;
+  font-family:var(--font-body);font-size:clamp(.62rem,2.3cqw,.78rem);color:var(--ink-soft);
+}
+.foot .next{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.foot .next i{font-style:italic}
+
+/* screen overlays */
+.overlay{position:absolute;inset:0;pointer-events:none}
+.overlay.glow{background:radial-gradient(70% 60% at 50% 45%,rgba(255,244,210,.35),rgba(80,60,20,0) 70%);mix-blend-mode:soft-light}
+.overlay.vig{box-shadow:inset 0 0 70px rgba(60,40,10,.45)}
+.overlay.lines{background:repeating-linear-gradient(180deg,rgba(0,0,0,.055) 0 1px,transparent 1px 3px);opacity:.7}
+.overlay.grain{opacity:.16;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");mix-blend-mode:multiply}
+.overlay.gloss{background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 28%,rgba(255,255,255,0) 70%,rgba(255,255,255,.07) 100%)}
+.marks{position:absolute;inset:14px;pointer-events:none}
+.marks i{position:absolute;width:18px;height:18px;border:2px solid rgba(30,22,10,.7)}
+.marks i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
+.marks i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
+.marks i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
+.marks i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+.glass.flick .strip{animation:flick .5s steps(2) 1}
+@keyframes flick{0%{opacity:.4}50%{opacity:1}75%{opacity:.6}100%{opacity:1}}
+
+/* control panel */
+.panel{
+  background:linear-gradient(180deg,#5a5a5f,#3b3b40);
+  border-radius:12px;padding:12px 10px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 1px 0 rgba(255,255,255,.4);
+  display:flex;flex-direction:column;gap:9px;
+  color:#e6e6e6;font-size:.68rem;font-weight:600;letter-spacing:.06em;
+}
+.panel .grp{display:flex;flex-direction:column;gap:6px}
+.btns{display:flex;flex-direction:column;gap:6px}
+.panel .lbl{text-transform:uppercase;color:#bdbdbd;font-size:.62rem;letter-spacing:.14em}
+.pbtn{
+  display:flex;align-items:center;gap:7px;width:100%;
+  background:linear-gradient(180deg,#f2f0ea,#cfcbc1);color:#2b2b2b;
+  border:1px solid #8c8880;border-radius:6px;padding:7px 8px;
+  font:inherit;font-weight:600;font-size:.72rem;letter-spacing:.04em;cursor:pointer;
+  box-shadow:0 2px 0 #8c8880,0 3px 3px rgba(0,0,0,.3);
+}
+.pbtn:active,.pbtn.down{transform:translateY(2px);box-shadow:0 0 0 #8c8880}
+.pbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--led-off);box-shadow:inset 0 0 2px #000;flex:none}
+.pbtn.on .dot{background:var(--led);box-shadow:0 0 7px var(--led),0 0 2px #fff inset}
+.lcd{
+  background:#0c110d;border:2px solid #222;border-radius:5px;padding:7px 6px;text-align:center;
+  font-family:var(--font-led);font-size:1.3rem;color:var(--led);text-shadow:0 0 8px var(--led);
+  letter-spacing:.1em;line-height:1;
+}
+.lcd small{display:block;font-family:var(--font-ui);font-size:.55rem;letter-spacing:.14em;color:#6ca97c;margin-top:5px;text-shadow:none}
+.row2{display:flex;gap:6px}
+.row2 .pbtn{justify-content:center;padding:7px 4px;font-size:.85rem}
+.print{
+  background:linear-gradient(180deg,#39d6c1,#139d8c);color:#063632;border-color:#0b6d61;
+  justify-content:center;font-size:.72rem;letter-spacing:.12em;
+  box-shadow:0 2px 0 #0b6d61,0 3px 3px rgba(0,0,0,.35);
+}
+
+/* film deck */
+.deck{
+  background:linear-gradient(180deg,var(--shell),var(--shell-lo) 90%,var(--shell-edge));
+  border:1px solid var(--shell-edge);border-top:1px solid #a9a397;border-radius:0 0 26px 26px;
+  padding:12px 26px 16px;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;
+}
+.tray{
+  height:46px;border-radius:8px;
+  background:linear-gradient(180deg,#2a2a2d,#141416);
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.35);
+  display:flex;align-items:center;justify-content:space-between;padding:0 14px;
+  position:relative;overflow:hidden;
+}
+.tray .film{
+  position:absolute;left:0;right:0;top:50%;height:16px;transform:translateY(-50%);
+  background:
+    repeating-linear-gradient(90deg,transparent 0 4px,#121214 4px 6px) top/100% 3px no-repeat,
+    repeating-linear-gradient(90deg,transparent 0 4px,#121214 4px 6px) bottom/100% 3px no-repeat,
+    linear-gradient(90deg,#4b3f2e,#7a6749,#4b3f2e);
+  background-color:#5f5240;
+  opacity:.9;
+}
+.spool{
+  width:54px;height:54px;border-radius:50%;flex:none;position:relative;z-index:1;
+  background:radial-gradient(circle,#8fd8d8 0 10%,#2f3a3c 11% 22%,#6ec9c9 23% 60%,#2b6b6b 61% 100%);
+  box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 0 0 3px rgba(0,0,0,.25);
+  transform:rotate(calc(var(--p) * 180deg));
+}
+.spool::before{content:"";position:absolute;inset:14px;border-radius:50%;background:repeating-conic-gradient(#8fd8d8 0 30deg,#2b6b6b 30deg 60deg)}
+.spool::after{content:"";position:absolute;inset:40%;border-radius:50%;background:#1c2223}
+.spool.takeup{transform:rotate(calc(var(--p) * -180deg));background:radial-gradient(circle,#ddd 0 10%,#333 11% 22%,#bbb 23% 60%,#555 61% 100%)}
+.spool.takeup::before{background:repeating-conic-gradient(#ddd 0 30deg,#555 30deg 60deg)}
+.knobwrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.knob{
+  width:clamp(80px,18vw,110px);height:clamp(80px,18vw,110px);border-radius:50%;
+  position:relative;cursor:grab;user-select:none;touch-action:none;
+  background:
+    radial-gradient(circle at 50% 40%,#f3f1ea 0 22%,#cfcbc1 23% 60%,#9a958a 61% 100%);
+  box-shadow:0 6px 10px rgba(0,0,0,.45),inset 0 -6px 10px rgba(0,0,0,.25),inset 0 4px 6px rgba(255,255,255,.7);
+  transform:rotate(var(--rot,0deg));
+  border:none;padding:0;
+}
+.knob:active{cursor:grabbing}
+.knob::before{
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:repeating-conic-gradient(rgba(0,0,0,.14) 0 4deg,transparent 4deg 12deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 62%,#000 63% 100%);mask:radial-gradient(circle,transparent 0 62%,#000 63% 100%);
+}
+.knob::after{
+  content:"";position:absolute;left:50%;top:12%;width:8px;height:18px;margin-left:-4px;border-radius:4px;
+  background:#2b2b2b;box-shadow:inset 0 1px 2px rgba(255,255,255,.3);
+}
+.knob .ico{
+  position:absolute;inset:0;display:grid;place-items:center;font-size:1.1rem;color:#555;font-weight:600;
+  pointer-events:none;
+}
+.hint{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#6b665b;font-weight:600;text-align:center}
+
+/* key legend */
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;font-size:.74rem;color:#9a8f7e}
+.legend kbd{font-family:var(--font-ui);font-size:.72rem;background:#2d2620;border:1px solid #4a4038;border-bottom-width:2px;border-radius:4px;padding:1px 6px;color:#d9cfbf}
+
+@container (max-height:380px){
+  .foot .next{display:none}
+  .story p.lede::first-letter{font-size:1.3em}
+}
+@media (max-width:640px){
+  .machine{--screen-h:clamp(220px,calc(100svh - 470px),520px);width:100%}
+  .body{grid-template-columns:1fr;padding-inline:14px}
+  .panel{flex-direction:row;flex-wrap:wrap;align-items:stretch}
+  .panel .grp{flex:1 1 150px}
+  .panel .grp.reels{flex-basis:100%}
+  .reels .btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .deck{padding-inline:14px;grid-template-columns:1fr auto 1fr}
+  .tray{padding:0 8px}
+  .spool{width:40px;height:40px}
+  .head{padding-inline:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  .strip.snap{transition:none}
+  .glass.flick .strip{animation:none}
+}
+</style>
+
+<p class="intro"><strong>Week 41, 2026.</strong> Turn the knob to reel through this week's stories. Pick a reel on the side panel: Design, AI, Tech or Art. Every story links to its source.</p>
+
+<div class="machine" id="machine">
+  <div class="head">
+    <div class="brand">REEL<span></span></div>
+    <div class="model">W41</div>
+  </div>
+
+  <div class="body">
+    <div class="bezel">
+      <div class="glass" id="glass" tabindex="0" aria-label="Microfilm screen. Use arrow keys to move between stories." role="region" aria-live="polite">
+        <div class="strip" id="strip"></div>
+        <div class="overlay glow"></div>
+        <div class="overlay lines"></div>
+        <div class="overlay grain"></div>
+        <div class="overlay vig"></div>
+        <div class="overlay gloss"></div>
+        <div class="marks"><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="grp reels">
+        <div class="lbl">Reel</div>
+        <div class="btns" id="reelBtns"></div>
+      </div>
+      <div class="grp">
+        <div class="lbl">Frame</div>
+        <div class="lcd" id="lcd">01<small id="lcdSub">OF 07</small></div>
+      </div>
+      <div class="grp">
+        <div class="lbl">Lamp</div>
+        <div class="row2">
+          <button class="pbtn" id="darker" type="button" title="Darker">D</button>
+          <button class="pbtn" id="auto" type="button" title="Auto">A</button>
+          <button class="pbtn" id="lighter" type="button" title="Lighter">L</button>
+        </div>
+      </div>
+      <div class="grp">
+        <div class="lbl">Copy link</div>
+        <button class="pbtn print" id="print" type="button">PRINT</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="deck">
+    <div class="tray"><div class="film"></div><div class="spool" aria-hidden="true"></div></div>
+    <div class="knobwrap">
+      <button class="knob" id="knob" type="button" aria-label="Film advance knob. Drag to turn."><span class="ico">&#8635;</span></button>
+      <div class="hint">Turn to advance</div>
+    </div>
+    <div class="tray"><div class="film"></div><div class="spool takeup" aria-hidden="true"></div></div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><kbd>↑</kbd> <kbd>↓</kbd> step a frame</span>
+  <span><kbd>1</kbd>–<kbd>4</kbd> change reel</span>
+  <span>Scroll on the screen also works</span>
+</div>
+
+<script>
+const ISSUE = 'Vol. 2026 · No. 41';
+const DATE = 'Monday, October 6, 2026';
+
+const REELS = [
+ { key:'design', name:'Design', edition:'Design edition', stories:[
+  { h:"Apple's new chief makes product design a top priority",
+    src:'MacRumors, via Bloomberg', date:'Oct 5',
+    body:"John Ternus, Apple's new CEO, has made product design a major priority, reports Bloomberg's Mark Gurman. Apple plans two sets of product launches this month. The first lands on October 13.",
+    url:'https://macrumors.com/2026/10/05/apple-two-sets-of-product-launches-october' },
+  { h:'A plain Markdown file is becoming the design brief for AI',
+    src:'Design.md News', date:'Oct 2026',
+    body:"Teams are adding a DESIGN.md file so AI tools draw screens that match. It cuts visual drift and gets non-designers to good enough faster. The claim: by 2027, building with AI without one will look careless.",
+    url:'https://blog.mean.ceo/design-md-news-october-2026/' },
+  { h:'Kit Studio turns Exell into EXF.STUDIO with ASCII ingenuity',
+    src:'Design Week', date:'this week',
+    body:'The rebrand is an immersive digital world built on ASCII interactions. Navigation runs in several spatial directions. The motion is expressive rather than polite.',
+    url:'https://designweek.co.uk/how-kit-studio-switched-exell-to-exf-studio-with-ascii-ingenuity' },
+  { h:'Figma heads to India as Motion and shaders settle in',
+    src:'Figma updates', date:'Oct 15',
+    body:'Config India takes place on October 15. Figma Motion and custom shader fills have been in open beta since Config in June. A new State of the Designer report asks 906 designers how the craft is changing.',
+    url:'https://www.createwith.com/tool/figma/updates/figma-unveils-state-of-the-designer-2026-report-insights' },
+  { h:'Antwerp, Graz and a crowded conference calendar',
+    src:'UXtweak conference list', date:'Oct 8 to 15',
+    body:'SmashingConf runs in Antwerp from October 12 to 15. World Usability Congress is in Graz from October 13 to 15. UXCON happens October 8, in person and online.',
+    url:'https://blog.uxtweak.com/top-ux-conferences/' },
+  { h:"It's Nice That names 72 Ones to Watch",
+    src:"It's Nice That", date:'this week',
+    body:'The 2026 list covers emerging graphic designers, illustrators, animators, artists, filmmakers and photographers. Nicer Tuesdays London this month hosts ManvsMachine, Silvana Trevale and Luci Pina.',
+    url:'https://www.itsnicethat.com/' },
+  { h:'Templo signs DeafCity Hub with code, sign language and motion capture',
+    src:"It's Nice That", date:'this week',
+    body:'The identity fuses creative coding with British Sign Language. Gestures were captured and turned into the brand motion. Also featured: a Thai recipe book made of hand-ripped collage.',
+    url:'https://www.itsnicethat.com/graphic-design' },
+ ]},
+ { key:'ai', name:'AI', edition:'AI edition', stories:[
+  { h:'Google hands Gemini 4 Argon to cyber defenders first',
+    src:'AI Weekly', date:'Oct 5',
+    body:"Argon goes first to trusted defenders in Google's Fairwind Program. It can find, check and fix critical vulnerabilities on its own. It carries a one-million-token context window.",
+    url:'https://aiweekly.co/ai-news-today/edition/2026-10-05' },
+  { h:'OpenAI launches GPT-6.1 Sol at a fifth of the price',
+    src:'AI Weekly', date:'Oct 2',
+    body:'Sol costs one fifth of GPT-6 Astra and lands close to it in performance. It is aimed at agentic coding, computer use and professional work.',
+    url:'https://aiweekly.co/ai-news-today/edition/2026-10-02' },
+  { h:'Anthropic ships Claude Sonnet 5.5',
+    src:'AI Weekly', date:'Oct 1',
+    body:'Faster and more efficient than Sonnet 5, in the same price band as the new Sol. Positioned for everyday work: coding, documents and spreadsheets.',
+    url:'https://aiweekly.co/ai-news-today/edition/2026-10-01' },
+  { h:'ChatGPT will test ads inside image generation',
+    src:'Tech Startups', date:'Oct 5',
+    body:'Visual ads will be tested in the US later this month. ChatGPT now reaches 1.2 billion people every week.',
+    url:'https://techstartups.com/2026/10/05/top-tech-news-today-october-5-2026-deutsche-telekom-foxconn-google-openai-schneider-electric-more/' },
+  { h:'DeepSeek V4.1 Flash narrows the US–China gap',
+    src:'AI Weekly', date:'Oct 2',
+    body:'On LiveBench the gap fell to roughly three percent. It was around nine percent in May and fifteen percent earlier this year.',
+    url:'https://aiweekly.co/ai-news-today/edition/2026-10-02' },
+  { h:'Microsoft releases its first streaming speech-to-text model',
+    src:'Tech Startups', date:'Oct 2',
+    body:'MAI-Transcribe-2-Streaming supports 60 languages and detects the language as you speak. Two new voices ship with it: MAI-Voice-2.1 and a lower-latency Flash version.',
+    url:'https://techstartups.com/2026/10/02/top-tech-news-today-october-2-2026-amazon-cloudflare-google-microsoft-suno-tesla-more/' },
+  { h:'White House names an AI czar for a Super Intelligence Force',
+    src:'AI Weekly', date:'Oct 5',
+    body:'Jay Clayton, the national intelligence chief, will lead the new group. Its job is to coordinate how the US government engages with AI.',
+    url:'https://aiweekly.co/ai-news-today/edition/2026-10-05' },
+ ]},
+ { key:'tech', name:'Tech', edition:'Tech edition', stories:[
+  { h:"Apple's next launch is October 13",
+    src:'MacRumors', date:'Sep 30',
+    body:'A second set of launches follows later in the month. Reports point to new iPads and Macs.',
+    url:'https://macrumors.com/2026/09/30/apple-next-launch-is-october-13' },
+  { h:'Foxconn revenue jumps 47 percent on AI server demand',
+    src:'Tech Startups', date:'Oct 5',
+    body:'The iPhone maker is now riding the data-centre build-out. Deutsche Telekom and Schneider Electric made the same day’s headlines.',
+    url:'https://techstartups.com/2026/10/05/top-tech-news-today-october-5-2026-deutsche-telekom-foxconn-google-openai-schneider-electric-more/' },
+  { h:'Schneider Electric bets $22.6 billion on industrial software and AI',
+    src:'Tech Startups', date:'Oct 5',
+    body:'The French group is moving deeper into the software that runs factories and grids.',
+    url:'https://techstartups.com/2026/10/05/top-tech-news-today-october-5-2026-deutsche-telekom-foxconn-google-openai-schneider-electric-more/' },
+  { h:'Huawei and Qualcomm sign a broad patent cross-license',
+    src:'Tech Startups', date:'Oct 5',
+    body:'The deal spans 5G, computing, networking and artificial intelligence.',
+    url:'https://techstartups.com/2026/10/05/top-tech-news-today-october-5-2026-deutsche-telekom-foxconn-google-openai-schneider-electric-more/' },
+  { h:'Data centres meet pushback in Finland and the US Senate',
+    src:'Tech Startups', date:'Oct 2',
+    body:'Finland is probing forest clearing tied to a Google data-centre project. The US Senate blocked a bill that would have shifted new grid costs onto data centres.',
+    url:'https://techstartups.com/2026/10/02/top-tech-news-today-october-2-2026-amazon-cloudflare-google-microsoft-suno-tesla-more/' },
+  { h:'California sets fines for robotaxis that block emergency responders',
+    src:'Tech Startups', date:'Oct 2',
+    body:'A driverless car that gets in the way of fire or ambulance crews now costs its operator money.',
+    url:'https://techstartups.com/2026/10/02/top-tech-news-today-october-2-2026-amazon-cloudflare-google-microsoft-suno-tesla-more/' },
+  { h:'Rapidus builds a global ecosystem around its 2nm foundry',
+    src:'Tech Startups', date:'Oct 1',
+    body:'Japan’s Rapidus is lining up partners for its planned two-nanometre plant. The chip industry also published its first shared reliability standard for silicon photonics.',
+    url:'https://techstartups.com/2026/10/01/top-tech-news-today-october-1-2026-amd-broadcom-google-lg-meta-micron-openai-reddit-more/' },
+ ]},
+ { key:'art', name:'Art', edition:'Art edition', stories:[
+  { h:'Roy Lichtenstein: Like New opens at the Whitney',
+    src:'Artsy fall guide', date:'Oct 11',
+    body:'More than 130 works from the 1940s to the 1990s. Opens October 11 in New York.',
+    url:'https://www.artsy.net/article/artsy-editorial-guide-art-fall-2026' },
+  { h:'Andy Warhol: Family Album, 732 Polaroids',
+    src:'Time Out New York', date:'through Oct 19',
+    body:'Portraits taken in 1972 and 1973. At the Whitney for two more weeks.',
+    url:'https://www.timeout.com/newyork/things-to-do/things-to-do-in-new-york-this-week' },
+  { h:"Frieze week: London's fairs run side by side",
+    src:'London Art Week', date:'Oct 14 to 18',
+    body:"Frieze London and Frieze Masters share Regent's Park. Fair Play is new: selected artists get a free stand in exchange for a commission on sales.",
+    url:'https://www.artsy.net/article/artsy-editorial-guide-art-fall-2026' },
+  { h:"Mary Cassatt arrives at the Musée d'Orsay",
+    src:'Art Spell', date:'Oct 1',
+    body:'A major exhibition of the American Impressionist opens in Paris this week.',
+    url:'https://www.artspell.media/p/october-1-2026' },
+  { h:'Frida Orupabo opens in Aalborg',
+    src:'designboom radar', date:'Oct 8',
+    body:"Get Close Enough and You Can't See opens at Kunsten Museum of Modern Art on October 8.",
+    url:'https://www.designboom.com/art/exhibition-radar-october-2026/' },
+  { h:"Koons sends a $100M collection to Christie's; Hirst goes wearable",
+    src:'ARTnews Morning Links', date:'Oct 5',
+    body:'Jeff Koons is cashing in his art collection at Christie’s. Damien Hirst makes the case for wearable art ahead of a Barrie cashmere collection.',
+    url:'https://artnews.com/art-news/news/morning-links-october-5-2026-1234800955' },
+  { h:'Rare Pierre Soulages works come to the Upper East Side',
+    src:'Artsy', date:'this fall',
+    body:'A new exhibition of the French master of black at Lévy Gorvy Dayan in New York.',
+    url:'https://www.artsy.net/article/artsy-editorial-guide-art-fall-2026' },
+ ]},
+];
+
+const root = document.documentElement;
+const machine = document.getElementById('machine');
+const glass = document.getElementById('glass');
+const strip = document.getElementById('strip');
+const lcd = document.getElementById('lcd');
+const lcdSub = document.getElementById('lcdSub');
+const knob = document.getElementById('knob');
+const reelBtns = document.getElementById('reelBtns');
+
+let reel = 0, pos = 0, rot = 0, lamp = 1;
+const N = () => REELS[reel].stories.length;
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function renderReel(){
+  const r = REELS[reel];
+  strip.innerHTML = r.stories.map((s,i) => {
+    const next = r.stories[i+1];
+    return `<article class="frame" style="top:${i*100}%">
+      <div class="mast">The Weekly Reel</div>
+      <div class="dateline"><span>${ISSUE}</span><span><b>${r.edition}</b></span><span>${DATE}</span></div>
+      <div class="story">
+        <h2>${esc(s.h)}</h2>
+        <p class="byline"><b>${esc(s.src)}</b> · ${esc(s.date)}</p>
+        <p class="lede">${esc(s.body)}</p>
+        <a class="readlink" href="${s.url}" target="_blank" rel="noopener">Read the original ↗</a>
+      </div>
+      <div class="foot"><span>Frame ${i+1} of ${r.stories.length}</span><span class="next">${next ? 'Next: <i>'+esc(next.h)+'</i>' : 'End of reel · pick another'}</span></div>
+    </article>`;
+  }).join('');
+  [...reelBtns.children].forEach((b,i)=>b.classList.toggle('on', i===reel));
+}
+
+function setPos(p, snap){
+  pos = Math.max(-0.15, Math.min(N()-1+0.15, p));
+  strip.classList.toggle('snap', !!snap);
+  machine.style.setProperty('--p', pos);
+  const f = Math.max(1, Math.min(N(), Math.round(pos)+1));
+  lcd.firstChild.nodeValue = String(f).padStart(2,'0');
+  lcdSub.textContent = 'OF ' + String(N()).padStart(2,'0');
+}
+function snapPos(){ setPos(Math.round(pos), true); }
+function step(d){ setPos(Math.round(pos)+d, true); rot += d*120; knob.style.setProperty('--rot', rot+'deg'); }
+
+function switchReel(i){
+  if(i===reel) return;
+  reel = i; renderReel();
+  glass.classList.remove('flick'); void glass.offsetWidth; glass.classList.add('flick');
+  setPos(0, false);
+}
+
+REELS.forEach((r,i)=>{
+  const b = document.createElement('button');
+  b.type='button'; b.className='pbtn'; b.innerHTML = `<span class="dot"></span>${r.name}`;
+  b.addEventListener('click', ()=>switchReel(i));
+  reelBtns.appendChild(b);
+});
+
+/* knob drag */
+let dragging=false, lastAng=0;
+const angleAt = e => { const r = knob.getBoundingClientRect(); return Math.atan2(e.clientY-(r.top+r.height/2), e.clientX-(r.left+r.width/2))*180/Math.PI; };
+knob.addEventListener('pointerdown', e=>{
+  dragging=true; lastAng=angleAt(e); knob.setPointerCapture(e.pointerId);
+  strip.classList.remove('snap'); strip.classList.add('blur');
+});
+knob.addEventListener('pointermove', e=>{
+  if(!dragging) return;
+  const a = angleAt(e); let d = a-lastAng; if(d>180) d-=360; if(d<-180) d+=360; lastAng=a;
+  rot += d; knob.style.setProperty('--rot', rot+'deg');
+  setPos(pos + d/120, false);
+});
+const endDrag = ()=>{ if(!dragging) return; dragging=false; strip.classList.remove('blur'); snapPos(); };
+knob.addEventListener('pointerup', endDrag);
+knob.addEventListener('pointercancel', endDrag);
+knob.addEventListener('keydown', e=>{
+  if(e.key==='ArrowDown'||e.key==='ArrowRight'){ step(1); e.preventDefault(); }
+  if(e.key==='ArrowUp'||e.key==='ArrowLeft'){ step(-1); e.preventDefault(); }
+});
+
+/* wheel on screen */
+let wheelT=null;
+glass.addEventListener('wheel', e=>{
+  e.preventDefault();
+  strip.classList.remove('snap');
+  setPos(pos + e.deltaY/260, false);
+  rot += e.deltaY/2.2; knob.style.setProperty('--rot', rot+'deg');
+  clearTimeout(wheelT); wheelT=setTimeout(snapPos, 140);
+},{passive:false});
+
+/* touch swipe on screen */
+let ty=null;
+glass.addEventListener('touchstart', e=>{ ty=e.touches[0].clientY; },{passive:true});
+glass.addEventListener('touchend', e=>{
+  if(ty===null) return; const dy = ty - e.changedTouches[0].clientY; ty=null;
+  if(Math.abs(dy)>40) step(dy>0?1:-1);
+},{passive:true});
+
+/* keys anywhere */
+document.addEventListener('keydown', e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowDown'||e.key==='ArrowRight'||e.key==='PageDown'){ step(1); e.preventDefault(); }
+  else if(e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='PageUp'){ step(-1); e.preventDefault(); }
+  else if(/^[1-4]$/.test(e.key)) switchReel(+e.key-1);
+});
+
+/* lamp */
+const setLamp = v => { lamp = Math.max(.55, Math.min(1.3, v)); machine.style.setProperty('--lamp', lamp); };
+document.getElementById('darker').addEventListener('click', ()=>setLamp(lamp-.12));
+document.getElementById('lighter').addEventListener('click', ()=>setLamp(lamp+.12));
+document.getElementById('auto').addEventListener('click', ()=>setLamp(1));
+
+/* print = copy link */
+const printBtn = document.getElementById('print');
+printBtn.addEventListener('click', ()=>{
+  const s = REELS[reel].stories[Math.round(pos)];
+  const text = `${s.h} — ${s.url}`;
+  const done = ()=>{ printBtn.textContent='COPIED'; setTimeout(()=>printBtn.textContent='PRINT',1200); };
+  const fail = ()=>{ printBtn.textContent='OPEN ↗'; window.open && window.open(s.url,'_blank'); setTimeout(()=>printBtn.textContent='PRINT',1500); };
+  try{ navigator.clipboard.writeText(text).then(done, fail); }catch(err){ fail(); }
+});
+
+renderReel();
+setPos(0,false);
+knob.style.setProperty('--rot','0deg');
+</script>
+
+</body></html>

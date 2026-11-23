@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daniela Rita · Things I built</title>
+<meta name="description" content="Eleven websites and web apps by Daniela Rita, designer who builds. Each one is working: open it and play." />
+<meta property="og:title" content="Daniela Rita · Things I built" />
+<meta property="og:description" content="Eleven websites and web apps, each one you can play with." />
+<meta property="og:image" content="media/og.jpg" />
+<meta name="theme-color" content="#0a0a0a" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a;--bg-2:#101010;--ink:#f2f1ee;--soft:#a3a3a0;--mute:#5c5c59;--line:rgba(255,255,255,.1);
+    --accent:#3fc1d1;--sans:"Helvetica Neue",Helvetica,Arial,sans-serif;--mono:"DM Mono","SF Mono",Menlo,monospace;
+    --ease:cubic-bezier(.16,1,.3,1);--gut:clamp(20px,3vw,48px);--teal:#3fc1d1;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;width:0;height:0;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:300;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  body.locked{overflow:hidden;}
+  a{color:inherit;text-decoration:none;}
+  img,video{display:block;max-width:100%;}
+  .mono{font-family:var(--mono);font-weight:300;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);}
+  .wrap{width:100%;margin:0 auto;padding:0 var(--gut);}
+
+  /* ============ INTRO: blue specks drift in, the name fades in softly, then the page ============ */
+  .loader{position:fixed;inset:0;z-index:100;background:#050505;overflow:hidden;cursor:pointer;transition:opacity .45s ease,visibility .45s;}
+  .loader.done{opacity:0;visibility:hidden;}
+  #specks{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity 1.8s ease;}
+  .loader.go #specks{opacity:1;}
+  .worked{margin-top:16px;color:#8f9a9c;font-size:14px;line-height:1.6}
+  .worked::first-line{}
+  .cvlink{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
+  .intro-name{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;text-align:center;z-index:2;white-space:nowrap;
+    font-weight:300;font-size:clamp(40px,7.5vw,118px);line-height:1;color:#fff;text-shadow:0 0 60px rgba(63,193,209,.35);
+    opacity:0;filter:blur(16px);letter-spacing:.04em;
+    transition:opacity .45s ease,filter .45s ease,letter-spacing .7s var(--ease);}
+  .loader.go .intro-name{opacity:1;filter:blur(0);letter-spacing:-.03em;}
+  .loader.done .intro-name{opacity:0;filter:blur(10px);transition:opacity .35s ease,filter .35s ease;}
+  @media(prefers-reduced-motion:reduce){.loader{display:none;}}
+
+  /* ============ NAV ============ */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;
+    padding:22px var(--gut);mix-blend-mode:difference;color:#fff;transition:transform .5s var(--ease),opacity .4s;}
+  .nav.hide{transform:translateY(-110%);opacity:0;}
+  .nav .lock{font-family:var(--mono);font-size:13px;letter-spacing:.3em;text-transform:uppercase;line-height:1.3;}
+  .nav ul{display:flex;gap:clamp(18px,3vw,44px);list-style:none;margin:0;padding:0;}
+  .nav ul a{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;opacity:.75;transition:opacity .2s;}
+  .nav ul a.keep{text-transform:none;}
+  .nav ul a:hover{opacity:1;}
+  .nav .cta{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;border:1px solid rgba(255,255,255,.4);padding:12px 20px;transition:background .25s,color .25s;}
+  .nav .cta:hover{background:#fff;color:#000;}
+  @media(max-width:760px){.nav ul{display:none;}.nav .cta{padding:10px 14px;}}
+
+  /* ============ HERO ============ */
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:clamp(40px,7vh,80px);overflow:hidden;}
+  #cloud{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+  .hero .wrap{position:relative;z-index:1;width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:40px;align-items:end;}
+  .hero h1{font-weight:300;font-size:clamp(46px,8.4vw,132px);line-height:.96;letter-spacing:-.025em;margin:0;}
+  .hero h1 .ln{display:block;overflow:hidden;padding-bottom:.16em;margin-bottom:-.16em;}
+  .hero h1 .ln span{display:block;transform:translateY(125%);transition:transform 1.1s var(--ease);}
+  .hero.in h1 .ln span{transform:none;}
+  .hero h1 .ln:nth-child(2) span{transition-delay:.08s;}
+  .hero .state{display:flex;flex-direction:column;gap:18px;max-width:66ch;opacity:0;transform:translateY(18px);transition:opacity 1s .35s,transform 1s .35s var(--ease);}
+  .hero.in .state{opacity:1;transform:none;}
+  .hero .state p{font-size:clamp(19px,1.7vw,26px);line-height:1.45;margin:0;color:#dcdbd7;}
+  .hero .meta{position:absolute;left:var(--gut);top:50%;z-index:1;}
+  .clock{display:flex;gap:14px;}
+  .scroll{position:absolute;right:var(--gut);top:50%;z-index:1;writing-mode:vertical-rl;}
+  @media(max-width:900px){
+    .hero .wrap{grid-template-columns:1fr;gap:28px;}
+    .hero .meta{top:auto;bottom:clamp(40px,7vh,80px);display:none;}
+    .scroll{display:none;}
+  }
+
+  /* ============ SECTIONS ============ */
+  section{padding:clamp(80px,12vh,150px) 0;}
+  .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:clamp(36px,5vh,70px);gap:20px;}
+  .head .mono::before{content:"// ";}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease);}
+  .reveal.in{opacity:1;transform:none;}
+
+  /* ============ SPECS ============ */
+  .specs{display:grid;grid-template-columns:minmax(260px,460px) 1fr;gap:clamp(32px,6vw,110px);align-items:start;}
+  .face{position:relative;aspect-ratio:1;background:#0a0a0a;overflow:hidden;border:1px solid var(--line);border-radius:50%;}
+  .face img{width:100%;height:100%;object-fit:cover;}
+  .face::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(180deg,transparent 62%,rgba(10,10,10,.8));}
+  .face .corner{display:none;}
+  .face .scan{position:absolute;left:0;right:0;height:1px;background:rgba(185,242,155,.7);box-shadow:0 0 18px rgba(185,242,155,.6);animation:scan 5s ease-in-out infinite;}
+  @keyframes scan{0%{top:0}50%{top:100%}100%{top:0}}
+  .face .corner{position:absolute;width:18px;height:18px;border:1px solid rgba(255,255,255,.6);}
+  .face .c1{top:12px;left:12px;border-right:0;border-bottom:0;}
+  .face .c2{top:12px;right:12px;border-left:0;border-bottom:0;}
+  .face .c3{bottom:12px;left:12px;border-right:0;border-top:0;}
+  .face .c4{bottom:12px;right:12px;border-left:0;border-top:0;}
+  .face figcaption{position:absolute;left:0;right:0;bottom:12%;text-align:center;}
+  .about{font-size:clamp(21px,2vw,30px);line-height:1.4;margin:0 0 clamp(30px,4vh,48px);max-width:40ch;}
+  .about em{font-style:normal;color:var(--mute);}
+  .sheet{border-top:1px solid var(--line);}
+  .sheet .row{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:18px 0;border-bottom:1px solid var(--line);}
+  .sheet .row .v{font-size:17px;line-height:1.5;color:#e6e5e1;}
+  @media(max-width:900px){
+    .specs{grid-template-columns:1fr;}
+    .face{max-width:360px;}
+    .sheet .row{grid-template-columns:110px 1fr;gap:12px;}
+  }
+
+  /* ============ WORK ============ */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(40px,5vw,72px) clamp(24px,3vw,48px);}
+  .tile{cursor:pointer;position:relative;}
+  .tile.wide{grid-column:1/-1;}
+  .tile .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;}
+  .tile h3{font-weight:300;font-size:clamp(20px,1.6vw,26px);margin:0;letter-spacing:-.01em;}
+  .tile .media{position:relative;aspect-ratio:16/10;overflow:hidden;background:#141414;border:1px solid var(--line);}
+  .tile.wide .media{aspect-ratio:21/9;}
+  .tile .media video,.tile .media img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:transform 1.2s var(--ease);}
+  .tile:hover .media video,.tile:hover .media img{transform:scale(1.03);}
+  .tile.phone .media{background:#101010;}
+  .tile.phone .media video,.tile.phone .media img{object-fit:contain;object-position:center;}
+  .tile .arrow{position:absolute;right:22px;bottom:22px;width:48px;height:48px;border-radius:50%;border:1px solid var(--accent);display:grid;place-items:center;
+    color:var(--accent);opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s var(--ease);background:rgba(10,10,10,.5);backdrop-filter:blur(4px);}
+  .tile:hover .arrow{opacity:1;transform:none;}
+  .tile .bottom{display:flex;justify-content:space-between;margin-top:12px;gap:16px;}
+  @media(max-width:760px){.grid{grid-template-columns:1fr;}.tile.wide .media{aspect-ratio:16/10;}.tile .arrow{opacity:1;transform:none;}}
+
+  /* ============ APPS ============ */
+  .grid.apps{grid-template-columns:repeat(4,1fr);gap:clamp(24px,3vw,48px);}
+  .subhead{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin:clamp(70px,9vh,120px) 0 clamp(28px,4vh,48px);padding-top:22px;border-top:1px solid var(--line);scroll-margin-top:90px;}
+  .subhead:first-of-type{margin-top:0;}
+  .head+.subhead{margin-top:0;}
+  .subhead h2{font-weight:300;font-size:clamp(30px,3.2vw,48px);letter-spacing:-.02em;margin:0;line-height:1;}
+  .grid.art{grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(36px,4vw,56px) clamp(20px,2.4vw,36px);}
+  .tile.art .media{aspect-ratio:4/3;}
+  .tile.art .media img{object-position:center;}
+  .tile.art .bottom .mono:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tile.art .bottom .mono:last-child{flex:none;white-space:nowrap;}
+  .tile.art .top h3{font-size:clamp(18px,1.4vw,22px);}
+  @media(max-width:1000px){.grid.art{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media(max-width:560px){.grid.art{grid-template-columns:minmax(0,1fr);}}
+  .tile.art{min-width:0;}
+  #brand,#illustration{scroll-margin-top:20px;}
+  /* ---------- work folders ---------- */
+  .folders{position:relative;overflow:hidden;}
+  #cloud3{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+  .folders .wrap{position:relative;z-index:1;}
+  .fgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(56px,7vw,96px) clamp(28px,4vw,64px);padding:clamp(30px,6vh,70px) 0 clamp(70px,12vh,140px);}
+  .fl{flex:0 0 clamp(220px,20vw,290px);animation:fl-float var(--dur,7s) ease-in-out var(--d,0s) infinite alternate;}
+  @keyframes fl-float{from{transform:translateY(-9px) rotate(calc(var(--r,1deg) * -1));}to{transform:translateY(11px) rotate(var(--r,1deg));}}
+  .folder{position:relative;display:block;width:100%;aspect-ratio:5/4;cursor:pointer;background:none;border:0;padding:0;color:inherit;font:inherit;perspective:900px;}
+  .folder:focus-visible{outline:2px solid var(--accent);outline-offset:10px;border-radius:14px;}
+  .f-back{position:absolute;inset:9% 0 0 0;border-radius:4px 14px 14px 14px;background:linear-gradient(165deg,#174a53,#0b2026);border:1px solid rgba(63,193,209,.35);}
+  .f-back::before{content:"";position:absolute;left:-1px;top:-12%;width:42%;height:13%;border-radius:10px 10px 0 0;background:#174a53;border:1px solid rgba(63,193,209,.35);border-bottom:0;}
+  .f-papers{position:absolute;inset:15% 7% 22% 7%;}
+  .f-papers img{position:absolute;width:60%;aspect-ratio:4/3;object-fit:cover;border-radius:4px;border:3px solid #f2f1ee;box-shadow:0 10px 24px rgba(0,0,0,.5);background:#1a1a1a;transition:transform .7s var(--ease);}
+  .f-papers img:nth-child(1){left:0;top:12%;transform:rotate(-8deg);}
+  .f-papers img:nth-child(2){left:20%;top:0;transform:rotate(2deg);}
+  .f-papers img:nth-child(3){right:0;top:14%;transform:rotate(9deg);}
+  .folder:hover .f-papers img:nth-child(1),.folder:focus-visible .f-papers img:nth-child(1){transform:translate(-10%,-26%) rotate(-14deg);}
+  .folder:hover .f-papers img:nth-child(2),.folder:focus-visible .f-papers img:nth-child(2){transform:translateY(-34%) rotate(1deg);}
+  .folder:hover .f-papers img:nth-child(3),.folder:focus-visible .f-papers img:nth-child(3){transform:translate(10%,-24%) rotate(14deg);}
+  .f-front{position:absolute;left:0;right:0;bottom:0;height:60%;border-radius:12px;background:linear-gradient(180deg,rgba(46,132,145,.62),rgba(9,36,42,.9));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border:1px solid rgba(63,193,209,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 24px 50px rgba(0,0,0,.45);
+    display:flex;flex-direction:column;justify-content:flex-end;gap:8px;padding:clamp(14px,1.6vw,22px);text-align:left;transform-origin:50% 100%;transition:transform .7s var(--ease),box-shadow .7s;}
+  .folder:hover .f-front,.folder:focus-visible .f-front{transform:rotateX(-16deg);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 30px 60px rgba(0,0,0,.5),0 0 40px rgba(63,193,209,.18);}
+  .f-name{font-weight:300;font-size:clamp(22px,2vw,30px);letter-spacing:-.01em;color:var(--ink);line-height:1.05;}
+  .f-front .mono{color:#bfe9ee;}
+  @media(max-width:620px){.fgrid{gap:44px 18px;}.fl{flex:0 0 calc(50% - 9px);}.f-name{font-size:19px;}.f-front .mono{font-size:10px;letter-spacing:.12em;}}
+  @media(prefers-reduced-motion:reduce){.fl{animation:none;}}
+  .fv{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:scale(.97);transition:opacity .45s ease,transform .6s var(--ease),visibility .45s;}
+  .fv.open{opacity:1;visibility:visible;transform:none;}
+  .fv-body{flex:1;min-height:0;overflow:auto;padding:clamp(30px,5vh,60px) 0 clamp(60px,10vh,120px);}
+  .fv-title{font-weight:300;font-size:clamp(44px,5.4vw,84px);letter-spacing:-.03em;margin:0 0 14px;line-height:1;}
+  .fpane{display:none;margin-top:clamp(34px,5vh,60px);}
+  .fpane.on{display:block;}
+  @media(max-width:620px){#fv-prev,#fv-next{display:none;}}
+  /* ---------- favourites ---------- */
+  .fav{margin-bottom:clamp(40px,7vh,80px);}
+  .fav-h{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin:0 0 clamp(20px,3vh,32px);}
+  .fav-h h2{font-weight:300;font-size:clamp(28px,3vw,44px);letter-spacing:-.02em;margin:0;line-height:1;}
+  .fold-h{margin-top:clamp(20px,4vh,40px);}
+  .sl.s3{display:block;overflow-y:auto;padding:clamp(24px,4vw,56px) clamp(20px,5vw,80px) 90px;}
+  .s3-h{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;margin-bottom:24px;}
+  .s3-h h3{font-weight:300;font-size:clamp(28px,3vw,44px);margin:0;color:var(--c-ink);}
+  .s3-h p{margin:0;color:var(--c-soft);font-size:15px;}
+  .pg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,1.6vw,24px);}
+  .pg{display:block;text-decoration:none;color:var(--c-ink);border-radius:12px;overflow:hidden;border:1px solid var(--c-line);background:rgba(255,255,255,.03);transition:transform .4s var(--ease),border-color .3s;}
+  .pg:hover{transform:translateY(-4px);border-color:var(--c-acc);}
+  .pg-bar{display:flex;align-items:center;gap:6px;height:26px;padding:0 10px;background:rgba(255,255,255,.06);}
+  .pg-bar i{width:8px;height:8px;border-radius:50%;background:#ff5f57}.pg-bar i:nth-child(2){background:#febc2e}.pg-bar i:nth-child(3){background:#28c840}
+  .pg-bar em{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--c-soft);margin-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pg-win{display:block;aspect-ratio:16/11;background-size:100% auto;background-position:center top;background-repeat:no-repeat;transition:background-position 6s linear;}
+  .pg:hover .pg-win{background-position:center bottom;}
+  .pg b{display:block;font-weight:400;font-size:15px;padding:10px 12px;}
+  .gl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.6vw,24px);}
+  .gl{margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--c-line);background:rgba(255,255,255,.03);}
+  .gl.wide{grid-column:span 2;}
+  .gl img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;}
+  .gl.wide img{aspect-ratio:8/3;}
+  .gl figcaption{padding:10px 12px;font-size:14px;color:var(--c-soft);}
+  @media(max-width:1100px){.pg-grid{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:760px){.pg-grid,.gl-grid{grid-template-columns:repeat(2,1fr);}.gl.wide{grid-column:span 2;}}
+  .favgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,28px);}
+  .fav-card.big{grid-column:1/-1;flex-direction:row;align-items:stretch;background:linear-gradient(120deg,#0a0a0a,#141110);border-color:rgba(232,118,46,.35);}
+  .fav-card.big .fav-media{flex:0 0 64%;aspect-ratio:16/10;}
+  .fav-card.big .fav-txt{justify-content:center;padding:clamp(24px,3vw,48px);gap:14px;}
+  .fav-card.big .fav-txt b{font-size:clamp(34px,3.6vw,56px);line-height:1;}
+  .fav-card.big .fav-line{font-size:clamp(17px,1.3vw,20px);}
+  .fav-card.big .fav-go{color:#E8762E;}
+  .fav-card.big:hover,.fav-card.big:focus-visible{border-color:#E8762E;box-shadow:0 30px 60px rgba(0,0,0,.5),0 0 50px rgba(232,118,46,.18);}
+  @media(max-width:1100px){.favgrid{grid-template-columns:repeat(2,1fr);}}
+  .fav-card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;border:1px solid rgba(63,193,209,.28);border-radius:18px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(23,74,83,.45),rgba(10,10,10,.8));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:transform .6s var(--ease),border-color .4s,box-shadow .6s;min-width:0;}
+  .fav-card:hover,.fav-card:focus-visible{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 30px 60px rgba(0,0,0,.5),0 0 40px rgba(63,193,209,.15);}
+  .fav-card:focus-visible{outline:2px solid var(--accent);outline-offset:4px;}
+  .fav-media{display:block;aspect-ratio:16/10;overflow:hidden;background:#111;}
+  .fav-media video{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+  .fav-txt{display:flex;flex-direction:column;gap:8px;padding:clamp(16px,1.6vw,24px);}
+  .fav-txt b{font-weight:300;font-size:clamp(22px,2vw,30px);letter-spacing:-.01em;color:var(--ink);}
+  .fav-line{color:#cfd6d7;font-size:16px;line-height:1.45;}
+  .fav-go{color:var(--accent);margin-top:6px;}
+  @media(max-width:900px){.favgrid{grid-template-columns:1fr;}.fav-card.big{flex-direction:column;}.fav-card.big .fav-media{flex:none;}}
+  /* ---------- case presentation: two slides, scrolled sideways, themed per project ---------- */
+  .cs{--c-bg:#0b0b0b;--c-ink:#f2f1ee;--c-soft:#a3a3a0;--c-acc:#3fc1d1;--c-ai:#061214;--c-line:rgba(255,255,255,.12);
+    position:fixed;inset:0;z-index:55;background:var(--c-bg);color:var(--c-ink);display:flex;flex-direction:column;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s,visibility .45s;}
+  .cs.open{opacity:1;visibility:visible;pointer-events:auto;}
+  .cs:not(.open) *{visibility:hidden!important;}
+  .cs-bar{display:flex;align-items:center;gap:16px;padding:14px var(--gut);border-bottom:1px solid var(--c-line);flex:0 0 auto;}
+  .cs-name{font-weight:500;font-size:18px;white-space:nowrap;}
+  .cs-steps{display:flex;gap:4px;flex:1;justify-content:center;}
+  .cs-steps button{all:unset;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--c-soft);padding:8px 14px;border-radius:999px;}
+  .cs-steps button[aria-current="step"]{background:var(--c-acc);color:var(--c-ai);}
+  .cs-steps button:focus-visible{outline:2px solid var(--c-acc);}
+  .cs-bar .r{display:flex;gap:10px;}
+  .cs .ib{color:var(--c-ink);border-color:var(--c-line);background:transparent;}
+  .cs .ib:hover{background:var(--c-ink);color:var(--c-bg);}
+  .cs .ib.acc{background:var(--c-acc);border-color:var(--c-acc);color:var(--c-ai);}
+  .cs .ib.acc:hover{background:var(--c-ink);border-color:var(--c-ink);color:var(--c-bg);}
+  .cs-stage{flex:1;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;}
+  .cs-stage::-webkit-scrollbar{display:none;}
+  .cs-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px var(--gut);border-top:1px solid var(--c-line);}
+  .cs-hint{color:var(--c-soft);}
+  .cs-dots{display:flex;gap:8px;}
+  .cs-dots i{width:8px;height:8px;border-radius:50%;background:var(--c-line);transition:background .3s,width .3s;}
+  .cs-dots i.on{background:var(--c-acc);width:24px;border-radius:99px;}
+  .sl{flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;padding:clamp(28px,5vh,60px) var(--gut);display:grid;align-items:center;gap:clamp(28px,4vw,72px);}
+  .s1{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+  .s2{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);}
+  .sl .kick{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--c-soft);}
+  .sl h1{font-weight:300;font-size:clamp(44px,5.6vw,92px);letter-spacing:-.035em;line-height:.95;margin:12px 0 16px;}
+  .sl .lead{font-size:clamp(18px,1.6vw,24px);line-height:1.4;margin:0 0 clamp(24px,4vh,40px);max-width:30ch;}
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--c-line);}
+  .st{padding:16px 16px 0 0;display:flex;flex-direction:column;gap:6px;}
+  .st+.st{padding-left:16px;border-left:1px solid var(--c-line);}
+  .st b{font-weight:500;font-size:clamp(30px,3.4vw,54px);letter-spacing:-.03em;line-height:1;color:var(--c-acc);}
+  .st span{font-size:14px;line-height:1.35;color:var(--c-soft);}
+  .s1-b{display:flex;flex-direction:column;gap:clamp(18px,3vh,28px);}
+  .blk{border-left:3px solid var(--c-acc);padding-left:18px;}
+  .blk h3,.s2-b h3{font-family:var(--mono);font-weight:400;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--c-soft);margin:0 0 8px;}
+  .blk p{font-size:clamp(16px,1.2vw,18px);line-height:1.55;margin:0;max-width:56ch;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none;}
+  .chips li{font-size:15px;padding:7px 14px;border-radius:999px;border:1px solid var(--c-line);}
+  .devs{position:relative;padding:0 7% 8% 0;}
+  .lap .scr{aspect-ratio:16/10;background:#000;border:clamp(6px,.8vw,12px) solid #1c1c1c;border-bottom-width:clamp(10px,1.2vw,16px);border-radius:14px 14px 4px 4px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.35);}
+  .lap .scr video{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+  .lap .base{height:clamp(8px,1vw,14px);margin:0 -5%;background:linear-gradient(#dcdcdc,#8f8f8f);border-radius:0 0 16px 16px;}
+  .ph{position:absolute;right:0;bottom:0;width:25%;aspect-ratio:9/19.5;border:clamp(4px,.55vw,8px) solid #111;border-radius:clamp(18px,2.2vw,34px);overflow:hidden;background:#000;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+  .ph img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;}
+  .decs{list-style:none;margin:0 0 clamp(20px,3vh,32px);padding:0;counter-reset:d;display:flex;flex-direction:column;gap:16px;}
+  .decs li{counter-increment:d;display:grid;grid-template-columns:34px 1fr;column-gap:14px;row-gap:4px;}
+  .decs li::before{content:counter(d);grid-row:span 2;width:30px;height:30px;border-radius:50%;background:var(--c-acc);color:var(--c-ai);display:grid;place-items:center;font-weight:600;font-size:14px;}
+  .decs b{font-weight:500;font-size:clamp(17px,1.3vw,20px);}
+  .decs span{font-size:15px;line-height:1.5;color:var(--c-soft);}
+  .endl{font-size:clamp(24px,2.4vw,36px);font-weight:500;letter-spacing:-.02em;margin:0 0 16px;}
+  .s2-b .acts{display:flex;gap:10px;flex-wrap:wrap;}
+  @media(max-width:900px){
+    .cs-steps{display:none;} .cs-bar{justify-content:space-between;}
+    .s1,.s2{grid-template-columns:1fr;align-items:start;}
+    .stats{grid-template-columns:1fr;} .st,.st+.st{padding:12px 0;border-left:0;border-bottom:1px solid var(--c-line);flex-direction:row;align-items:baseline;gap:14px;}
+    .st b{min-width:3.2em;}
+  }
+  @media(max-width:520px){#cs-skip{display:none;}.cs-foot .cs-hint:last-child{display:none;}.cs-hint{font-size:10px;}}
+  .ov-stage.gallery{display:block;overflow:auto;padding:clamp(10px,1.4vw,18px);background:#0c0c0c;}
+  .ov-stage.gallery img{display:block;width:100%;height:auto;margin:0 0 clamp(10px,1.4vw,18px);}
+  .ov-stage.gallery img:last-child{margin-bottom:0;}
+  .tile.app .appbar{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+  .tile.app .icon{width:64px;height:64px;border-radius:16px;object-fit:cover;flex:0 0 auto;box-shadow:0 10px 30px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.12);transition:transform .5s var(--ease);}
+  .tile.app:hover .icon{transform:translateY(-3px) scale(1.04);}
+  .tile.app h3{font-size:clamp(18px,1.4vw,22px);margin:0 0 4px;}
+  .tile.app .media{aspect-ratio:4/5;}
+  .tile.app.phone .media video,.tile.app.phone .media img{object-fit:contain;}
+  .tile.app:not(.phone) .media video,.tile.app:not(.phone) .media img{object-fit:cover;object-position:top center;}
+  @media(max-width:1100px){.grid.apps{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:520px){.grid.apps{grid-template-columns:1fr;}}
+
+  /* ============ DESIGN.MD ============ */
+  .dm{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,5vw,90px);align-items:center;}
+  .dm h2{font-weight:300;font-size:clamp(34px,4vw,64px);letter-spacing:-.03em;line-height:1.02;margin:0 0 22px;}
+  .dm h2 em{font-style:normal;color:var(--accent);}
+  .dm p{font-size:clamp(17px,1.35vw,21px);line-height:1.5;color:#dcdbd7;margin:0 0 26px;max-width:46ch;}
+  .dm ul{list-style:none;margin:0 0 34px;padding:0;display:grid;gap:12px;}
+  .dm li{font-size:16px;padding-left:20px;position:relative;line-height:1.45;color:var(--soft);}
+  .dm li::before{content:"";position:absolute;left:0;top:.68em;width:9px;height:1px;background:var(--accent);}
+  .mono.keep{text-transform:none;}
+  .dm-stage{position:relative;border:1px solid var(--line);border-radius:22px;background:rgba(16,16,16,.6);padding:clamp(18px,2.4vw,34px);
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(16px,2.6vw,40px);align-items:center;overflow:hidden;}
+  .dm-stage::before{content:"";position:absolute;right:-20%;top:-30%;width:70%;height:80%;background:radial-gradient(50% 50% at 50% 50%,rgba(63,193,209,.14),transparent 70%);filter:blur(30px);pointer-events:none;}
+  .dm-file{position:relative;z-index:1;border:1px solid var(--line);border-radius:12px;background:#0b0b0b;font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;overflow:hidden;}
+  .dm-file .fh{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--soft);font-size:11px;letter-spacing:.14em;}
+  .dm-file .fh i{width:8px;height:8px;border-radius:50%;background:#2a2a2a;display:inline-block;}
+  .dm-file .fh b{font-weight:400;color:var(--ink);margin-left:4px;}
+  .dm-line{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:9px 14px;color:#8a8a87;border-left:2px solid transparent;transition:color .5s,background .5s,border-color .5s;line-height:1.5;}
+  .dm-line .k{color:#5c5c59;transition:color .5s;}
+  .dm-line.cm{color:#454543;}
+  .dm-line.on{color:var(--ink);background:rgba(63,193,209,.08);border-left-color:var(--accent);}
+  .dm-line.on .k{color:var(--accent);}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:3px;border:1px solid rgba(255,255,255,.14);}
+  .dm-file .cur{display:inline-block;width:7px;height:12px;background:var(--accent);vertical-align:-2px;margin-left:3px;animation:blink 1s steps(2) infinite;}
+  @keyframes blink{to{opacity:0}}
+  .dm-beam{position:absolute;height:1px;background:linear-gradient(90deg,rgba(63,193,209,.1),rgba(63,193,209,.6));z-index:0;pointer-events:none;opacity:0;transition:top .6s var(--ease),opacity .4s;}
+  .dm-beam::after{content:"";position:absolute;top:-2px;left:0;width:5px;height:5px;border-radius:50%;background:#e4f8fa;box-shadow:0 0 10px 2px rgba(63,193,209,.8);opacity:0;}
+  .dm-beam.run{opacity:1;}
+  .dm-beam.run::after{animation:dmdot 1.1s var(--ease) forwards;}
+  @keyframes dmdot{0%{left:0;opacity:0}15%{opacity:1}100%{left:calc(100% - 5px);opacity:0}}
+  .dm-out{position:relative;z-index:1;min-height:270px;display:grid;place-items:center;}
+  .dm-card{width:100%;max-width:300px;border:1px solid var(--line);border-radius:14px;padding:22px 20px 20px;background:#141414;position:relative;transform-origin:0 0;
+    transition:background .9s,border-color .9s,transform .9s var(--ease),box-shadow .9s;}
+  .dm-card .bar{height:3px;width:36px;border-radius:2px;background:#2a2a2a;margin-bottom:14px;transition:background .8s,width .8s var(--ease);}
+  .dm-card .kick{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#6d6d6a;margin-bottom:8px;position:relative;display:inline-block;transition:opacity .4s;}
+  .dm-card .kick::after{content:"";position:absolute;left:-2px;right:-2px;top:50%;height:1px;background:#ff6b6b;transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease);}
+  .dm-card .h{font-size:22px;line-height:1.05;letter-spacing:-.02em;font-weight:300;min-height:48px;margin-bottom:12px;position:relative;color:var(--ink);}
+  .dm-card .h .bars{display:block;transition:opacity .5s;}
+  .dm-card .h .bars i{display:block;height:9px;background:#2a2a2a;border-radius:2px;margin:5px 0;width:88%;}
+  .dm-card .h .bars i+i{width:58%;}
+  .dm-card .h .txt{position:absolute;inset:0;opacity:0;transition:opacity .9s .2s;}
+  .dm-card .p{font-size:12.5px;line-height:1.45;color:var(--soft);margin-bottom:16px;min-height:56px;position:relative;}
+  .dm-card .p .old,.dm-card .p .new{position:absolute;inset:0;transition:opacity .5s,color .5s;}
+  .dm-card .p .new{opacity:0;color:#dcdbd7;}
+  .dm-card .btns{display:flex;gap:8px;}
+  .dm-card .btn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;border-radius:6px;border:1px solid #333;color:#8a8a87;transition:background .6s,color .6s,border-color .6s,opacity .5s,transform .5s var(--ease);}
+  .dm-fan{position:absolute;right:0;bottom:0;display:flex;align-items:flex-end;gap:8px;opacity:0;transition:opacity .5s;}
+  .dm-fan .mini{border-radius:8px;border:1px solid rgba(63,193,209,.35);background:#0f1a1c;padding:8px;display:flex;flex-direction:column;gap:5px;transform:translateY(14px);opacity:0;transition:transform .7s var(--ease),opacity .7s;}
+  .dm-fan .mini i{display:block;height:3px;border-radius:2px;background:#24383b;}
+  .dm-fan .mini i:first-child{background:var(--accent);width:45%;}
+  .dm-fan .mini span{margin-top:auto;font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
+  .dm-fan .post{width:66px;height:66px;}
+  .dm-fan .slide{width:88px;height:56px;}
+  .dm-fan .page{width:58px;height:84px;}
+  /* cumulative states */
+  .s0 .dm-card{background:#0e1a1c;border-color:rgba(63,193,209,.4);box-shadow:0 20px 50px rgba(0,0,0,.45);}
+  .s0 .dm-card .bar{background:var(--accent);width:64px;}
+  .s0 .dm-card .btn.a{background:var(--accent);color:#0a0a0a;border-color:var(--accent);}
+  .s1 .dm-card .h .bars{opacity:0;}
+  .s1 .dm-card .h .txt{opacity:1;}
+  .s2 .dm-card .p .old{opacity:0;text-decoration:line-through;color:#ff6b6b;}
+  .s2 .dm-card .p .new{opacity:1;transition-delay:.45s;}
+  .s3 .dm-card .kick::after{transform:scaleX(1);}
+  .s3 .dm-card .kick{opacity:0;transition-delay:.7s;}
+  .s3 .dm-card .btn.b{opacity:0;transform:translateX(8px);}
+  .s4 .dm-card{transform:translate(0,-4%) scale(.7) rotate(-3deg);}
+  .s4 .dm-fan{opacity:1;}
+  .s4 .dm-fan .mini{transform:none;opacity:1;}
+  .s4 .dm-fan .mini:nth-child(2){transition-delay:.14s;}
+  .s4 .dm-fan .mini:nth-child(3){transition-delay:.28s;}
+  .dm-steps{grid-column:1/-1;position:relative;z-index:1;display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:16px;}
+  .dm-steps .row{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+  .dm-step{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);background:none;border:0;padding:0;cursor:pointer;transition:color .3s;}
+  .dm-step.on,.dm-step:hover{color:var(--accent);}
+  .dm-cap{font-size:14px;color:var(--soft);min-height:1.4em;}
+  @media(max-width:1000px){.dm{grid-template-columns:1fr;}}
+  @media(max-width:600px){.head span+span{display:none;}}
+  @media(max-width:600px){.dm-stage{grid-template-columns:1fr;}.dm-beam{display:none;}.dm-out{min-height:300px;}}
+
+  /* ============ SERVICES ============ */
+  .svc{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,2.5vw,36px);}
+  .svc-card{position:relative;display:flex;flex-direction:column;gap:18px;padding:clamp(28px,3vw,44px);border:1px solid var(--line);border-radius:22px;background:rgba(16,16,16,.6);transition:border-color .35s,transform .6s var(--ease);}
+  .svc-card:hover{border-color:var(--accent);}
+  .svc-card .num{color:var(--accent);}
+  .svc-card h3{font-weight:300;font-size:clamp(24px,2vw,32px);margin:0;letter-spacing:-.02em;}
+  .svc-card p{margin:0;color:var(--soft);font-size:clamp(16px,1.2vw,18px);line-height:1.55;}
+  .svc-card ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+  .svc-card li{font-size:15px;padding-left:18px;position:relative;line-height:1.45;}
+  .svc-card li::before{content:"";position:absolute;left:0;top:.65em;width:8px;height:1px;background:var(--accent);}
+  .svc-card .ib{margin-top:auto;align-self:flex-start;display:inline-block;}
+  @media(max-width:1000px){.svc{grid-template-columns:1fr;}}
+
+  /* ============ CONTACT ============ */
+  .cta{position:relative;border:1px solid var(--line);border-radius:28px;padding:clamp(60px,10vh,120px) clamp(24px,5vw,80px);text-align:center;background:rgba(16,16,16,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow:hidden;}
+  .cta::after{content:"";position:absolute;left:12%;right:12%;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+  .cta .glow{position:absolute;left:50%;bottom:-120px;width:70%;height:220px;transform:translateX(-50%);background:radial-gradient(50% 50% at 50% 50%,rgba(63,193,209,.35),transparent 70%);filter:blur(30px);pointer-events:none;}
+  .cta h2{font-weight:600;font-size:clamp(34px,5vw,64px);letter-spacing:-.03em;margin:0 0 18px;}
+  .cta p{font-size:clamp(17px,1.4vw,21px);color:var(--soft);margin:0 auto 42px;max-width:46ch;line-height:1.5;}
+  .social{position:relative;text-align:center;padding:clamp(40px,8vh,90px) 0;}
+  .links{display:flex;justify-content:center;gap:clamp(20px,4vw,56px);flex-wrap:wrap;}
+  .links a{font-family:var(--mono);font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.3);transition:border-color .25s,color .25s;}
+  .links a:hover{border-color:var(--accent);color:var(--accent);}
+  #contact{position:relative;padding-bottom:clamp(60px,10vh,120px);overflow:hidden;}
+  #cloud2{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+  #contact .wrap{position:relative;z-index:1;}
+
+  /* ============ PROJECT OVERLAY ============ */
+  .ov{position:fixed;inset:0;z-index:60;background:var(--bg);transform:translateY(100%);transition:transform .7s var(--ease);display:flex;flex-direction:column;}
+  .ov.open{transform:none;}
+  .ov-bar{display:flex;justify-content:space-between;align-items:center;padding:20px var(--gut);border-bottom:1px solid var(--line);flex:0 0 auto;gap:16px;}
+  .ov-bar .r{display:flex;gap:10px;align-items:center;}
+  .ib{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);background:transparent;border:1px solid rgba(255,255,255,.3);padding:11px 16px;cursor:pointer;transition:background .25s,color .25s;}
+  .ib:hover{background:#fff;color:#000;}
+  .ib.acc{background:var(--accent);color:#0a0a0a;border-color:var(--accent);}
+  .ib.acc:hover{background:#fff;border-color:#fff;}
+  .ib[disabled]{opacity:.35;cursor:default;}
+  .ov-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:clamp(24px,4vw,64px);padding:clamp(20px,3vw,40px) var(--gut);overflow:auto;}
+  .ov-text h2{font-weight:300;font-size:clamp(34px,3.6vw,56px);letter-spacing:-.025em;line-height:1;margin:14px 0 22px;}
+  .ov-text p{font-size:18px;line-height:1.55;color:#dcdbd7;margin:0 0 22px;}
+  .ov-text .tags{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 30px;padding:0;list-style:none;}
+  .ov-text .tags li{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);border:1px solid var(--line);padding:7px 11px;}
+  .ov-text .acts{display:flex;gap:10px;flex-wrap:wrap;}
+  .ov-text .note{margin-top:22px;}
+  .ov-stage{position:relative;min-height:0;background:#0f0f0f;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .ov-stage video{width:100%;height:100%;object-fit:contain;}
+  .ov-stage iframe{width:100%;height:100%;border:0;background:#000;}
+  .ov-stage.phone iframe{width:min(420px,100%);}
+  @media(max-width:900px){
+    .ov-body{grid-template-columns:1fr;overflow:auto;}
+    .ov-stage{min-height:62vh;}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body class="locked">
+
+<div class="loader" id="loader" aria-hidden="true">
+  <canvas id="specks"></canvas>
+  <h1 class="intro-name">Daniela Rita</h1>
+</div>
+
+<nav class="nav">
+  <a class="lock" href="#top">Daniela<br>Rita</a>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#services">Freelance</a></li>
+  </ul>
+</nav>
+
+<header class="hero" id="top">
+  <canvas id="cloud"></canvas>
+  <div class="meta mono clock"><span>Remote</span><span>·</span><span id="clock">00:00:00</span></div>
+  <div class="scroll mono">Scroll</div>
+  <div class="wrap">
+    <h1><span class="ln"><span>Product designer</span></span><span class="ln"><span>who builds.</span></span></h1>
+    <div class="state">
+      <p>Product designer for complex fintech and B2B products, from user research and flows to UI, design systems and front-end prototypes. I design in Figma and build in HTML, CSS and JavaScript.</p>
+      <p class="worked">Worked with &nbsp;Cork Protocol · Futura · Porto Editora · DWO · Vans (freelance) · Sumol (contest win)</p>
+      <div class="mono"><a class="cvlink" href="media/Daniela-Rita-CV.pdf" target="_blank" rel="noopener">Download CV ↓</a> &nbsp;·&nbsp; 40 projects · 2018 – 2026</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="about">
+    <div class="wrap">
+      <div class="head reveal"><span class="mono">Specs</span><span class="mono">Remote</span></div>
+      <div class="specs">
+        <figure class="face reveal" style="margin:0">
+          <img src="media/portrait.png" alt="Daniela Rita">
+          <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i>
+        </figure>
+        <div>
+          <p class="about reveal">Product designer who ships. I design in Figma and build in HTML, CSS and JS, with AI tools as part of the kit, so a concept becomes a live page, a working prototype or an interactive tool without a hand-off. <em>Trained in graphic design and illustration, so the craft is there too.</em></p>
+          <div class="sheet">
+            <div class="row reveal"><span class="mono">Name</span><span class="v">Daniela Rita</span></div>
+            <div class="row reveal"><span class="mono">Title</span><span class="v">Product Designer · UX/UI · Design Systems</span></div>
+            <div class="row reveal"><span class="mono">Based</span><span class="v">Remote, working with teams anywhere</span></div>
+            <div class="row reveal"><span class="mono">Now</span><span class="v">Design Lead at Cork Protocol, 2024 – now. Product design for the Cork web app from testnet to mainnet: the v1 app reached $33M in deposits within three months of launch. Built the design system and designed and built the cork.tech relaunch, every page shipped in a month. Team grew from 2 to 16.</span></div>
+            <div class="row reveal"><span class="mono">Before</span><span class="v">Product Designer at Futura, legal tech and cyber security, 2022 – 24<br>Freelance Illustrator at Porto Editora, 2018 – 22<br>Freelance Designer &amp; Illustrator, 2018 – now</span></div>
+            <div class="row reveal"><span class="mono">Design &amp; build</span><span class="v">Design systems, prototyping in code, UX/UI, HTML · CSS · JS, Astro, three.js, canvas animation, design tokens, brand, illustration</span></div>
+            <div class="row reveal"><span class="mono">Tools</span><span class="v">Claude Code, Claude API, Claude Design, Figma, Webflow, Storyblok, Cloudflare, GitHub, Spline, After Effects, Procreate</span></div>
+            <div class="row reveal"><span class="mono">AI models</span><span class="v">Claude, ChatGPT, Gemini (Nano Banana), Whisper</span></div>
+            <div class="row reveal"><span class="mono">Education</span><span class="v">Masters in Illustration, FBAUP Porto, 2021 – 22<br>Bachelor in Graphic Design &amp; Communication, ISEC, 2018 – 21<br>SheFi Crypto &amp; Web3 Program, 2024</span></div>
+            <div class="row reveal"><span class="mono">Languages</span><span class="v">Portuguese native, English fluent</span></div>
+            <div class="row reveal"><span class="mono">Open to</span><span class="v">Product design roles, remote anywhere</span></div>
+            <div class="row reveal"><span class="mono">CV</span><span class="v"><a class="cvlink" href="media/Daniela-Rita-CV.pdf" target="_blank" rel="noopener">Download CV (PDF) ↓</a></span></div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="folders">
+    <canvas id="cloud3"></canvas>
+    <div class="wrap">
+      <div class="head reveal"><span class="mono">Work</span><span class="mono">Favourites first, then every folder</span></div>
+      <div class="fav">
+        <div class="fav-h reveal"><h2>Favourites</h2><span class="mono">Start here</span></div>
+        <div class="favgrid" id="favgrid"></div>
+      </div>
+      <div class="fav-h reveal fold-h"><h2>All work</h2><span class="mono">Open a folder</span></div>
+      <div class="fgrid" id="fgrid"></div>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="wrap">
+      <div class="head reveal"><span class="mono">Also freelance</span><span class="mono">Design and build, one person</span></div>
+      <div class="svc">
+        <article class="svc-card reveal">
+          <span class="mono num">01</span>
+          <h3>Websites</h3>
+          <p>Marketing sites, landing pages and product pages. Designed in Figma, built in code, live on your domain. From the first sketch to launch, with no hand-off in between.</p>
+          <ul>
+            <li>Design and build in one</li>
+            <li>Astro, Webflow or plain HTML</li>
+            <li>Motion and canvas details</li>
+            <li>Fast, accessible, ready for search</li>
+          </ul>
+        </article>
+        <article class="svc-card reveal">
+          <span class="mono num">02</span>
+          <h3>Apps</h3>
+          <p>Small web apps and interactive tools. Working prototypes you can install on a phone, built from your idea in days, not months.</p>
+          <ul>
+            <li>Web apps and PWAs</li>
+            <li>Interactive tools and games</li>
+            <li>Prototypes that really work</li>
+            <li>Your data, your brand, your domain</li>
+          </ul>
+        </article>
+        <article class="svc-card reveal">
+          <span class="mono num">03</span>
+          <h3>Brand folder for Claude</h3>
+          <p>Your brand as files your AI tools can read. A DESIGN.md, a CLAUDE.md and skill files with your colours, type, voice and rules. So every post, deck and page your team makes with AI looks like yours.</p>
+          <ul>
+            <li>DESIGN.md and design tokens</li>
+            <li>Claude Code and Cursor skill files</li>
+            <li>Tested on real outputs</li>
+            <li>Monthly care as your brand grows</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <canvas id="cloud2"></canvas>
+    <div class="wrap">
+      <div class="social reveal">
+        <div class="links">
+          <a href="mailto:daniela.rita1111@gmail.com">Email</a>
+          <a href="https://www.linkedin.com/in/daniela-rita-186547203/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://www.behance.net/danielarita" target="_blank" rel="noopener">Behance</a>
+          <a href="media/Daniela-Rita-CV.pdf" target="_blank" rel="noopener">CV</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+</main>
+
+<div class="fv" id="fv" role="dialog" aria-modal="true" aria-labelledby="fv-title">
+  <div class="ov-bar">
+    <span class="mono" id="fv-num"></span>
+    <div class="r">
+      <button class="ib" id="fv-prev">← Prev folder</button>
+      <button class="ib" id="fv-next">Next folder →</button>
+      <button class="ib" id="fv-close">Close ✕</button>
+    </div>
+  </div>
+  <div class="fv-body" id="fv-body">
+    <div class="wrap">
+      <h2 class="fv-title" id="fv-title"></h2>
+      <p class="mono" id="fv-sub"></p>
+      <div class="fpane" data-f="websites"><div class="grid" id="grid"></div></div>
+      <div class="fpane" data-f="animation"><div class="grid art" id="g-animation"></div></div>
+      <div class="fpane" data-f="apps"><div class="grid apps" id="agrid"></div></div>
+      <div class="fpane" data-f="brand"><div class="grid art" id="g-product"></div></div>
+      <div class="fpane" data-f="books"><div class="grid art" id="g-book"></div></div>
+      <div class="fpane" data-f="comics"><div class="grid art" id="g-comics"></div></div>
+      <div class="fpane" data-f="posters"><div class="grid art" id="g-posters"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="cs" id="cs" role="dialog" aria-modal="true" aria-labelledby="cs-title">
+  <div class="cs-bar">
+    <b class="cs-name" id="cs-title"></b>
+    <nav class="cs-steps" id="cs-steps" aria-label="Parts of the story"></nav>
+    <div class="r"><button class="ib acc" id="cs-skip">Skip to the project →</button><button class="ib" id="cs-close">Close ✕</button></div>
+  </div>
+  <div class="cs-stage" id="cs-stage"></div>
+  <div class="cs-foot"><span class="mono cs-hint" id="cs-hint">Scroll or swipe sideways →</span><div class="cs-dots" id="cs-dots"></div><span class="mono cs-hint" id="cs-count">2 slides</span></div>
+</div>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true">
+  <div class="ov-bar">
+    <span class="mono" id="ov-num"></span>
+    <div class="r">
+      <button class="ib" id="ov-prev">← Prev</button>
+      <button class="ib" id="ov-next">Next →</button>
+      <button class="ib" id="ov-close">Close ✕</button>
+    </div>
+  </div>
+  <div class="ov-body">
+    <div class="ov-text">
+      <div style="display:flex;align-items:center;gap:12px"><img id="ov-icon" alt="" style="display:none;width:40px;height:40px;border-radius:10px"><span class="mono" id="ov-cat"></span></div>
+      <h2 id="ov-title"></h2>
+      <p id="ov-desc"></p>
+      <ul class="tags" id="ov-tags"></ul>
+      <div class="acts">
+        <button class="ib acc" id="ov-play">Play with it</button>
+        <a class="ib" id="ov-live" target="_blank" rel="noopener">Open live ↗</a>
+        <a class="ib" id="ov-new" target="_blank" rel="noopener">New tab ↗</a>
+      </div>
+      <p class="mono note" id="ov-note"></p>
+    </div>
+    <div class="ov-stage" id="ov-stage"></div>
+  </div>
+</div>
+
+<script>
+const P=[
+ {k:'corktech',t:'cork.tech',cat:'Live website · shipped',
+  d:'Cork’s live website. I designed and built every page in code with Astro and the Cork design system, and shipped them all in a month: home, insurance for MGAs, carriers, reinsurers and ILS, onchain finance, agents, about, press, blog and contact.',
+  tags:['Live site','Astro','Design system','Shipped in a month'],live:'https://www.cork.tech',note:'Live. Open it, or see every page in the story.'},
+ {k:'corkv7',t:'Cork website concept',cat:'Website concept',
+  d:'A full ten-page website concept for Cork Protocol, where I lead design. Particle logo hero, page transitions, and one consistent system across product, insurance, agents and press.',
+  tags:['Marketing site','Particle canvas','Design system','10 pages'],demo:'demos/cork-v7.html',note:'Design proposal, built as a working site.'},
+ {k:'phil',t:'Custom doodle stickers',cat:'Web app · SVG',
+  d:'A dress-up and sticker maker built around a character I drew. Two poses, layered clothes, any colour, your own prints as patterns, die-cut shapes and PNG export.',
+  tags:['SVG compositor','Colour wheel','Pattern fills','PNG export'],demo:'demos/phil-doodles.html',note:'Hit Shuffle a few times.'},
+ {k:'cards',t:'Business cards in 3D',cat:'3D · three.js',
+  d:'Business cards you can hold before they exist. Drop in a logo, type the details, and see eight finishes with real thickness: die-cut, emboss, foil, spot UV, brushed metal, frosted acrylic, coin.',
+  tags:['three.js','Materials','Cut-out geometry','Live editing'],demo:'demos/cards-3d.html',note:'Drag to spin. Open Details to change the card.'},
+ {k:'cattery',t:'Cattery vom Eifeldom',cat:'Client website',
+  d:'A real client site for a British Shorthair cattery in the Eifel. German and English with one toggle, galleries for every cat, a contact form that lands in her inbox.',
+  tags:['Client site','DE / EN','Lightbox gallery','Forms'],demo:'demos/cattery/index.html',live:'https://catteryvomeifeldom.netlify.app',note:'Live and in use.'},
+ {k:'ledger',t:'My ledger',cat:'Dashboard · PDF parsing',
+  d:'Bank statements turned into a dashboard. It reads the PDFs right in the browser, sorts every movement, spots subscriptions, and walks you through a savings journey one station at a time.',
+  tags:['PDF parsing','Dashboard','Journey checklist','Self-updating'],note:'Video only. It runs on real statements, so the numbers are blurred.'},
+ {k:'reel',t:'The Weekly Reel',cat:'Interface · skeuomorphic',
+  d:'A microfilm reader for the week in design, AI, tech and art. Turn the knob to advance, switch reels on the side panel, dim the lamp. Every story links to its source.',
+  tags:['Skeuomorphic UI','Knob control','Keyboard navigation'],demo:'demos/weekly-reel.html',note:'Arrow keys work too.'},
+ {k:'studio',t:'Social Studio',cat:'Content tool · template',app:true,icon:'media/icons/studio.png',
+  d:'A content studio for a whole brand. Blog headers, LinkedIn posts, YouTube thumbnails, GIFs and videos with a timeline and voice-over, plus a diagram maker, all locked to the brand\'s colours, type and rules. Shown as a template with a made-up brand, Marlo.',
+  tags:['Post editor','Video timeline','Diagram maker','GIF and MP4 export'],demo:'demos/social-studio.html',note:'Template copy with a made-up brand. Open a template and click anything to edit it.'},
+ {k:'paperpath',t:'Paper Path',cat:'Life admin app · template',app:true,icon:'media/icons/paperpath.png',
+  d:'A calm, step-by-step path through social security, taxes and health insurance after moving countries. Call scripts in German with English underneath, ready-to-send emails, a tracker for every office, the papers and replies to look out for, and a calendar. Shown as an onboarding example that gets tailored to each user.',
+  tags:['Step tracker','Call scripts','Office tracker','Calendar'],demo:'demos/paper-path.html',note:'Example path with example numbers. Tick a task, it saves in your browser.'},
+ {k:'music',t:'Music Room',cat:'Music app · Spotify',app:true,icon:'media/icons/music.png',
+  d:'A music app whose home page is a cosy room. Your most played albums sit on the shelves. Click one, the sleeve flies out and flips to show the track list, and the record lands on the turntable and starts to play.',
+  tags:['Spotify','Depth-layered room','Flip sleeves','Turntable'],demo:'demos/music-room/index.html',note:'Play with it: a template copy with blank sleeves. The video shows the real app, with my Spotify albums on the shelves.'},
+ {k:'shire',t:'The Shire',cat:'Plant care app · PWA',phone:true,app:true,icon:'media/icons/shire.png',
+  d:'A botanical inventory of my indoor plants. Every plant drawn as a field-guide plate, with care notes, a watering journal that tells you who is thirsty, and a memorial page for the ones that did not make it.',
+  tags:['PWA','Field guide','Care journal','Swipe & zoom'],demo:'demos/shire/index.html',live:'https://plantheshire.netlify.app',note:'Best on a phone. Swipe the circles.'},
+ {k:'baby',t:'Baby Capsule',cat:'Photo book · template',phone:true,app:true,icon:'media/icons/baby.png',
+  d:'A photo book built like a phone app. A letter to open slowly, a story you swipe, an album whose pages flip in 3D, and a family tree. Shown here as a template, with placeholder tiles instead of the photos.',
+  tags:['Mobile app feel','3D page flip','Swipe stories','PWA'],demo:'demos/baby/index.html',note:'Best on a phone.'},
+ {k:'dorf',t:'Deutsches Dorf',cat:'Language app',app:true,icon:'media/icons/dorf.png',
+  d:'A German village where every house is a lesson. Vocabulary, phrases, dialogues and speaking practice from A1 to A2, with the browser reading the German out loud.',
+  tags:['Language app','Text to speech','Progress map','Day & night'],demo:'demos/deutsches-dorf.html',note:'Turn the sound on.'},
+ {k:'money',t:'Money Garden',cat:'Learning app',app:true,icon:'media/icons/money.png',
+  d:'Learning crypto and investing the Duolingo way. Eight units on a winding path, a planner with your own numbers, and a Play tab with rated puzzles and a season game against real price history.',
+  tags:['Learning game','Quiz engine','Rated puzzles','Planner'],demo:'demos/money-garden.html',note:'Built to teach myself.'},
+];
+const A=[{"sec": "book", "t": "A Princesa de Babilônia", "y": "2020", "url": "https://www.behance.net/gallery/95410095/A-PRINCESA-DE-BABILONIA-Illustration", "sub": "An illustrated tale", "text": "A series of illustrations for Voltaire's tale — characters, interior scenes and a fully illustrated, floral-bound book cover.", "meta": [["Tools", "InDesign · Illustrator · Photoshop · Procreate"], ["Type", "Book illustration · cover"]], "imgs": ["princesa-1", "princesa-2", "princesa-3", "princesa-4", "princesa-5", "princesa-6", "princesa-7", "princesa-8"]}, {"sec": "book", "t": "A Magia dos Dados", "y": "2024", "url": "https://www.behance.net/gallery/194351867/A-magia-dos-dados-pessoais", "sub": "The magic of personal data", "text": "A character-driven concept set illustrating how personal data takes on a personality once it leaves our hands.", "meta": [["Medium", "Character design · concept art"], ["Pieces", "7 illustrations"]], "imgs": ["magia-1", "magia-2", "magia-3", "magia-4", "magia-5", "magia-6", "magia-7"]}, {"sec": "book", "t": "O Ciclista", "y": "2023", "url": "https://www.behance.net/gallery/170114093/O-ciclista", "sub": "The cyclist", "text": "A book-illustration series following a lone cyclist — moody, monochrome scenes and character studies.", "meta": [["Tools", "Illustrator · Photoshop · InDesign · Procreate"], ["Type", "Book illustration"]], "imgs": ["ciclista-1", "ciclista-2", "ciclista-3", "ciclista-4", "ciclista-5", "ciclista-6", "ciclista-7", "ciclista-8"]}, {"sec": "book", "t": "O Peixe, o Mutante e o Humano", "y": "2022", "url": "https://www.behance.net/gallery/143973625/O-PEIXE-O-MUTANTE-E-O-HUMANO", "sub": "The fish, the mutant & the human", "text": "A fantasy book project pairing digital work with hand-pulled linoleum prints — cover and interior illustrations with a raw, inky texture.", "meta": [["Tools", "Photoshop · Linoleum print"], ["Type", "Book · printmaking"]], "imgs": ["peixe-1", "peixe-2", "peixe-3", "peixe-4", "peixe-5", "peixe-6", "peixe-7", "peixe-8"]}, {"sec": "book", "t": "Noites em Claro", "y": "2022", "url": "https://www.behance.net/gallery/143967495/NOITES-EM-CLARO-_-Novela-Grafica-(Promp)", "sub": "Sleepless nights — a graphic novel", "text": "Promotional illustration and editorial design for an original graphic novel — cover, character work and layout.", "meta": [["Tools", "Photoshop · Illustrator · InDesign · Procreate"], ["Type", "Graphic novel"]], "imgs": ["noites-1", "noites-2", "noites-3", "noites-4", "noites-5", "noites-6", "noites-7", "noites-8"]}, {"sec": "book", "t": "Capas de Livros", "y": "2020", "url": "https://www.behance.net/gallery/95410375/CAPAS-DE-LIVROS-Illustration", "sub": "Book covers", "text": "A set of illustrated book-cover designs — type, illustration and layout across a range of titles.", "meta": [["Tools", "Illustrator · Procreate"], ["Type", "Book covers"]], "imgs": ["capas-1", "capas-2", "capas-3", "capas-4", "capas-5"]}, {"sec": "comics", "t": "Rotten Apple", "y": "2024", "url": "https://www.behance.net/gallery/200311823/Rotten-Apple", "sub": "Sweetness, spoiled", "text": "A playful cartoon series built around a single mischievous idea — the perfect apple gone delightfully wrong.", "meta": [["Medium", "Digital illustration · cartoon"], ["Pieces", "8 illustrations"]], "imgs": ["rotten-1", "rotten-2", "rotten-3", "rotten-4", "rotten-5", "rotten-6", "rotten-7", "rotten-8"]}, {"sec": "comics", "t": "Days of the Week", "y": "2024", "url": "https://www.behance.net/gallery/199018527/Days-of-the-Week", "sub": "Seven little moods", "text": "A small series giving each day of the week its own character and feeling — drawn in Procreate, finished in Illustrator.", "meta": [["Tools", "Procreate · Illustrator"], ["Type", "Character design · social"]], "imgs": ["days-1", "days-2", "days-3", "days-4"]}, {"sec": "comics", "t": "Poem_1", "y": "2024", "url": "https://www.behance.net/gallery/191419293/Poem_1", "sub": "A poem, illustrated", "text": "An illustrated poem — a short visual sequence drawn in Procreate.", "meta": [["Tools", "Procreate"], ["Type", "Comic · poem"]], "imgs": ["poem-1", "poem-2", "poem-3", "poem-4", "poem-5"]}, {"sec": "comics", "t": "Vai Bugiar :)", "y": "2024", "url": "https://www.behance.net/gallery/192187989/VAI-BUGIAR-", "sub": "A cartoon retort", "text": "A cheeky one-panel cartoon — quick, sharp and full of attitude.", "meta": [["Tools", "Illustrator · Procreate"], ["Type", "Comic · cartoon"]], "imgs": ["vaibugiar-1"]}, {"sec": "comics", "t": "Vida Ilustrada", "y": "2024", "url": "https://www.behance.net/gallery/191418945/Vida-Ilustrada", "sub": "Illustrated life", "text": "A short comic series on the small moments of everyday life.", "meta": [["Medium", "Digital illustration"], ["Type", "Comic"]], "imgs": ["vidailustrada-1", "vidailustrada-2", "vidailustrada-3", "vidailustrada-4"]}, {"sec": "comics", "t": "It's a State of Mind", "y": "2024", "url": "https://www.behance.net/gallery/191418587/Its-a-state-of-Mind", "sub": "A mood, drawn", "text": "A single-panel cartoon about mindset and the stories we tell ourselves.", "meta": [["Tools", "Illustrator · Procreate"], ["Type", "Comic · cartoon"]], "imgs": ["stateofmind-1"]}, {"sec": "comics", "t": "Promotion Day", "y": "2022", "url": "https://www.behance.net/gallery/143963853/PROMOTION-DAY", "sub": "A workplace gag", "text": "A character-driven cartoon comic with a wry sense of humour.", "meta": [["Tools", "Photoshop · Illustrator · Procreate"], ["Type", "Comic · character design"]], "imgs": ["promotionday-1"]}, {"sec": "posters", "t": "Magic", "y": "2023", "url": "https://www.behance.net/gallery/173158447/Magic", "sub": "A little spell", "text": "A graphic illustration piece — clean lines and a quiet sense of wonder.", "meta": [["Tools", "Illustrator"], ["Medium", "Digital illustration"]], "imgs": ["magic-1"]}, {"sec": "posters", "t": "A Sit at the Table", "y": "2023", "url": "https://www.behance.net/gallery/173061941/A-sit-at-the-table", "sub": "Portrait & presence", "text": "A portrait illustration with an activist undertone — a quiet, deliberate statement.", "meta": [["Medium", "Digital illustration · portrait"], ["Theme", "Activism"]], "imgs": ["sittable-1", "sittable-2", "sittable-3"]}, {"sec": "posters", "t": "Sumol Summer Fest", "y": "2022", "url": "https://www.behance.net/gallery/148499371/ILUSTRACAO-VENCEDORA_SUMOL-SUMMER-FEST", "sub": "Winning festival art", "text": "The winning illustration for the Sumol Summer Fest contest — bright, loud and festival-ready.", "meta": [["Tools", "Illustrator · Photoshop · Procreate"], ["Type", "Illustration · contest winner"]], "imgs": ["sumol-1", "sumol-2", "sumol-3"]}, {"sec": "product", "t": "DWO", "y": "2026", "url": "https://www.behance.net/gallery/250996281/Dwo-Branding-Project", "sub": "Brand identity for an interior-design studio", "text": "A full brand identity for DWO, an interior-design studio founded by two friends. The logotype pairs a bold, geometric wordmark with a soft, minimal palette — the two dots inside the “D” and the “O” standing for the founders' partnership and shared vision. The system spans logo variations, a gold-detail treatment, business cards, watermarks and social-media templates.", "meta": [["Tools", "Photoshop · Illustrator · Figma"], ["Type", "Brand identity · visual system"]], "imgs": ["dwo-1", "dwo-2", "dwo-3", "dwo-4", "dwo-5", "dwo-6"]}, {"sec": "product", "t": "Amores de Azeitão", "y": "2021", "url": "https://www.behance.net/gallery/112500497/Amores-de-Azeitao-Package-design", "sub": "Regional sweets, packaged", "text": "Brand, illustration and packaging design for a line of regional sweets from Azeitão, Portugal.", "meta": [["Tools", "Illustrator · Dimension · Photoshop · InDesign · Procreate"], ["Type", "Packaging · branding"]], "imgs": ["amores-1", "amores-2", "amores-3", "amores-4", "amores-5", "amores-6", "amores-7", "amores-8"]}, {"sec": "product", "t": "D. Bacalhôa", "y": "2021", "url": "https://www.behance.net/gallery/110935371/DBacalhoa_Vinho-Branco-e-vinho-tinto-embalagem", "sub": "Wine label & packaging", "text": "Label and packaging design for D. Bacalhôa regional white and red wines from Setúbal.", "meta": [["Tools", "Illustrator · InDesign · Photoshop · Procreate"], ["Type", "Packaging · wine"]], "imgs": ["bacalhoa-1", "bacalhoa-2", "bacalhoa-3", "bacalhoa-4", "bacalhoa-5", "bacalhoa-6", "bacalhoa-7", "bacalhoa-8"]}, {"sec": "product", "t": "Escola de Turismo de Setúbal", "y": "2020", "url": "https://www.behance.net/gallery/95475257/PROJETO-ESCOLA-DE-TURISMO-SETUBAL-Illustration", "sub": "A school, illustrated", "text": "An illustration project for the Setúbal Tourism School — architecture and place in a warm, graphic style.", "meta": [["Tools", "Illustrator · Photoshop · Procreate"], ["Type", "Illustration · architecture"]], "imgs": ["setubal-1", "setubal-2", "setubal-3", "setubal-4", "setubal-5", "setubal-6"]}, {"sec": "product", "t": "Salsa Mural", "y": "2021", "url": "https://www.behance.net/gallery/114206877/Salsa-Mural", "sub": "A mural of hope", "text": "A mural illustration made during the pandemic — a bright, hopeful piece for public space.", "meta": [["Tools", "Illustrator · Procreate"], ["Type", "Mural · illustration"]], "imgs": ["salsa-1", "salsa-2", "salsa-3"]}, {"sec": "product", "t": "Projeto Lisboa", "y": "2021", "url": "https://www.behance.net/gallery/123480057/Projeto_LISBOA", "sub": "A city, branded", "text": "Branding, illustration, packaging and environmental graphics for a Lisbon-focused project.", "meta": [["Tools", "Photoshop · Illustrator · InDesign · XD · Premiere · Procreate"], ["Type", "Branding · packaging"]], "imgs": ["lisboa-1", "lisboa-2", "lisboa-3", "lisboa-4", "lisboa-5", "lisboa-6", "lisboa-7", "lisboa-8"]}, {"sec": "product", "t": "Cartas Enlatadas", "y": "2022", "url": "https://www.behance.net/gallery/143970205/CARTAS-ENLATADAS", "sub": "A deck of cards", "text": "Product and illustration design for a deck of playing cards — a full illustrated set.", "meta": [["Tools", "Photoshop · Illustrator · Procreate"], ["Type", "Product · illustration"]], "imgs": ["cartas-1", "cartas-2", "cartas-3"]}, {"sec": "product", "t": "Choco…late", "y": "2022", "url": "https://www.behance.net/gallery/144304893/CHOCOLATE", "sub": "Sweet packaging", "text": "Brand identity, logo and packaging for a chocolate product — type, illustration and product design.", "meta": [["Tools", "Photoshop · Illustrator · Procreate"], ["Type", "Packaging · branding"]], "imgs": ["chocolate-1", "chocolate-2", "chocolate-3", "chocolate-4", "chocolate-5", "chocolate-6"]}, {"sec": "product", "t": "Vans Campaign", "y": "2022", "url": "https://www.behance.net/gallery/151726383/vans-campaign_freelance", "sub": "Skate-ready freelance", "text": "A freelance illustration campaign for Vans — skate-flavoured artwork and brand graphics.", "meta": [["Tools", "Illustrator · Photoshop · Procreate"], ["Type", "Campaign · illustration"]], "imgs": ["vans-1", "vans-2", "vans-3", "vans-4", "vans-5"]}, {"sec": "animation", "t": "Cyber Chronicles", "y": "2024", "url": "https://www.behance.net/gallery/202324667/Cyber-Chronicles", "sub": "A full animation project", "text": "A full-on animated cartoon series — character design, motion graphics and episodic storytelling, built for the screen.", "meta": [["Tools", "Photoshop · Illustrator · After Effects"], ["Type", "Animation · series"]], "imgs": ["cyber-1", "cyber-2", "cyber-3", "cyber-4"]}];
+const pad=n=>String(n).padStart(2,'0');
+
+/* ---------- intro: blue specks + the name, then the page ---------- */
+(function(){
+  const L=document.getElementById('loader'), hero=document.querySelector('.hero'); let sp=null, done=false;
+  const finish=()=>{if(done)return; done=true; L.classList.add('done'); document.body.classList.remove('locked'); hero.classList.add('in'); if(sp)setTimeout(sp.stop,1500);};
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches){finish();return;}
+  sp=stream('specks',{density:.6,spread:.55,y:.5,yMobile:.5,scaleY:1,alpha:.95});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>L.classList.add('go')));
+  setTimeout(finish,900);
+  L.addEventListener('click',finish);
+})();
+
+/* ---------- nav hides on scroll down, returns on scroll up ---------- */
+(function(){const nav=document.querySelector('.nav'); let last=0;
+  addEventListener('scroll',()=>{const y=scrollY; nav.classList.toggle('hide', y>200 && y>last); last=y;},{passive:true});})();
+
+/* ---------- clock ---------- */
+setInterval(()=>{document.getElementById('clock').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());},1000);
+
+/* ---------- particle stream: a turbulent teal river flowing across the section ---------- */
+function stream(id,o){
+  const c=document.getElementById(id), x=c.getContext('2d'); let W,H,dpr=Math.min(devicePixelRatio,2),mx=-1e4,my=-1e4;
+  function size(){W=c.width=innerWidth*dpr;H=c.height=c.parentElement.offsetHeight*dpr;c.style.height=c.parentElement.offsetHeight+'px';}
+  size(); addEventListener('resize',size); if(window.ResizeObserver)new ResizeObserver(()=>{if(Math.abs(c.parentElement.offsetHeight*dpr-H)>2)size();}).observe(c.parentElement);
+  const mobile=innerWidth<760, N=Math.round((mobile?3600:15000)*o.density);
+  const COL=['#eef9fa','#eef9fa','#bfeaf0','#7fd3dc','#3fc1d1','#3fc1d1','#1b9aaa','#0e6673','#0a3a44'];
+  const g=()=>(Math.random()+Math.random()+Math.random())/3-.5;
+  const pts=[];
+  for(let i=0;i<N;i++){
+    const X0=Math.random()*2.4-1.2, Y0=g()*o.spread, Z0=Math.random()*2-1;
+    pts.push({x:X0,y:Y0,z:Z0,hy:Y0,hz:Z0,s:1+Math.random()*2.3,o:.4+Math.random()*.6,c:COL[(Math.random()*COL.length)|0],ph:Math.random()*6.28,v:.7+Math.random()*.6});
+  }
+  const T=[]; for(let i=0;i<11;i++){const k=2.2+i*.9; const a=Math.random()*6.28,b=Math.random()*6.28;
+    T.push({kx:k*Math.cos(a)*Math.cos(b),ky:k*Math.sin(a),kz:k*Math.cos(a)*Math.sin(b),w:.0003+Math.random()*.0006,A:.16/(1+i*.22)});}
+  addEventListener('pointermove',e=>{const r=c.parentElement.getBoundingClientRect(); mx=e.clientX*dpr; my=(e.clientY-r.top)*dpr;},{passive:true});
+  let last=0, on=true, alive=true;
+  new IntersectionObserver(es=>{on=es[0].isIntersecting;},{rootMargin:'200px'}).observe(c);
+  function draw(t0){ const t=t0*(o.speed||1);
+    if(!alive)return; requestAnimationFrame(draw); if(!on)return;
+    const dt=Math.min(32,t-last)||16; last=t; x.clearRect(0,0,W,H);
+    const cx=W/2, cy=H*(mobile?o.yMobile:o.y), SX=W/2, SY=H*.5*o.scaleY, rad=150*dpr, ar=W/H;
+    for(const p of pts){
+      let vx=0,vy=0,vz=0; const qx=p.x*ar*.9;
+      for(const q of T){const ph=q.kx*qx+q.ky*p.y+q.kz*p.z+q.w*t, cc=Math.cos(ph)*q.A; vx+=cc*q.ky; vy-=cc*q.kx; vz+=Math.sin(ph)*q.A*.35;}
+      const band=Math.sin(p.x*2.1+t*.00025)*.14+Math.sin(p.x*4.7-t*.0002)*.05;
+      p.x+=dt*(.00011*p.v+vx*.0009); if(p.x>1.25)p.x-=2.5;
+      p.y+=vy*dt*.0009+(p.hy+band-p.y)*.03+(Math.random()-.5)*.003;
+      p.z+=vz*dt*.0016+(p.hz-p.z)*.02;
+      const depth=(p.z+1)/2;
+      let px=cx+p.x*SX, py=cy+p.y*SY;
+      const dx=px-mx, dy=py-my, d=Math.hypot(dx,dy); if(d<rad){const f=(rad-d)/rad; px+=dx/d*f*46*dpr; py+=dy/d*f*46*dpr;}
+      x.globalAlpha=p.o*(.3+.7*depth)*(.8+.2*Math.sin(t*.0012+p.ph))*o.alpha; x.fillStyle=p.c;
+      const sz=p.s*(.55+.75*depth)*dpr*(o.size||1); x.fillRect(px,py,sz,sz);
+    }
+  }
+  requestAnimationFrame(draw);
+  return {stop(){alive=false;x.clearRect(0,0,W,H);}};
+}
+stream('cloud',{density:1,spread:.6,y:.38,yMobile:.34,scaleY:1,alpha:1});
+stream('cloud3',{density:.13,spread:1.7,y:.5,yMobile:.5,scaleY:1,alpha:.75,speed:.35,size:1.25});
+stream('cloud2',{density:.7,spread:.9,y:.5,yMobile:.5,scaleY:1.4,alpha:.85});
+
+/* ---------- work grid (websites) + apps grid ---------- */
+const grid=document.getElementById('grid'), agrid=document.getElementById('agrid');
+let nw=0,na=0;
+P.forEach((p,i)=>{
+  const el=document.createElement('article');
+  if(p.app){
+    na++; el.className='tile app reveal'+(p.phone?' phone':''); el.dataset.i=i;
+    el.innerHTML=`
+      <div class="appbar"><img class="icon" src="${p.icon}" alt=""><div><h3>${p.t}</h3><span class="mono">${p.cat}</span></div></div>
+      <div class="media"><video muted loop playsinline preload="none" poster="media/${p.k}.jpg" data-src="media/${p.k}.mp4"></video>
+        <span class="arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M9 7h8v8"/></svg></span></div>
+      <div class="bottom"><span class="mono">${pad(na)}</span><span class="mono">Open</span></div>`;
+  }else{
+    nw++; el.className='tile reveal'+(nw===1?' wide':''); el.dataset.i=i;
+    el.innerHTML=`
+      <div class="top"><h3>${p.t}</h3><span class="mono">${pad(nw)}</span></div>
+      <div class="media"><video muted loop playsinline preload="none" poster="media/${p.k}.jpg" data-src="media/${p.k}.mp4"></video>
+        <span class="arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M9 7h8v8"/></svg></span></div>
+      <div class="bottom"><span class="mono">${p.cat}</span><span class="mono">${p.demo?'Open':'Video'}</span></div>`;
+  }
+  el.addEventListener('click',()=>openCase(i));
+  el.addEventListener('mouseenter',()=>{const v=el.querySelector('video'); if(!v.src)v.src=v.dataset.src; v.play().catch(()=>{});});
+  el.addEventListener('mouseleave',()=>{el.querySelector('video').pause();});
+  (p.app?agrid:grid).appendChild(el);
+});
+
+/* ---------- art grids (brand, books, comics, posters, animation) ---------- */
+const SECN={product:'Brand & packaging',book:'Books',comics:'Comics',posters:'Posters & illustrations',animation:'Animation'};
+const ALL=[]; // every item in page order, for prev / next in the overlay
+{const ws=P.filter(p=>!p.app), as=P.filter(p=>p.app);
+ ws.forEach((p,k)=>ALL.push({src:'P',i:P.indexOf(p),g:'Websites',pos:k+1,n:ws.length}));
+ as.forEach((p,k)=>ALL.push({src:'P',i:P.indexOf(p),g:'Apps',pos:k+1,n:as.length}));}
+['product','book','comics','posters','animation'].forEach(sec=>{
+  const list=A.filter(a=>a.sec===sec), g=document.getElementById('g-'+sec), c=document.getElementById('c-'+sec);
+  if(c)c.textContent=list.length+(list.length===1?' project':' projects');
+  list.forEach((a,k)=>{
+    const ai=A.indexOf(a); ALL.push({src:'A',i:ai,g:SECN[sec],pos:k+1,n:list.length});
+    const el=document.createElement('article'); el.className='tile art reveal';
+    el.innerHTML=`
+      <div class="top"><h3>${a.t}</h3><span class="mono">${a.y}</span></div>
+      <div class="media"><img loading="lazy" src="media/art/${a.imgs[0]}-t.jpg" alt="${a.t.replace(/"/g,'&quot;')}">
+        <span class="arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17L17 7M9 7h8v8"/></svg></span></div>
+      <div class="bottom"><span class="mono">${a.sub}</span><span class="mono">${a.imgs.length} ${a.imgs.length===1?'image':'images'}</span></div>`;
+    el.addEventListener('click',()=>openA(ai));
+    g.appendChild(el);
+  });
+});
+
+/* ---------- work folders ---------- */
+const WS=P.filter(p=>!p.app), AP=P.filter(p=>p.app), artOf=sec=>A.filter(a=>a.sec===sec);
+const artThumbs=list=>{const t=list.slice(0,3).map(a=>`media/art/${a.imgs[0]}-t.jpg`); if(list.length<3&&list[0])list[0].imgs.slice(1,4-t.length).forEach(n=>t.push(`media/art/${n}.jpg`)); return t;};
+const FOLD=[
+  {id:'websites',name:'Websites',n:WS.length,unit:'sites',th:WS.slice(0,3).map(p=>`media/${p.k}.jpg`),g:'Websites'},
+  {id:'animation',name:'Animation',n:artOf('animation').length,unit:'projects',th:artThumbs(artOf('animation')),g:'Animation'},
+  {id:'apps',name:'Apps',n:AP.length,unit:'apps',th:AP.slice(0,3).map(p=>`media/${p.k}.jpg`),g:'Apps'},
+  {id:'brand',name:'Brand & packaging',n:artOf('product').length,unit:'projects',th:artThumbs(artOf('product')),g:'Brand & packaging'},
+  {id:'books',name:'Books',n:artOf('book').length,unit:'projects',th:artThumbs(artOf('book')),g:'Books'},
+  {id:'comics',name:'Comics',n:artOf('comics').length,unit:'projects',th:artThumbs(artOf('comics')),g:'Comics'},
+  {id:'posters',name:'Posters & illustrations',n:artOf('posters').length,unit:'projects',th:artThumbs(artOf('posters')),g:'Posters & illustrations'},
+];
+const fv=document.getElementById('fv'); let fcur=-1;
+FOLD.forEach((F,k)=>{
+  const w=document.createElement('div'); w.className='fl reveal';
+  w.style.setProperty('--d',(-k*1.3)+'s'); w.style.setProperty('--dur',(6+(k%3)*1.4)+'s'); w.style.setProperty('--r',((k%2?1:-1)*(0.6+(k%3)*.4))+'deg');
+  const unit=F.n===1?F.unit.replace(/s$/,''):F.unit;
+  w.innerHTML=`<button class="folder" type="button" aria-label="Open ${F.name}, ${F.n} ${unit}">
+    <span class="f-back"></span>
+    <span class="f-papers">${F.th.map(src=>`<img src="${src}" alt="" loading="lazy">`).join('')}</span>
+    <span class="f-front"><span class="f-name">${F.name.replace('&','&amp;')}</span><span class="mono">${pad(F.n)} ${unit}</span></span>
+  </button>`;
+  w.querySelector('button').addEventListener('click',()=>openFolder(k));
+  document.getElementById('fgrid').appendChild(w);
+});
+function openFolder(k){
+  fcur=k; const F=FOLD[k], unit=F.n===1?F.unit.replace(/s$/,''):F.unit;
+  document.getElementById('fv-num').textContent=`Folder ${pad(k+1)} / ${pad(FOLD.length)}`;
+  document.getElementById('fv-title').textContent=F.name;
+  document.getElementById('fv-sub').textContent=`${F.n} ${unit}`;
+  document.querySelectorAll('.fpane').forEach(p=>{const on=p.dataset.f===F.id; p.classList.toggle('on',on); if(on)p.querySelectorAll('.reveal').forEach(e=>e.classList.add('in'));});
+  document.getElementById('fv-prev').disabled=k===0; document.getElementById('fv-next').disabled=k===FOLD.length-1;
+  document.getElementById('fv-body').scrollTop=0;
+  fv.classList.add('open'); document.body.classList.add('locked');
+}
+function closeFolder(){fv.classList.remove('open'); if(!ov.classList.contains('open'))document.body.classList.remove('locked'); document.querySelectorAll('.fpane video').forEach(v=>v.pause());}
+document.getElementById('fv-close').onclick=closeFolder;
+document.getElementById('fv-prev').onclick=()=>{if(fcur>0)openFolder(fcur-1);};
+document.getElementById('fv-next').onclick=()=>{if(fcur<FOLD.length-1)openFolder(fcur+1);};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fv.classList.contains('open')&&!ov.classList.contains('open')&&!cs.classList.contains('open'))closeFolder();});
+
+/* ---------- reveals + touch autoplay ---------- */
+const io=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');
+    if(matchMedia('(hover:none)').matches){const v=e.target.querySelector('video'); if(v){if(!v.src)v.src=v.dataset.src; v.play().catch(()=>{});}}
+  }
+});},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+
+/* ---------- DESIGN.md showcase: one file, five capabilities, one output ---------- */
+(function(){
+  const st=document.getElementById('dm'); if(!st)return;
+  const lines=[...st.querySelectorAll('.dm-line[data-s]')], steps=[...st.querySelectorAll('.dm-step')], cap=st.querySelector('.dm-cap'),
+        beam=st.querySelector('.dm-beam'), file=st.querySelector('.dm-file'), card=st.querySelector('.dm-card');
+  const CAP=['Hex codes with roles and contrast notes','Fonts, weights and heading logic','Tone and copy rules, so the AI writes like you','Do and don\'t, with the patterns that are never allowed','Wired into Claude Code and Cursor, read on every task'];
+  let k=-1, timer=null;
+  function place(){
+    if(k<0||getComputedStyle(beam).display==='none')return;
+    const sr=st.getBoundingClientRect(), fr=file.getBoundingClientRect(), cr=card.getBoundingClientRect(), lr=lines[k].getBoundingClientRect();
+    beam.style.top=(lr.top+lr.height/2-sr.top)+'px'; beam.style.left=(fr.right-sr.left)+'px'; beam.style.width=Math.max(0,cr.left-fr.right)+'px';
+  }
+  function go(n){
+    k=n; st.className='dm-stage reveal in'+Array.from({length:n+1},(_,i)=>' s'+i).join('');
+    lines.forEach(l=>l.classList.toggle('on',+l.dataset.s===n));
+    steps.forEach((b,i)=>b.classList.toggle('on',i===n));
+    cap.textContent=CAP[n];
+    place(); beam.classList.remove('run'); void beam.offsetWidth; beam.classList.add('run');
+  }
+  function play(){clearInterval(timer); timer=setInterval(()=>go((k+1)%5),3000);}
+  steps.forEach((b,i)=>b.addEventListener('click',()=>{go(i);play();}));
+  addEventListener('resize',place);
+  new IntersectionObserver(es=>{if(es[0].isIntersecting){if(k<0)go(0); play();}else{clearInterval(timer);}},{threshold:.3}).observe(st);
+})();
+
+/* ---------- overlay ---------- */
+const ov=document.getElementById('ov'), stage=document.getElementById('ov-stage'); let cur=-1, at=-1;
+function setNav(src,i){
+  at=ALL.findIndex(e=>e.src===src&&e.i===i); const e=ALL[at];
+  document.getElementById('ov-num').textContent=`${e.g} ${pad(e.pos)} / ${pad(e.n)}`;
+  document.getElementById('ov-prev').disabled=e.pos<=1; document.getElementById('ov-next').disabled=e.pos>=e.n;
+}
+function openAt(n){const e=ALL[n]; if(!e)return; e.src==='P'?openP(e.i):openA(e.i);}
+function openA(i){
+  cur=-1; const a=A[i];
+  setNav('A',i);
+  document.getElementById('ov-cat').textContent=SECN[a.sec]+' · '+a.y; document.getElementById('ov-icon').style.display='none';
+  document.getElementById('ov-title').textContent=a.t;
+  document.getElementById('ov-desc').textContent=a.text;
+  document.getElementById('ov-tags').innerHTML=a.meta.map(m=>`<li>${m[1]}</li>`).join('');
+  document.getElementById('ov-note').textContent=a.sub;
+  document.getElementById('ov-play').style.display='none'; document.getElementById('ov-new').style.display='none';
+  const live=document.getElementById('ov-live'); live.style.display=a.url?'':'none'; if(a.url){live.href=a.url; live.textContent='See on Behance ↗';}
+  stage.classList.remove('phone'); stage.classList.add('gallery'); stage.scrollTop=0;
+  stage.innerHTML=a.imgs.map((n,k)=>`<img src="media/art/${n}.jpg" alt="${a.t.replace(/"/g,'&quot;')}, image ${k+1}" ${k>1?'loading="lazy"':''}>`).join('');
+  ov.classList.add('open'); document.body.classList.add('locked');
+}
+function openP(i){
+  cur=i; const p=P[i];
+  setNav('P',i); stage.classList.remove('gallery'); document.getElementById('ov-live').textContent='Open live ↗';
+  document.getElementById('ov-cat').textContent=p.cat; const ic=document.getElementById('ov-icon'); ic.style.display=p.icon?'':'none'; if(p.icon)ic.src=p.icon;
+  document.getElementById('ov-title').textContent=p.t;
+  document.getElementById('ov-desc').textContent=p.d;
+  document.getElementById('ov-tags').innerHTML=p.tags.map(t=>`<li>${t}</li>`).join('');
+  document.getElementById('ov-note').textContent=p.note||'';
+  const play=document.getElementById('ov-play'), live=document.getElementById('ov-live'), nt=document.getElementById('ov-new');
+  play.style.display=p.demo?'':'none'; play.disabled=false; play.textContent='Play with it';
+  live.style.display=p.live?'':'none'; if(p.live)live.href=p.live;
+  nt.style.display='none'; if(p.demo)nt.href=p.demo;
+  stage.classList.toggle('phone',!!p.phone);
+  stage.innerHTML=`<video autoplay muted loop playsinline poster="media/${p.k}.jpg" src="media/${p.k}.mp4"></video>`;
+  ov.classList.add('open'); document.body.classList.add('locked');
+}
+function closeP(){ov.classList.remove('open');if(!fv.classList.contains('open'))document.body.classList.remove('locked');setTimeout(()=>{stage.innerHTML='';},700);}
+document.getElementById('ov-play').onclick=()=>{const p=P[cur]; if(!p||!p.demo)return;
+  stage.innerHTML=`<iframe src="${p.demo}" title="${p.t}" allow="autoplay; clipboard-write"></iframe>`;
+  document.getElementById('ov-play').disabled=true; document.getElementById('ov-play').textContent='Playing';
+  document.getElementById('ov-new').style.display='';};
+document.getElementById('ov-close').onclick=closeP;
+document.getElementById('ov-prev').onclick=()=>{if(ALL[at].pos>1)openAt(at-1);};
+document.getElementById('ov-next').onclick=()=>{if(ALL[at].pos<ALL[at].n)openAt(at+1);};
+document.addEventListener('keydown',e=>{if(!ov.classList.contains('open'))return; if(e.key==='Escape')closeP(); if(e.key==='ArrowRight'&&ALL[at].pos<ALL[at].n)openAt(at+1); if(e.key==='ArrowLeft'&&ALL[at].pos>1)openAt(at-1);});
+/* ---------- case presentations: two slides, scrolled sideways, coloured per project ---------- */
+const CASE={
+ corktech:{line:"Cork’s live website. Every page designed and built in code, shipped in a month.",
+  th:{bg:"#0A0F0A",ink:"#EEF6EC",soft:"#A9B8A6",acc:"#87CB7A",ai:"#0B1A0B",line:"rgba(238,246,236,.14)"},
+  stats:[["14","pages and templates, designed and built"],["1 month","to ship every page"],["2","markets on one site: onchain finance and insurance"]],
+  prob:"Cork had grown into two markets, onchain finance and insurance, with new partners and a new audience. The old Webflow site explained them in pieces, so visitors had to put the story together themselves.",
+  res:"Every visitor asks three things in the first minute: what is it, how does it work, why should I trust it. Each page answers one of them, and each audience gets its own path: MGAs, carriers, reinsurers and ILS on the insurance side, a page for software agents, and a press room.",
+  who:["MGAs, carriers and reinsurers","Investors and press","Developers and AI agents"],
+  dec:[["One system, in code","Shared tokens for colour, type, spacing and motion, so fourteen pages feel like one product."],["Diagrams that explain","Each insurance page shows one signed record moving between the parties, in one diagram style."],["Motion with a job","The particle logo opens the site and the reveals guide the eye down each page."]],
+  end:"Live at cork.tech.",
+  pages:[["Home","home","/"],["What is Cork","what-is-cork","/what-is-cork"],["Insurance","insurance-markets","/insurance-markets"],["Carriers","carriers","/insurance/carriers"],["MGAs","mgas","/insurance/mgas"],["Reinsurance","reinsurance","/insurance/reinsurance"],["ILS","ils","/insurance/ils"],["Onchain finance","onchain-finance","/onchain-finance"],["Agents","agentic","/agentic-risk-management"],["About","about","/about"],["Press","press","/press"],["Blog","blog","/blog"],["Blog post","blog-post","/blog/how-cork-modernizes-insurance"],["Contact","contact","/contact"]]},
+ studio:{line:"A content studio that already knows your brand.",
+  th:{bg:"#1E1B4B",ink:"#F7F5FF",soft:"#C9C5F0",acc:"#FF8A5B",ai:"#1E1B4B",line:"rgba(247,245,255,.16)"},
+  stats:[["1 day → 5 min","to make one on-brand post, before and after"],["492","past social designs reviewed before building"],["40+","templates for blog, LinkedIn, YouTube and video"]],
+  prob:"Posts were made by people without a designer nearby, so each one drifted a little further from the brand. The brand guide was a PDF nobody opened, and the design tool subscription was about to be cancelled.",
+  res:"Before building, I backed up and went through every past social design to find what repeated: a few layouts, one pattern per post, the logo top left. Those patterns became the rules the tool enforces.",
+  who:["Marketing teams","Founders","Designers who set the rules once"],
+  dec:[["Rules built in, not written down","The tool only offers the brand’s colours, type and patterns, so nobody has to remember them."],["A template set per channel","Blog, LinkedIn, YouTube and video each get their own sizes and layouts, because every feed crops differently."],["Motion without a video app","GIF and MP4 export inside the same editor, so moving posts are as easy as still ones."]],
+  end:"Cohesive by default."},
+ corkv7:{line:"A ten-page website concept that makes complex finance easy to follow.",
+  th:{bg:"#0B100B",ink:"#EEF6EC",soft:"#A9B8A6",acc:"#87CB7A",ai:"#0B1A0B",line:"rgba(238,246,236,.14)"},
+  stats:[["10","pages in one system"],["3","audiences: partners, investors, press"],["1","particle logo carried across every page"]],
+  prob:"The company’s story had grown: new products, new partners, a new audience. The old site explained it in pieces, so visitors had to put the story together themselves.",
+  res:"The structure starts from the three questions every visitor asks in the first minute: what is it, how does it work, and why should I trust it. Every page answers one of them.",
+  who:["Partners and clients","Investors and press","The team, sharing one link"],
+  dec:[["One page system","A shared grid, type scale and motion, so ten pages feel like one product."],["Motion with a job","The particle logo turns into the page transitions, so movement guides instead of decorating."],["Built in code","A working site instead of static screens, so developers see exactly how it should behave."]],
+  end:"Designed and built for real."},
+ paperpath:{line:"Moving countries, without drowning in paperwork.",
+  th:{bg:"#EFEFF1",ink:"#1A1A1F",soft:"#5F5F68",acc:"#FF4F86",ai:"#FFFFFF",line:"rgba(26,26,31,.12)"},
+  stats:[["3","steps: social security, taxes, health"],["4","views: steps, offices, papers, calendar"],["25%","the EU rule that decides which country covers you"]],
+  prob:"Moving countries as a freelancer means several offices, two languages and a pile of letters, all in a strict order. Most guides explain the law, not what to do on Monday morning.",
+  res:"The order comes from real answers by the EU’s free advice service and the social security liaison office. Under EU Regulation 883/2004, if 25% or more of your work happens in the country you live in, that country covers you. So social security comes first, then taxes, then health insurance.",
+  who:["People moving countries","Freelancers","Anyone who freezes at forms"],
+  dec:[["Scripts, not advice","Call lines in German with English underneath, so you can phone an office on day one."],["One next step","Every office shows “You are here” and the very next action, so nothing has to be remembered."],["Papers in one place","Everything sent, every reference number and every reply to look out for, side by side."]],
+  end:"One step at a time."},
+ phil:{line:"A character anyone can dress up and turn into stickers.",
+  th:{bg:"#141414",ink:"#F5F5F5",soft:"#BDBDBD",acc:"#FF4FA3",ai:"#141414",line:"rgba(255,255,255,.14)"},
+  stats:[["2","poses that every outfit fits"],["6","layers: tops, jackets, bottoms, shoes, accessories, background"],["PNG","die-cut sticker export"]],
+  prob:"A drawn character is fun, but every new pose or outfit meant redrawing it. Teams wanted playful visuals that still felt like the brand.",
+  res:"I split the drawing into layers that line up in both poses. That structure is what makes swapping clothes instant instead of a new drawing each time.",
+  who:["Social teams","Communities","Illustrators"],
+  dec:[["Layers, not pictures","Every piece is a vector layer, so colours and patterns change without redrawing."],["Bring your own print","Upload any pattern and it fills a piece of clothing."],["Sticker-ready","A die-cut outline and transparent PNG, ready for chats and print."]],
+  end:"Draw once, play forever."},
+ cards:{line:"Business cards you can hold before they exist.",
+  th:{bg:"#16171B",ink:"#F2F0EA",soft:"#B4B2AC",acc:"#9EC9D6",ai:"#16171B",line:"rgba(242,240,234,.14)"},
+  stats:[["8","finishes, from foil to coin"],["3D","real cuts and emboss, with walls and shadows"],["Live","logo, text and colour editing"]],
+  prob:"Foil, emboss and die-cuts are impossible to judge on a flat mockup. Print samples are slow and expensive, so the decision usually comes after the money is spent.",
+  res:"I looked at how each finish behaves in light: foil reflects, emboss throws a shadow, acrylic softens what is behind it. Each one became its own material instead of a flat colour.",
+  who:["Studios and freelancers","Small businesses","Print shops"],
+  dec:[["Real geometry","Cuts and emboss are actual 3D shapes, checked at an angle, not painted on."],["A logo colour rule","The logo keeps enough contrast on every finish."],["Instant edits","Change the logo, text or colours and the card updates at once."]],
+  end:"See it before you print it."},
+ cattery:{line:"A warm, bilingual home for a British Shorthair cattery.",
+  th:{bg:"#F4EDE3",ink:"#2B2118",soft:"#6F5E4E",acc:"#8C5A3C",ai:"#FFFFFF",line:"rgba(43,33,24,.14)"},
+  stats:[["90","visitors a day"],["~3","enquiries a day"],["2","languages, German and English"]],
+  prob:"Families looking for a kitten want to see the cats, the parents and the plans before they write. Social posts disappear in a feed, so there was no lasting place to show all of it.",
+  res:"The pages follow the questions families ask, in the order they ask them: who are the cats, are there kittens, what litters are planned, and how do I get in touch.",
+  who:["Families looking for a kitten","Cat lovers abroad","The cattery owner"],
+  dec:[["German first, English one tap away","The cattery is in Germany, but families from abroad still need every page."],["A page per question","Males, females, kittens and planned litters each have their own page, so nobody scrolls through everything."],["Two ways to write","A contact form and a WhatsApp button, because some families prefer a quick message."]],
+  end:"Live and in use."},
+ ledger:{line:"Bank statements turned into a clear money dashboard.",
+  th:{bg:"#0F1714",ink:"#EAF3EE",soft:"#A7B8AF",acc:"#5ED29A",ai:"#0F1714",line:"rgba(234,243,238,.14)"},
+  stats:[["1","dashboard for every account"],["Auto","subscriptions and fixed costs found"],["1","savings journey, one station at a time"]],
+  prob:"Bank statements are long PDFs. Subscriptions hide in small lines, and saving plans live in your head instead of on a page.",
+  res:"I read real statements line by line to see what repeats: rent, subscriptions, transfers, one-off spending. Those patterns became the categories.",
+  who:["Freelancers with changing income","Anyone saving","Visual thinkers"],
+  dec:[["Read the PDF itself","No typing numbers by hand: the dashboard reads the statements directly."],["Find the repeats","Subscriptions and fixed costs are flagged automatically."],["A journey, not a chart","Saving is shown as stations to reach, one at a time."]],
+  end:"Money you can see."},
+ reel:{line:"A microfilm reader for the week in design, AI, tech and art.",
+  th:{bg:"#E9E1CC",ink:"#2A2418",soft:"#6B604B",acc:"#2F9C95",ai:"#FFFFFF",line:"rgba(42,36,24,.16)"},
+  stats:[["4","reels: design, AI, tech and art"],["1","reel a week, then it ends"],["Every","story linked to its source"]],
+  prob:"News feeds never end. Good stories get lost in the scroll, and reading on screens starts to feel like work.",
+  res:"Old microfilm readers show one frame at a time, with a knob to advance and a lamp to read by. Those physical limits are exactly what endless feeds are missing.",
+  who:["Designers keeping up","Curious teams","People who miss real objects"],
+  dec:[["A finite reel","A fixed set of stories each week, so you can actually finish."],["Physical controls","Knob, lamp and reel switches work by mouse and keyboard."],["Always sourced","Every story links to where it came from."]],
+  end:"Slow news, on purpose."},
+ music:{line:"A cosy room where your music lives on the shelves.",
+  th:{bg:"#0A0A0A",ink:"#F5EBDD",soft:"#B8B0A6",acc:"#E8762E",ai:"#141414",line:"rgba(245,235,221,.14)"},
+  stats:[["7","albums on the shelves, your most played"],["1","calm view of the room"],["Spotify","covers, track lists and playback"]],
+  prob:"Streaming apps show music as endless lists. Nothing feels like your own shelf, and favourite albums get lost in the scroll.",
+  res:"I worked in loops. The first room was live 3D you could walk around, and it felt like a game. My rule: “I don’t want to walk around. Just 180. No ceiling.” Then a realistic picture of the same room beat the 3D by a mile: “The quality is much worse. Let’s start from scratch.” So the room became a realistic render cut into depth layers that sway gently. Zoom distorted it, so zoom went too.",
+  who:["Music lovers","Album listeners","People who miss record shelves"],
+  dec:[["Albums, not songs","Spotify ranks songs, so each album scores points for its songs in your top 50."],["Real backs","The sleeve flips to the real back cover, or a designed one with the real track list."],["One calm view","No walking and no ceiling. One fixed view, like standing in your own room."]],
+  end:"Your music, on a shelf again."},
+ shire:{line:"A field guide and care journal for indoor plants.",
+  th:{bg:"#EEF0E4",ink:"#1F2A1C",soft:"#5C6B55",acc:"#4F7A3A",ai:"#FFFFFF",line:"rgba(31,42,28,.14)"},
+  stats:[["1","hand-drawn plate per plant"],["1","watering journal for every plant"],["Offline","installs on a phone like an app"]],
+  prob:"Every plant needs water at a different time. Care tips are scattered across the web, and paper notebooks get lost.",
+  res:"Old botanical field guides solved this long ago: one plate per plant, with family, origin and care side by side. The app borrows that layout.",
+  who:["Plant owners","Beginners","Collectors who love botanical drawings"],
+  dec:[["Field-guide plates","Every plant drawn by hand and laid out like an encyclopaedia page."],["Who is thirsty?","The journal shows which plants need water today."],["In memoriam","A quiet page for the plants that didn’t make it, so the journal stays honest."]],
+  end:"Care, like a field guide."},
+ baby:{line:"A family photo book that feels like a phone app.",
+  th:{bg:"#F7E1DE",ink:"#4A2A2E",soft:"#7E5A5E",acc:"#C2546A",ai:"#FFFFFF",line:"rgba(74,42,46,.14)"},
+  stats:[["4","parts: letter, story, album, family tree"],["3D","pages that flip"],["0","apps to install"]],
+  prob:"Baby photos hide in group chats. Family far away misses the moments, and printed albums take ages to make.",
+  res:"Family members abroad open photos on their phones, so the book had to feel like an app: swipe, tap, flip, with nothing to install.",
+  who:["Families far apart","New parents","Grandparents"],
+  dec:[["A letter first","The book opens with a letter, so it feels personal before the photos."],["Swipe stories","Moments shown one at a time, like stories."],["Shared as a template","Shown here with placeholder tiles instead of real photos."]],
+  end:"A keepsake in your pocket."},
+ dorf:{line:"A German village where every house is a lesson.",
+  th:{bg:"#DDE9C4",ink:"#2E3A1E",soft:"#5D6B45",acc:"#E8962B",ai:"#2E2410",line:"rgba(46,58,30,.16)"},
+  stats:[["5","parts per lesson: words, phrases, grammar, dialogue, speaking"],["A1→A2","levels covered"],["1","new house for each day of lessons"]],
+  prob:"Lessons pile up in notebooks, apps start to feel like homework, and speaking practice is hard alone.",
+  res:"Progress is easier to keep when you can see it. A map where each lesson is a place turns a list of days into a walk.",
+  who:["Adult beginners","People learning German","Visual learners"],
+  dec:[["A village map","Each lesson is a house on the path, so progress is visible."],["Listen and speak","The browser reads every German phrase out loud."],["Real-life scenes","Lessons happen in places like the supermarket checkout."]],
+  end:"Learn by walking."},
+ money:{line:"Learning investing the Duolingo way.",
+  th:{bg:"#EAF6EF",ink:"#173326",soft:"#4E6B5C",acc:"#2FA36B",ai:"#FFFFFF",line:"rgba(23,51,38,.14)"},
+  stats:[["8","units on a winding path"],["24","months in the season game, on real price history"],["Rated","puzzles that adapt to you"]],
+  prob:"Finance words scare beginners, advice online is loud, and reading about money rarely sticks.",
+  res:"Learning apps keep people coming back with short units, streaks and games. The same mechanics can teach saving and investing.",
+  who:["Beginners","Young professionals","Visual learners"],
+  dec:[["Short units","Eight bite-size units, each on one idea."],["Your own numbers","A planner that uses your real income and goals."],["Play to learn","Rated puzzles and a season game against real price history."]],
+  end:"Learn by playing."}
+};
+const PHONE=new Set(["corktech","corkv7","phil","cattery","reel","studio","paperpath","shire","baby","dorf"]);
+const CSTEPS=["The story","The build"];
+const cs=document.getElementById('cs'),csStage=document.getElementById('cs-stage'); let csI=-1,csS=0;
+const devices=p=>`<div class="devs">
+  <div class="lap"><div class="scr"><video muted loop playsinline autoplay preload="metadata" poster="media/${p.k}.jpg" src="media/${p.k}.mp4"></video></div><div class="base"></div></div>
+  ${PHONE.has(p.k)?`<div class="ph"><img src="media/m/${p.k}-phone.jpg" alt="${p.t} on a phone" loading="lazy"></div>`:''}</div>`;
+function caseSlides(i){
+  const p=P[i],c=CASE[p.k]; if(!c)return null;
+  return [
+   `<section class="sl s1"><div class="s1-a"><span class="kick">${p.cat}</span><h1>${p.t}</h1><p class="lead">${c.line}</p>
+      <div class="stats">${c.stats.map(([n,l])=>`<div class="st"><b>${n}</b><span>${l}</span></div>`).join('')}</div></div>
+    <div class="s1-b"><div class="blk"><h3>The problem</h3><p>${c.prob}</p></div><div class="blk"><h3>Research and reasoning</h3><p>${c.res}</p></div>
+      <div class="blk"><h3>Who it’s for</h3><ul class="chips">${c.who.map(w=>`<li>${w}</li>`).join('')}</ul></div></div></section>`,
+   `<section class="sl s2">${devices(p)}<div class="s2-b"><h3>Design decisions</h3><ol class="decs">${c.dec.map(([h,d])=>`<li><b>${h}</b><span>${d}</span></li>`).join('')}</ol>
+      <p class="endl">${c.end}</p><div class="acts">${p.demo?'<button class="ib acc" data-cs="play">Play with it</button>':''}<button class="ib" data-cs="demo">Watch the demo</button>${p.live?`<a class="ib" href="${p.live}" target="_blank" rel="noopener">Open live ↗</a>`:''}</div></div></section>`]
+   .concat(c.pages?[`<section class="sl s3"><div class="s3-h"><h3>Every page</h3><p>Hover a page to scroll it. Click to open it live.</p></div>
+      <div class="pg-grid">${c.pages.map(([t,k,u])=>`<a class="pg" href="${p.live.replace(/\/$/,'')}${u}" target="_blank" rel="noopener"><span class="pg-bar"><i></i><i></i><i></i><em>cork.tech${u==='/'?'':u}</em></span><span class="pg-win" style="background-image:url('media/${p.k}/${k}.jpg')"></span><b>${t}</b></a>`).join('')}</div></section>`]:[])
+   .concat(c.gallery?[`<section class="sl s3"><div class="s3-h"><h3>${c.galleryTitle||'The work'}</h3><p>${c.galleryNote||''}</p></div>
+      <div class="gl-grid">${c.gallery.map(([src,cap,wide])=>`<figure class="gl${wide?' wide':''}"><img src="${src}" alt="${cap}" loading="lazy"><figcaption>${cap}</figcaption></figure>`).join('')}</div></section>`]:[]);
+}
+function caseSteps(c){return CSTEPS.concat(c.pages?['Every page']:[]).concat(c.gallery?[c.galleryTitle||'The work']:[]);}
+function csMark(n){
+  csS=n;
+  document.querySelectorAll('#cs-steps button').forEach((b,k)=>b.setAttribute('aria-current',k===n?'step':'false'));
+  document.querySelectorAll('#cs-dots i').forEach((d,k)=>d.classList.toggle('on',k===n));
+  csStage.querySelectorAll('.sl').forEach((s,k)=>s.querySelectorAll('video').forEach(v=>{if(k===n)v.play().catch(()=>{});else v.pause()}));
+  const h=document.getElementById('cs-hint'); if(h)h.textContent=n===0?'Scroll or swipe sideways →':(n<csStage.children.length-1?'Keep going →':'← Scroll back for the story');
+}
+function csGo(n,smooth=true){const w=csStage.clientWidth;n=Math.max(0,Math.min(csStage.children.length-1,n));csStage.scrollTo({left:n*w,behavior:smooth?'smooth':'auto'});csMark(n);}
+csStage.addEventListener('scroll',()=>{const n=Math.round(csStage.scrollLeft/Math.max(1,csStage.clientWidth));if(n!==csS)csMark(n)},{passive:true});
+let csWheelT=0;
+csStage.addEventListener('wheel',e=>{
+  if(Math.abs(e.deltaX)>Math.abs(e.deltaY))return;               // trackpad sideways: native
+  const sl=csStage.children[csS]; if(!sl)return;
+  const down=e.deltaY>0, canV=down?sl.scrollTop+sl.clientHeight<sl.scrollHeight-2:sl.scrollTop>0;
+  if(canV)return;                                                 // let the slide scroll first
+  e.preventDefault(); const now=Date.now(); if(now-csWheelT<700)return; csWheelT=now;
+  csGo(csS+(down?1:-1));
+},{passive:false});
+function openCase(i){
+  const s=caseSlides(i); if(!s){openP(i);return}
+  csI=i; const th=CASE[P[i].k].th;
+  Object.entries(th).forEach(([k,v])=>cs.style.setProperty('--c-'+k,v));
+  csStage.innerHTML=s.join(''); csStage.scrollLeft=0;
+  document.getElementById('cs-title').textContent=P[i].t;
+  const ST=caseSteps(CASE[P[i].k]); document.getElementById('cs-count').textContent=ST.length+' slides'; document.getElementById('cs-steps').innerHTML=ST.map((t,k)=>`<button data-csgo="${k}">${t}</button>`).join('');
+  document.getElementById('cs-dots').innerHTML=ST.map(()=>'<i></i>').join('');
+  cs.classList.add('open'); document.body.classList.add('locked'); csMark(0);
+}
+function closeCase(){cs.classList.remove('open'); csStage.querySelectorAll('video').forEach(v=>v.pause()); setTimeout(()=>{if(!cs.classList.contains('open'))csStage.innerHTML=''},500);
+  if(!fv.classList.contains('open')&&!ov.classList.contains('open'))document.body.classList.remove('locked');}
+function caseToProject(play){const i=csI; closeCase(); openP(i); if(play&&P[i].demo)setTimeout(()=>document.getElementById('ov-play').click(),450);}
+document.getElementById('cs-close').onclick=closeCase;
+document.getElementById('cs-skip').onclick=()=>caseToProject(false);
+cs.addEventListener('click',e=>{const g=e.target.closest('[data-csgo]');if(g){csGo(+g.dataset.csgo);return}
+  const a=e.target.closest('[data-cs]');if(a){caseToProject(a.dataset.cs==='play')}});
+document.addEventListener('keydown',e=>{if(!cs.classList.contains('open')||ov.classList.contains('open'))return;
+  if(e.key==='Escape')closeCase(); if(e.key==='ArrowRight')csGo(csS+1); if(e.key==='ArrowLeft')csGo(csS-1);});
+addEventListener('resize',()=>{if(cs.classList.contains('open'))csGo(csS,false)});
+
+/* ---------- favourites ---------- */
+['music','corktech','studio','phil','paperpath'].forEach(k=>{
+  const i=P.findIndex(p=>p.k===k); if(i<0)return; const p=P[i];
+  const big=k==='music'; const el=document.createElement('button'); el.type='button'; el.className='fav-card reveal'+(big?' big':'');
+  el.innerHTML=`<span class="fav-media"><video muted loop playsinline preload="none" poster="media/${p.k}.jpg" data-src="media/${p.k}.mp4"></video></span>
+    <span class="fav-txt"><span class="mono">${p.cat}</span><b>${p.t}</b><span class="fav-line">${CASE[k].line}</span><span class="fav-go mono">See the story →</span></span>`;
+  el.addEventListener('click',()=>openCase(i));
+  el.addEventListener('mouseenter',()=>{const v=el.querySelector('video');if(!v.src)v.src=v.dataset.src;v.play().catch(()=>{})});
+  el.addEventListener('mouseleave',()=>{ if(!big) el.querySelector('video').pause(); });
+  if(big){ const v=el.querySelector('video'); v.src=v.dataset.src; v.autoplay=true; v.play().catch(()=>{}); }
+  document.getElementById('favgrid').appendChild(el);
+});
+
+</script>
+</body>
+</html>
